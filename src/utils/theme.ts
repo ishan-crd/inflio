@@ -1,0 +1,17 @@
+export const colors = {
+  bg: "#000000",
+  bgCard: "#1A1A1A",
+  bgSecondary: "#111111",
+  text: "#FFFFFF",
+  textSecondary: "#9CA3AF",
+  textTertiary: "#6B7280",
+  accent: "#EC4899",
+  accentDark: "#DB2777",
+  border: "#2A2A2A",
+  borderSecondary: "#1F1F1F",
+  divider: "#1F1F1F",
+  success: "#22C55E",
+  error: "#EF4444",
+  tabBar: "rgba(0,0,0,0.85)",
+  tabBarBorder: "rgba(255,255,255,0.08)",
+} as const;
