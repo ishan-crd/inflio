@@ -163,7 +163,8 @@ export default function CampaignsScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.header}>
         <InflioLogo height={20} />
         <TouchableOpacity>
@@ -202,7 +203,8 @@ export default function CampaignsScreen() {
           />
         ))}
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -210,6 +212,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000000",
+  },
+  safeArea: {
+    flex: 1,
   },
   header: {
     flexDirection: "row",
