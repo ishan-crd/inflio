@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { Image } from "expo-image";
 import Svg, { Path, Circle, Line } from "react-native-svg";
 import { InflioLogo } from "~/components/inflio-logo";
@@ -106,8 +107,10 @@ function SearchIcon() {
 
 function CampaignCard({
   campaign,
+  onDetails,
 }: {
   campaign: (typeof CAMPAIGNS)[number];
+  onDetails: () => void;
 }) {
   const progress = campaign.spent / campaign.total;
 
@@ -146,7 +149,7 @@ function CampaignCard({
         <Text style={styles.sectionLabel}>DEADLINE</Text>
         <View style={styles.deadlineRow}>
           <Text style={styles.deadlineText}>{campaign.deadline}</Text>
-          <TouchableOpacity style={styles.detailsButton}>
+          <TouchableOpacity style={styles.detailsButton} onPress={onDetails}>
             <Text style={styles.detailsButtonText}>Details</Text>
           </TouchableOpacity>
         </View>
@@ -157,6 +160,7 @@ function CampaignCard({
 
 export default function CampaignsScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -191,7 +195,11 @@ export default function CampaignsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {CAMPAIGNS.map((campaign) => (
-          <CampaignCard key={campaign.id} campaign={campaign} />
+          <CampaignCard
+            key={campaign.id}
+            campaign={campaign}
+            onDetails={() => router.push(`/campaign/${campaign.id}`)}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
