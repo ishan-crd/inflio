@@ -310,9 +310,9 @@ function VideoCard({ video }: { video: (typeof RECENT_VIDEOS)[number] }) {
 	);
 }
 
-// ── Campaign Row ─────────────────────────────────────────────────────
+// ── Campaign Card ────────────────────────────────────────────────────
 
-function CampaignRow({
+function CampaignCard({
 	campaign,
 	onPress,
 }: {
@@ -320,41 +320,54 @@ function CampaignRow({
 	onPress: () => void;
 }) {
 	const progress = campaign.spent / campaign.total;
+	const percent = Math.round(progress * 100);
 
 	return (
-		<Pressable onPress={onPress} style={styles.campaignRow}>
-			<View style={styles.campaignImageContainer}>
-				<Image
-					source={{ uri: campaign.image }}
-					style={styles.campaignImage}
-					contentFit="cover"
+		<Pressable onPress={onPress} style={styles.campaignCard}>
+			<Image
+				source={{ uri: campaign.image }}
+				style={styles.campaignCardImage}
+				contentFit="cover"
+			/>
+			<LinearGradient
+				colors={["transparent", "rgba(0,0,0,0.85)", "#000000"]}
+				locations={[0, 0.55, 1]}
+				style={StyleSheet.absoluteFill}
+			/>
+
+			{/* Brand badge top-left */}
+			<View style={styles.campaignBrandBadge}>
+				<View
+					style={[
+						styles.campaignBrandDot,
+						{ backgroundColor: campaign.brandColor },
+					]}
 				/>
+				<Text style={styles.campaignBrandText}>{campaign.brand}</Text>
 			</View>
-			<View style={styles.campaignInfo}>
-				<Text style={styles.campaignTitle} numberOfLines={1}>
+
+			{/* Deadline badge top-right */}
+			<View style={styles.campaignDeadlineBadge}>
+				<CalendarIcon />
+				<Text style={styles.campaignDeadlineText}>{campaign.deadline}</Text>
+			</View>
+
+			{/* Bottom content */}
+			<View style={styles.campaignCardBottom}>
+				<Text style={styles.campaignCardTitle} numberOfLines={1}>
 					{campaign.title}
 				</Text>
-				<View style={styles.campaignMeta}>
-					<View
-						style={[styles.brandDot, { backgroundColor: campaign.brandColor }]}
-					/>
-					<Text style={styles.campaignBrand}>{campaign.brand}</Text>
-					<Text style={styles.campaignMetaSep}> </Text>
-					<CalendarIcon />
-					<Text style={styles.campaignDeadline}> {campaign.deadline}</Text>
+				<View style={styles.campaignBudgetRow}>
+					<View style={styles.campaignProgressOuter}>
+						<View
+							style={[styles.campaignProgressInner, { width: `${percent}%` }]}
+						/>
+					</View>
+					<Text style={styles.campaignBudgetText}>
+						<Text style={styles.campaignBudgetSpent}>${campaign.spent}</Text>
+						<Text style={styles.campaignBudgetTotal}> / ${campaign.total}</Text>
+					</Text>
 				</View>
-				<View style={styles.campaignProgressBg}>
-					<View
-						style={[
-							styles.campaignProgressFill,
-							{ width: `${progress * 100}%` },
-						]}
-					/>
-				</View>
-			</View>
-			<View style={styles.campaignAmountContainer}>
-				<Text style={styles.campaignAmount}>${campaign.spent}</Text>
-				<Text style={styles.campaignAmountTotal}>/${campaign.total}</Text>
 			</View>
 		</Pressable>
 	);
@@ -435,15 +448,19 @@ export default function DashboardScreen() {
 						title="Active Campaigns"
 						onSeeAll={() => router.push("/(tabs)/campaigns")}
 					/>
-					<View style={styles.campaignsList}>
+					<ScrollView
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						contentContainerStyle={styles.campaignsScroll}
+					>
 						{ACTIVE_CAMPAIGNS.map((campaign) => (
-							<CampaignRow
+							<CampaignCard
 								key={campaign.id}
 								campaign={campaign}
 								onPress={() => router.push(`/campaign/${campaign.id}`)}
 							/>
 						))}
-					</View>
+					</ScrollView>
 				</View>
 
 				{/* Quick Actions */}
@@ -683,85 +700,100 @@ const styles = StyleSheet.create({
 		marginLeft: 2,
 	},
 
-	// Campaigns list
-	campaignsList: {
-		paddingHorizontal: 20,
-		gap: 10,
-	},
-	campaignRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		backgroundColor: "#1A1A1A",
-		borderRadius: 14,
-		padding: 12,
-		borderWidth: 1,
-		borderColor: "#2A2A2A",
+	// Campaign cards (horizontal scroll)
+	campaignsScroll: {
+		paddingLeft: 20,
+		paddingRight: 8,
 		gap: 12,
 	},
-	campaignImageContainer: {
-		width: 52,
-		height: 52,
-		borderRadius: 12,
+	campaignCard: {
+		width: 240,
+		height: 180,
+		borderRadius: 16,
 		overflow: "hidden",
+		borderWidth: 1,
+		borderColor: "rgba(255,255,255,0.06)",
 	},
-	campaignImage: {
-		width: 52,
-		height: 52,
+	campaignCardImage: {
+		...StyleSheet.absoluteFillObject,
+		width: 240,
+		height: 180,
 	},
-	campaignInfo: {
-		flex: 1,
-		gap: 4,
-	},
-	campaignTitle: {
-		fontFamily: "Inter-SemiBold",
-		fontSize: 14,
-		color: "#FFFFFF",
-	},
-	campaignMeta: {
+	campaignBrandBadge: {
+		position: "absolute",
+		top: 10,
+		left: 10,
 		flexDirection: "row",
 		alignItems: "center",
+		gap: 5,
+		backgroundColor: "rgba(0,0,0,0.55)",
+		borderRadius: 8,
+		paddingHorizontal: 9,
+		paddingVertical: 4,
 	},
-	brandDot: {
-		width: 6,
-		height: 6,
-		borderRadius: 3,
-		marginRight: 5,
+	campaignBrandDot: {
+		width: 7,
+		height: 7,
+		borderRadius: 3.5,
 	},
-	campaignBrand: {
+	campaignBrandText: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 11,
+		color: "#FFFFFF",
+	},
+	campaignDeadlineBadge: {
+		position: "absolute",
+		top: 10,
+		right: 10,
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 4,
+		backgroundColor: "rgba(0,0,0,0.55)",
+		borderRadius: 8,
+		paddingHorizontal: 9,
+		paddingVertical: 4,
+	},
+	campaignDeadlineText: {
 		fontFamily: "Inter-Regular",
 		fontSize: 11,
 		color: "#9CA3AF",
 	},
-	campaignMetaSep: {
-		fontSize: 11,
+	campaignCardBottom: {
+		position: "absolute",
+		bottom: 0,
+		left: 0,
+		right: 0,
+		paddingHorizontal: 14,
+		paddingBottom: 14,
+		gap: 8,
 	},
-	campaignDeadline: {
-		fontFamily: "Inter-Regular",
-		fontSize: 11,
-		color: "#6B7280",
-	},
-	campaignProgressBg: {
-		height: 3,
-		borderRadius: 1.5,
-		backgroundColor: "#2A2A2A",
-		marginTop: 2,
-	},
-	campaignProgressFill: {
-		height: 3,
-		borderRadius: 1.5,
-		backgroundColor: "#EC4899",
-	},
-	campaignAmountContainer: {
-		alignItems: "flex-end",
-	},
-	campaignAmount: {
+	campaignCardTitle: {
 		fontFamily: "StackSans-Bold",
 		fontSize: 15,
 		color: "#FFFFFF",
 	},
-	campaignAmountTotal: {
-		fontFamily: "Inter-Regular",
+	campaignBudgetRow: {
+		gap: 6,
+	},
+	campaignProgressOuter: {
+		height: 3,
+		borderRadius: 1.5,
+		backgroundColor: "rgba(255,255,255,0.12)",
+	},
+	campaignProgressInner: {
+		height: 3,
+		borderRadius: 1.5,
+		backgroundColor: "#EC4899",
+	},
+	campaignBudgetText: {
 		fontSize: 11,
+		fontFamily: "Inter-Regular",
+	},
+	campaignBudgetSpent: {
+		color: "#EC4899",
+		fontFamily: "Inter-SemiBold",
+	},
+	campaignBudgetTotal: {
 		color: "#6B7280",
 	},
 
