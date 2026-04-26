@@ -1,105 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
+import { CAMPAIGNS } from "@/data/campaigns";
 
 // ── Data ─────────────────────────────────────────────────────────────
 
 const FILTERS = ["All", "Reels", "Logo", "Story", "Photo"] as const;
 type Filter = (typeof FILTERS)[number];
-
-const CAMPAIGNS = [
-	{
-		id: "1",
-		title: "Philips Razor Promotion",
-		brand: "Philips",
-		brandColor: "#0B3D91",
-		image: "https://picsum.photos/seed/philips/600/340",
-		type: "Reels",
-		cpm: "$2.50",
-		budget: 850,
-		spent: 230,
-		deadline: "Oct 24, 2023",
-		platforms: ["YouTube", "Instagram"],
-		description:
-			"Create an engaging short-form video showcasing the Philips OneBlade razor.",
-	},
-	{
-		id: "2",
-		title: "Nike Summer Collection",
-		brand: "Nike",
-		brandColor: "#111111",
-		image: "https://picsum.photos/seed/nike/600/340",
-		type: "Reels",
-		cpm: "$3.00",
-		budget: 1200,
-		spent: 500,
-		deadline: "Nov 15, 2023",
-		platforms: ["YouTube", "Instagram"],
-		description:
-			"Showcase the new Nike Summer '24 collection in your unique style.",
-	},
-	{
-		id: "3",
-		title: "Apple Music Campaign",
-		brand: "Apple",
-		brandColor: "#FB5C74",
-		image: "https://picsum.photos/seed/apple/600/340",
-		type: "Logo",
-		cpm: "$1.80",
-		budget: 600,
-		spent: 180,
-		deadline: "Dec 01, 2023",
-		platforms: ["Instagram"],
-		description:
-			"Create content that highlights your music discovery experience.",
-	},
-	{
-		id: "4",
-		title: "Samsung Galaxy Launch",
-		brand: "Samsung",
-		brandColor: "#1428A0",
-		image: "https://picsum.photos/seed/samsung/600/340",
-		type: "Reels",
-		cpm: "$2.80",
-		budget: 1000,
-		spent: 400,
-		deadline: "Jan 10, 2024",
-		platforms: ["YouTube"],
-		description:
-			"Unbox and showcase the Samsung Galaxy S24 Ultra. Highlight camera capabilities.",
-	},
-	{
-		id: "5",
-		title: "Spotify Wrapped Collab",
-		brand: "Spotify",
-		brandColor: "#1DB954",
-		image: "https://picsum.photos/seed/spotify/600/340",
-		type: "Story",
-		cpm: "$2.00",
-		budget: 750,
-		spent: 320,
-		deadline: "Dec 20, 2023",
-		platforms: ["Instagram"],
-		description:
-			"Share your Spotify Wrapped experience with a creative story format.",
-	},
-	{
-		id: "6",
-		title: "Adidas Originals Drop",
-		brand: "Adidas",
-		brandColor: "#000000",
-		image: "https://picsum.photos/seed/adidas/600/340",
-		type: "Reels",
-		cpm: "$3.50",
-		budget: 2000,
-		spent: 800,
-		deadline: "Feb 01, 2024",
-		platforms: ["YouTube", "Instagram"],
-		description:
-			"Feature the new Adidas Originals collection in a lifestyle reel.",
-	},
-];
 
 const TRENDING_CREATORS = [
 	{ name: "emma.creates", avatar: 1, followers: "122k", campaigns: 8 },
@@ -271,12 +180,12 @@ function CampaignCard({ campaign }: { campaign: (typeof CAMPAIGNS)[number] }) {
 						</svg>
 						{campaign.deadline}
 					</div>
-					<button
-						type="button"
+					<Link
+						href={`/campaign/${campaign.id}`}
 						className="rounded-lg bg-bg-secondary px-4 py-2 text-xs font-semibold text-text border border-border transition-colors hover:border-accent/40 hover:text-accent"
 					>
 						View Details
-					</button>
+					</Link>
 				</div>
 			</div>
 		</div>
