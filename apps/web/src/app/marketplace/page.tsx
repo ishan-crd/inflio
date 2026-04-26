@@ -1,313 +1,665 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { CAMPAIGNS } from "@/data/campaigns";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	ArrowIcon,
+	BellIcon,
+	CheckIcon,
+	ChevIcon,
+	IGIcon,
+	PlatformIcon,
+	SearchIcon,
+	SlidersIcon,
+	SortIcon,
+	TrendIcon,
+	TTIcon,
+	VerifiedIcon,
+	YTIcon,
+} from "@/components/icons";
+import {
+	ACCENT_MAP,
+	BRAND_COLORS,
+	CAMPAIGNS,
+	CATEGORIES,
+	type Campaign,
+	PLATFORMS,
+	SORTS,
+} from "@/data/campaigns";
 
-// ── Data ─────────────────────────────────────────────────────────────
+// ─── helpers ───────────────────────────────────────────────────────────────
+const initials = (s: string) =>
+	s
+		.split(/\s+/)
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((w) => w[0])
+		.join("")
+		.toUpperCase();
 
-const FILTERS = ["All", "Reels", "Logo", "Story", "Photo"] as const;
-type Filter = (typeof FILTERS)[number];
-
-const TRENDING_CREATORS = [
-	{ name: "emma.creates", avatar: 1, followers: "122k", campaigns: 8 },
-	{ name: "jake.films", avatar: 2, followers: "89k", campaigns: 12 },
-	{ name: "sophia.visuals", avatar: 3, followers: "45k", campaigns: 5 },
-	{ name: "marcus.edit", avatar: 4, followers: "210k", campaigns: 15 },
+const CREATOR_DOT_GRADIENTS: [string, string][] = [
+	["#f472b6", "#a855f7"],
+	["#60a5fa", "#22d3ee"],
+	["#fb923c", "#facc15"],
 ];
 
-// ── Components ───────────────────────────────────────────────────────
+// ─── Dropdown ──────────────────────────────────────────────────────────────
+interface DropdownProps {
+	trigger: (open: boolean) => React.ReactNode;
+	children: (close: () => void) => React.ReactNode;
+}
 
-function SearchBar({
-	value,
-	onChange,
-}: {
-	value: string;
-	onChange: (v: string) => void;
-}) {
+function Dropdown({ trigger, children }: DropdownProps) {
+	const [open, setOpen] = useState(false);
+	const ref = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!open) return;
+		function handler(e: MouseEvent) {
+			if (ref.current && !ref.current.contains(e.target as Node)) {
+				setOpen(false);
+			}
+		}
+		document.addEventListener("mousedown", handler);
+		return () => document.removeEventListener("mousedown", handler);
+	}, [open]);
+
+	const close = useCallback(() => setOpen(false), []);
+
 	return (
-		<div className="relative">
-			<svg
-				className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary"
-				width="18"
-				height="18"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<circle cx="11" cy="11" r="8" />
-				<line x1="21" y1="21" x2="16.65" y2="16.65" />
-			</svg>
-			<input
-				type="text"
-				placeholder="Search campaigns, brands..."
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
-				className="w-full rounded-xl border border-border bg-bg-card py-3 pl-11 pr-4 text-sm text-text placeholder-text-tertiary outline-none transition-colors focus:border-accent/40"
-			/>
+		<div className="dropdown" ref={ref}>
+			<button className="dropdown-trigger" onClick={() => setOpen((o) => !o)}>
+				{trigger(open)}
+			</button>
+			{open && <div className="dropdown-menu">{children(close)}</div>}
 		</div>
 	);
+}
+
+// ─── PayoutRange ───────────────────────────────────────────────────────────
+const RANGE_MIN = 100;
+const RANGE_MAX = 600;
+
+interface PayoutRangeProps {
+	value: [number, number];
+	onChange: (v: [number, number]) => void;
+}
+
+function PayoutRange({ value, onChange }: PayoutRangeProps) {
+	const trackRef = useRef<HTMLDivElement>(null);
+	const dragging = useRef<"lo" | "hi" | null>(null);
+
+	const pct = (v: number) => ((v - RANGE_MIN) / (RANGE_MAX - RANGE_MIN)) * 100;
+
+	const clamp = (v: number) => Math.max(RANGE_MIN, Math.min(RANGE_MAX, v));
+
+	const posToVal = useCallback((clientX: number) => {
+		const rect = trackRef.current?.getBoundingClientRect();
+		if (!rect) return RANGE_MIN;
+		const ratio = (clientX - rect.left) / rect.width;
+		return clamp(Math.round(RANGE_MIN + ratio * (RANGE_MAX - RANGE_MIN)));
+	}, []);
+
+	useEffect(() => {
+		function onMove(e: MouseEvent) {
+			if (!dragging.current) return;
+			const v = posToVal(e.clientX);
+			if (dragging.current === "lo") {
+				onChange([Math.min(v, value[1] - 20), value[1]]);
+			} else {
+				onChange([value[0], Math.max(v, value[0] + 20)]);
+			}
+		}
+		function onUp() {
+			dragging.current = null;
+		}
+		document.addEventListener("mousemove", onMove);
+		document.addEventListener("mouseup", onUp);
+		return () => {
+			document.removeEventListener("mousemove", onMove);
+			document.removeEventListener("mouseup", onUp);
+		};
+	}, [value, onChange, posToVal]);
+
+	const loLabel = value[0] === RANGE_MIN ? `₹${value[0]}` : `₹${value[0]}`;
+	const hiLabel = value[1] === RANGE_MAX ? `₹${value[1]}+` : `₹${value[1]}`;
+
+	return (
+		<div className="range-popover">
+			<h4>Payout range</h4>
+			<p>Per 1,000 views in ₹</p>
+			<div className="range-vals">
+				<span>{loLabel}</span>
+				<span>{hiLabel}</span>
+			</div>
+			<div className="range-track" ref={trackRef}>
+				<div
+					className="range-fill"
+					style={{
+						left: `${pct(value[0])}%`,
+						width: `${pct(value[1]) - pct(value[0])}%`,
+					}}
+				/>
+				<div
+					className="range-thumb"
+					style={{ left: `${pct(value[0])}%` }}
+					onMouseDown={() => (dragging.current = "lo")}
+				/>
+				<div
+					className="range-thumb"
+					style={{ left: `${pct(value[1])}%` }}
+					onMouseDown={() => (dragging.current = "hi")}
+				/>
+			</div>
+		</div>
+	);
+}
+
+// ─── FilterBar ─────────────────────────────────────────────────────────────
+interface FilterBarProps {
+	platform: string;
+	setPlatform: (p: string) => void;
+	category: string;
+	setCategory: (c: string) => void;
+	payoutRange: [number, number];
+	setPayoutRange: (r: [number, number]) => void;
+	sort: string;
+	setSort: (s: string) => void;
 }
 
 function FilterBar({
-	active,
-	onSelect,
-}: {
-	active: Filter;
-	onSelect: (f: Filter) => void;
-}) {
-	return (
-		<div className="flex gap-2">
-			{FILTERS.map((f) => (
-				<button
-					key={f}
-					type="button"
-					onClick={() => onSelect(f)}
-					className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-						active === f
-							? "bg-accent text-white"
-							: "bg-bg-card text-text-secondary border border-border hover:text-text"
-					}`}
-				>
-					{f}
-				</button>
-			))}
-		</div>
-	);
-}
+	platform,
+	setPlatform,
+	category,
+	setCategory,
+	payoutRange,
+	setPayoutRange,
+	sort,
+	setSort,
+}: FilterBarProps) {
+	const platformIcon = (name: string) => {
+		if (name === "All") return null;
+		return <PlatformIcon name={name} />;
+	};
 
-function CampaignCard({ campaign }: { campaign: (typeof CAMPAIGNS)[number] }) {
-	const progress = Math.round((campaign.spent / campaign.budget) * 100);
+	const payoutLabel =
+		payoutRange[0] === RANGE_MIN && payoutRange[1] === RANGE_MAX
+			? "Payout"
+			: `₹${payoutRange[0]}–₹${payoutRange[1]}${payoutRange[1] === RANGE_MAX ? "+" : ""}`;
 
 	return (
-		<div className="group overflow-hidden rounded-2xl border border-border bg-bg-card transition-all hover:border-border/80 hover:shadow-[0_0_40px_rgba(236,72,153,0.04)]">
-			{/* Image */}
-			<div className="relative aspect-[16/9] overflow-hidden">
-				<Image
-					src={campaign.image}
-					alt={campaign.title}
-					fill
-					className="object-cover transition-transform duration-500 group-hover:scale-105"
-					sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-				/>
-				<div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
-
-				{/* Badges on image */}
-				<div className="absolute left-3 top-3 flex gap-2">
-					<span className="rounded-lg bg-success/90 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
-						{campaign.type.toUpperCase()}
-					</span>
-				</div>
-				<div className="absolute right-3 top-3 rounded-lg bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
-					{campaign.cpm} / 1k views
-				</div>
-
-				{/* Brand on image bottom */}
-				<div className="absolute bottom-3 left-3 flex items-center gap-2">
-					<div
-						className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 text-xs font-bold text-white"
-						style={{ backgroundColor: campaign.brandColor }}
-					>
-						{campaign.brand[0]}
-					</div>
-					<span className="text-sm font-medium text-white">
-						{campaign.brand}
-					</span>
-				</div>
-			</div>
-
-			{/* Content */}
-			<div className="p-5">
-				<h3 className="text-[15px] font-semibold text-text group-hover:text-accent transition-colors">
-					{campaign.title}
-				</h3>
-				<p className="mt-1.5 text-sm leading-relaxed text-text-secondary line-clamp-2">
-					{campaign.description}
-				</p>
-
-				{/* Platforms */}
-				<div className="mt-4 flex gap-2">
-					{campaign.platforms.map((p) => (
-						<span
-							key={p}
-							className="rounded-md bg-bg-secondary px-2.5 py-1 text-[11px] font-medium text-text-secondary border border-border-secondary"
-						>
-							{p}
-						</span>
-					))}
-				</div>
-
-				{/* Budget progress */}
-				<div className="mt-4">
-					<div className="flex items-center justify-between text-xs">
-						<span className="text-text-secondary">Budget</span>
-						<span>
-							<span className="font-semibold text-accent">
-								${campaign.spent}
-							</span>
-							<span className="text-text-tertiary"> / ${campaign.budget}</span>
-						</span>
-					</div>
-					<div className="mt-2 h-1.5 overflow-hidden rounded-full bg-border-secondary">
-						<div
-							className="h-full rounded-full bg-gradient-to-r from-accent to-accent-dark transition-all"
-							style={{ width: `${progress}%` }}
-						/>
-					</div>
-				</div>
-
-				{/* Footer */}
-				<div className="mt-4 flex items-center justify-between">
-					<div className="flex items-center gap-1.5 text-xs text-text-tertiary">
-						<svg
-							width="13"
-							height="13"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<rect x="3" y="4" width="18" height="18" rx="2" />
-							<line x1="16" y1="2" x2="16" y2="6" />
-							<line x1="8" y1="2" x2="8" y2="6" />
-							<line x1="3" y1="10" x2="21" y2="10" />
-						</svg>
-						{campaign.deadline}
-					</div>
-					<Link
-						href={`/campaign/${campaign.id}`}
-						className="rounded-lg bg-bg-secondary px-4 py-2 text-xs font-semibold text-text border border-border transition-colors hover:border-accent/40 hover:text-accent"
-					>
-						View Details
-					</Link>
-				</div>
-			</div>
-		</div>
-	);
-}
-
-function CreatorCard({
-	creator,
-}: {
-	creator: (typeof TRENDING_CREATORS)[number];
-}) {
-	return (
-		<div className="flex items-center gap-3 rounded-xl border border-border bg-bg-card p-4 transition-colors hover:border-accent/20">
-			<div className="h-11 w-11 shrink-0 rounded-full bg-bg-secondary border border-border-secondary" />
-			<div className="min-w-0 flex-1">
-				<p className="truncate text-sm font-semibold text-text">
-					@{creator.name}
-				</p>
-				<p className="text-xs text-text-tertiary">
-					{creator.followers} followers
-				</p>
-			</div>
-			<span className="rounded-md bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
-				{creator.campaigns} campaigns
-			</span>
-		</div>
-	);
-}
-
-// ── Page ─────────────────────────────────────────────────────────────
-
-export default function MarketplacePage() {
-	const [search, setSearch] = useState("");
-	const [activeFilter, setActiveFilter] = useState<Filter>("All");
-
-	const filtered = CAMPAIGNS.filter((c) => {
-		const matchesSearch =
-			!search ||
-			c.title.toLowerCase().includes(search.toLowerCase()) ||
-			c.brand.toLowerCase().includes(search.toLowerCase());
-		const matchesFilter = activeFilter === "All" || c.type === activeFilter;
-		return matchesSearch && matchesFilter;
-	});
-
-	return (
-		<main className="mx-auto max-w-7xl px-6 py-8">
-			{/* Hero */}
-			<section className="mb-10">
-				<h1 className="text-3xl font-bold tracking-tight text-text">
-					Marketplace
-				</h1>
-				<p className="mt-2 text-text-secondary">
-					Discover campaigns from top brands and start earning
-				</p>
-			</section>
-
-			<div className="flex flex-col gap-8 lg:flex-row">
-				{/* Main content */}
-				<div className="flex-1">
-					{/* Search + Filters */}
-					<div className="mb-6 space-y-4">
-						<SearchBar value={search} onChange={setSearch} />
-						<FilterBar active={activeFilter} onSelect={setActiveFilter} />
-					</div>
-
-					{/* Campaign grid */}
-					<div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-						{filtered.map((campaign) => (
-							<CampaignCard key={campaign.id} campaign={campaign} />
+		<div className="filter-bar">
+			<div className="shell">
+				<div className="filter-row">
+					{/* Platform chips */}
+					<div className="chip-group">
+						{PLATFORMS.map((p) => (
+							<button
+								key={p}
+								className={`chip${platform === p ? " active" : ""}`}
+								onClick={() => setPlatform(p)}
+							>
+								{platformIcon(p)}
+								{p}
+							</button>
 						))}
 					</div>
 
-					{filtered.length === 0 && (
-						<div className="py-20 text-center">
-							<p className="text-lg font-medium text-text-tertiary">
-								No campaigns found
-							</p>
-							<p className="mt-1 text-sm text-text-tertiary">
-								Try adjusting your search or filters
-							</p>
+					{/* Right controls */}
+					<div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+						{/* Category dropdown */}
+						<Dropdown
+							trigger={(open) => (
+								<>
+									<span className="label-key">Category</span>
+									{category !== "All" && (
+										<span style={{ color: "var(--color-ink-0)" }}>
+											{category}
+										</span>
+									)}
+									<ChevIcon
+										style={{
+											transform: open ? "rotate(180deg)" : "none",
+											transition: "transform 0.18s ease",
+										}}
+									/>
+								</>
+							)}
+						>
+							{(close) => (
+								<>
+									{CATEGORIES.map((c) => (
+										<button
+											key={c}
+											className={`dropdown-item${category === c ? " active" : ""}`}
+											onClick={() => {
+												setCategory(c);
+												close();
+											}}
+										>
+											{c}
+											<span className="check">
+												{category === c && <CheckIcon />}
+											</span>
+										</button>
+									))}
+								</>
+							)}
+						</Dropdown>
+
+						{/* Payout range dropdown */}
+						<Dropdown
+							trigger={(open) => (
+								<>
+									<SlidersIcon />
+									<span>{payoutLabel}</span>
+									<ChevIcon
+										style={{
+											transform: open ? "rotate(180deg)" : "none",
+											transition: "transform 0.18s ease",
+										}}
+									/>
+								</>
+							)}
+						>
+							{() => (
+								<PayoutRange value={payoutRange} onChange={setPayoutRange} />
+							)}
+						</Dropdown>
+
+						{/* Sort dropdown */}
+						<Dropdown
+							trigger={(open) => (
+								<>
+									<SortIcon />
+									<span>{sort}</span>
+									<ChevIcon
+										style={{
+											transform: open ? "rotate(180deg)" : "none",
+											transition: "transform 0.18s ease",
+										}}
+									/>
+								</>
+							)}
+						>
+							{(close) => (
+								<>
+									{SORTS.map((s) => (
+										<button
+											key={s}
+											className={`dropdown-item${sort === s ? " active" : ""}`}
+											onClick={() => {
+												setSort(s);
+												close();
+											}}
+										>
+											{s}
+											<span className="check">
+												{sort === s && <CheckIcon />}
+											</span>
+										</button>
+									))}
+								</>
+							)}
+						</Dropdown>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// ─── CampaignCard ──────────────────────────────────────────────────────────
+function CampaignCard({ c }: { c: Campaign }) {
+	const accent = ACCENT_MAP[c.color] ?? ACCENT_MAP["lime"];
+	const brandColors = BRAND_COLORS[c.brand] ?? ["#d4d4d4", "#1a1a1a"];
+	const spotsUsedPct = ((c.totalSpots - c.spotsLeft) / c.totalSpots) * 100;
+
+	const cardStyle = {
+		"--card-glow": `radial-gradient(circle at top left, ${accent.from}, transparent 60%)`,
+		"--rate-from": accent.from,
+		"--rate-to": accent.to,
+		"--rate-glow": accent.chip,
+	} as React.CSSProperties;
+
+	const brandMarkStyle = {
+		background: brandColors[1],
+		color: brandColors[0],
+	} as React.CSSProperties;
+
+	return (
+		<div className="card" style={cardStyle}>
+			{c.trending && (
+				<div className="trending-flag">
+					<TrendIcon />
+					Trending
+				</div>
+			)}
+
+			{/* Head */}
+			<div className="card-head">
+				<div className="brand-cluster">
+					<div className="brand-mark" style={brandMarkStyle}>
+						{initials(c.brand)}
+					</div>
+					<div>
+						<div className="brand-name">
+							{c.brand}
+							<span className="verified">
+								<VerifiedIcon />
+							</span>
 						</div>
-					)}
+						<div className="brand-handle">{c.brandHandle}</div>
+					</div>
+				</div>
+				<div className="platform-pill">
+					<PlatformIcon name={c.platform} />
+					{c.platform}
+				</div>
+			</div>
+
+			{/* Title & brief */}
+			<h3 className="card-title">{c.title}</h3>
+			<p className="card-brief">{c.brief}</p>
+
+			{/* Tags */}
+			<div className="tag-row">
+				{c.tags.map((tag) => (
+					<span key={tag} className="tag">
+						#{tag}
+					</span>
+				))}
+			</div>
+
+			{/* Rate band */}
+			<div className="card-rate">
+				<div className="rate-label">CPM rate</div>
+				<div className="rate-amount">
+					<span className="currency">{c.currency}</span>
+					{c.rate}
+					<span className="per">per {c.perViews} views</span>
+				</div>
+				<div className="rate-meta">
+					<span>
+						Min. <span className="mono">{c.minViews}</span> views
+					</span>
+					<span>
+						Budget <span className="mono">₹{c.budget}</span>
+					</span>
+					<span>
+						Ends <span className="mono">{c.deadline}</span>
+					</span>
+				</div>
+			</div>
+
+			{/* Footer */}
+			<div className="card-foot">
+				<div className="spots-cluster">
+					<div className="spots-bar">
+						<div className="spots-fill" style={{ width: `${spotsUsedPct}%` }} />
+					</div>
+					<span>
+						<strong style={{ color: "var(--color-ink-0)", fontWeight: 500 }}>
+							{c.spotsLeft}
+						</strong>{" "}
+						spots left
+					</span>
 				</div>
 
-				{/* Sidebar */}
-				<aside className="w-full shrink-0 lg:w-72">
-					{/* Stats overview */}
-					<div className="mb-6 rounded-2xl border border-border bg-bg-card p-5">
-						<h3 className="text-sm font-semibold text-text">Your Stats</h3>
-						<div className="mt-4 grid grid-cols-2 gap-4">
-							<div>
-								<p className="text-2xl font-bold text-text">568.5k</p>
-								<p className="text-xs text-text-tertiary">Total Views</p>
-							</div>
-							<div>
-								<p className="text-2xl font-bold text-text">$1,240</p>
-								<p className="text-xs text-text-tertiary">Earnings</p>
-							</div>
-							<div>
-								<p className="text-2xl font-bold text-text">49.1k</p>
-								<p className="text-xs text-text-tertiary">Total Likes</p>
-							</div>
-							<div>
-								<p className="text-2xl font-bold text-accent">4</p>
-								<p className="text-xs text-text-tertiary">Active</p>
-							</div>
+				<div className="creators-stack">
+					<div className="creator-dots">
+						{CREATOR_DOT_GRADIENTS.map(([from, to], i) => (
+							<div
+								key={i}
+								className="creator-dot"
+								style={
+									{
+										"--cd-from": from,
+										"--cd-to": to,
+									} as React.CSSProperties
+								}
+							/>
+						))}
+						{c.creatorsJoined > 3 && (
+							<div className="creator-dot more">+{c.creatorsJoined - 3}</div>
+						)}
+					</div>
+					<span>{c.creatorsJoined} joined</span>
+				</div>
+			</div>
+
+			{/* Hover CTA */}
+			<div className="card-cta">
+				<ArrowIcon />
+			</div>
+		</div>
+	);
+}
+
+// ─── Nav ───────────────────────────────────────────────────────────────────
+function Nav() {
+	return (
+		<nav className="nav">
+			<div className="shell">
+				<div className="nav-inner">
+					{/* Logo */}
+					<Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
+						<div className="logo">
+							<div className="logo-dot" />
+							inflio
 						</div>
+					</Link>
+
+					{/* Links */}
+					<div className="nav-links">
+						<Link href="/marketplace" className="active">
+							Marketplace
+						</Link>
+						<Link href="/campaigns">My campaigns</Link>
+						<Link href="/earnings">Earnings</Link>
+						<Link href="/insights">Insights</Link>
+						<Link href="/help">Help</Link>
 					</div>
 
-					{/* Trending Creators */}
-					<div className="rounded-2xl border border-border bg-bg-card p-5">
-						<h3 className="text-sm font-semibold text-text">
-							Trending Creators
-						</h3>
-						<div className="mt-4 space-y-3">
-							{TRENDING_CREATORS.map((creator) => (
-								<CreatorCard key={creator.name} creator={creator} />
-							))}
-						</div>
+					{/* Right actions */}
+					<div className="nav-cta">
+						<button className="btn btn-ghost" aria-label="Notifications">
+							<BellIcon />
+						</button>
+						<Link href="/brands" className="btn btn-primary">
+							For brands
+						</Link>
+						<div className="avatar">RA</div>
 					</div>
-				</aside>
+				</div>
 			</div>
-		</main>
+		</nav>
+	);
+}
+
+// ─── Hero ──────────────────────────────────────────────────────────────────
+function Hero() {
+	return (
+		<section className="hero">
+			<div className="shell">
+				{/* Eyebrow */}
+				<div className="eyebrow">
+					<div className="eyebrow-dot">
+						<div className="eyebrow-pulse" />
+					</div>
+					237 live campaigns — updated every hour
+				</div>
+
+				{/* Headline */}
+				<h1>
+					Campaigns that{" "}
+					<span className="accent">pay you per thousand views.</span>
+				</h1>
+
+				{/* Subtitle */}
+				<p>
+					Browse brand deals, apply in seconds, and earn automatically as your
+					content gets views. No negotiations, no invoices.
+				</p>
+
+				{/* Search bar */}
+				<div className="searchbar">
+					<SearchIcon />
+					<input
+						type="text"
+						placeholder="Search campaigns, brands, categories…"
+					/>
+					<span className="kbd">⌘K</span>
+				</div>
+
+				{/* Hero stats */}
+				<div className="hero-stats">
+					<div>
+						<div className="stat-num">
+							237 <span className="unit">live</span>
+						</div>
+						<div className="stat-label">Active campaigns</div>
+					</div>
+					<div>
+						<div className="stat-num">
+							₹520 <span className="unit">/1k</span>
+						</div>
+						<div className="stat-label">Highest CPM today</div>
+					</div>
+					<div>
+						<div className="stat-num">
+							48 <span className="unit">hrs</span>
+						</div>
+						<div className="stat-label">Avg. approval time</div>
+					</div>
+					<div>
+						<div className="stat-num">
+							12,400<span className="unit">+</span>
+						</div>
+						<div className="stat-label">Creators on platform</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	);
+}
+
+// ─── Main Page ─────────────────────────────────────────────────────────────
+export default function MarketplacePage() {
+	const [platform, setPlatform] = useState("All");
+	const [category, setCategory] = useState("All");
+	const [payoutRange, setPayoutRange] = useState<[number, number]>([
+		RANGE_MIN,
+		RANGE_MAX,
+	]);
+	const [sort, setSort] = useState(SORTS[0]);
+
+	const filtered = useMemo(() => {
+		let list = [...CAMPAIGNS];
+
+		if (platform !== "All") {
+			list = list.filter((c) => c.platform === platform);
+		}
+		if (category !== "All") {
+			list = list.filter((c) => c.category === category);
+		}
+		list = list.filter(
+			(c) => c.rate >= payoutRange[0] && c.rate <= payoutRange[1],
+		);
+
+		if (sort === "Trending") {
+			list.sort((a, b) => (b.trending ? 1 : 0) - (a.trending ? 1 : 0));
+		} else if (sort === "Highest paying") {
+			list.sort((a, b) => b.rate - a.rate);
+		} else if (sort === "Newest") {
+			list.sort((a, b) => a.id - b.id);
+		} else if (sort === "Ending soon") {
+			// sort by deadline string lexicographically (May < Jun)
+			list.sort((a, b) => a.deadline.localeCompare(b.deadline));
+		}
+
+		return list;
+	}, [platform, category, payoutRange, sort]);
+
+	return (
+		<div className="app">
+			<div className="ambient" />
+			<div className="grain" />
+
+			<Nav />
+			<Hero />
+
+			<FilterBar
+				platform={platform}
+				setPlatform={setPlatform}
+				category={category}
+				setCategory={setCategory}
+				payoutRange={payoutRange}
+				setPayoutRange={setPayoutRange}
+				sort={sort}
+				setSort={setSort}
+			/>
+
+			{/* Campaign grid */}
+			<div className="shell">
+				{/* Results meta */}
+				<div className="results-meta">
+					<p className="count">
+						<strong>{filtered.length}</strong>{" "}
+						{filtered.length === 1 ? "campaign" : "campaigns"} found
+					</p>
+				</div>
+
+				<div className="grid">
+					{filtered.map((c) => (
+						<CampaignCard key={c.id} c={c} />
+					))}
+				</div>
+
+				{filtered.length === 0 && (
+					<div
+						style={{
+							textAlign: "center",
+							padding: "80px 0",
+							color: "var(--color-ink-2)",
+						}}
+					>
+						<p style={{ fontSize: "15px" }}>No campaigns match your filters.</p>
+						<button
+							className="btn btn-glass"
+							style={{ marginTop: "16px" }}
+							onClick={() => {
+								setPlatform("All");
+								setCategory("All");
+								setPayoutRange([RANGE_MIN, RANGE_MAX]);
+								setSort(SORTS[0]);
+							}}
+						>
+							Clear filters
+						</button>
+					</div>
+				)}
+
+				{/* CTA band */}
+				<div className="cta-band">
+					<div>
+						<h3>Ready to monetise your content?</h3>
+						<p>
+							Join 12,400+ creators already earning with inflio. Apply to
+							campaigns in seconds and get paid automatically per thousand
+							views.
+						</p>
+					</div>
+					<div style={{ display: "flex", gap: "12px", flexShrink: 0 }}>
+						<Link href="/signup" className="btn btn-primary">
+							Start earning <ArrowIcon />
+						</Link>
+						<Link href="/how-it-works" className="btn btn-glass">
+							How it works
+						</Link>
+					</div>
+				</div>
+			</div>
+		</div>
 	);
 }
