@@ -672,7 +672,8 @@ function CreatorList({ creators }: { creators: Creator[] }) {
 			{creators.map((c) => {
 				const [from, to] = c.avatarColor;
 				return (
-					<div className="cl-row" key={c.id}>
+					<Link href={`/creator/${c.id}`} key={c.id} style={{ textDecoration: "none", color: "inherit" }}>
+					<div className="cl-row">
 						{/* Creator cell */}
 						<div className="cl-creator-cell">
 							<div
@@ -746,6 +747,7 @@ function CreatorList({ creators }: { creators: Creator[] }) {
 						{/* Arrow */}
 						<ArrowIcon className="cl-arrow" />
 					</div>
+					</Link>
 				);
 			})}
 		</div>
@@ -884,7 +886,9 @@ export default function CreatorsPage() {
 				) : view === "grid" ? (
 					<div className="creator-grid">
 						{filtered.map((c) => (
-							<CreatorCard key={c.id} c={c} />
+							<Link key={c.id} href={`/creator/${c.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+								<CreatorCard key={c.id} c={c} />
+							</Link>
 						))}
 					</div>
 				) : (

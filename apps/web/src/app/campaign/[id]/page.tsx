@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { SVGProps } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
 	ArrowIcon,
 	BackIcon,
@@ -18,7 +18,7 @@ import {
 	VerifiedIcon,
 	YTIcon,
 } from "@/components/icons";
-import { ACCENT_MAP, BRAND_COLORS } from "@/data/campaigns";
+import { CAMPAIGNS, ACCENT_MAP, BRAND_COLORS } from "@/data/campaigns";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type P = SVGProps<SVGSVGElement>;
@@ -174,43 +174,179 @@ const initials = (s: string) =>
 
 const fmt = (n: number) => n.toLocaleString("en-IN");
 
-// ─── Campaign data ──────────────────────────────────────────────────────────
-const CAMPAIGN = {
-	id: 1,
-	brand: "Lumen Audio",
-	brandHandle: "@lumenaudio",
-	brandFollowers: "412k",
-	brandRating: "4.9",
-	brandPaidOut: "\u20B938L",
-	brandResponseTime: "~6h",
-	brandBio:
-		"Lumen Audio designs premium personal audio in Bengaluru. Backed by Sequoia, shipping to 22 countries. We prefer creators with quiet, considered visual sensibilities.",
-	title: "Launch reels for the new",
-	titleAccent: "Lumen Pro 2 earbuds",
-	brief:
-		"Authentic 30\u201360s reel showcasing Lumen Pro 2 in a daily-life moment. Highlight ANC and 12-hour battery.",
-	longBrief: [
-		"We\u2019re rolling out the Lumen Pro 2 \u2014 our most refined earbuds yet \u2014 and we want creators to capture how they slide into a real day. Not a spec read-out, not a feature dump. A moment.",
-		"Show the ANC kicking in on a noisy commute, the 12-hour battery getting you through a long studio session, or that first second when the spatial audio lands. Keep it grounded, keep it human.",
-		"Tone is quiet-confident. Think soft natural light, ambient room sound, no shouting. We\u2019ll send a unit (yours to keep) within 48 hours of approval.",
-	],
-	platform: "Instagram",
-	category: "Tech",
-	rate: 240,
-	currency: "\u20B9",
-	perViews: "1k",
-	minViews: "10k",
-	budget: "4.8L",
-	deadline: "May 18",
-	daysLeft: 22,
-	spotsLeft: 12,
-	totalSpots: 30,
-	trending: true,
-	color: "lime",
-	tags: ["Reels", "Unboxing", "Lifestyle", "ANC", "Audio"],
-	creatorsJoined: 18,
-	bonus: { threshold: "100k views", amount: "+\u20B940 / 1k" },
+// ─── Campaign detail types & data ───────────────────────────────────────────
+interface CampaignDetail {
+	brandFollowers: string;
+	brandRating: string;
+	brandPaidOut: string;
+	brandResponseTime: string;
+	brandBio: string;
+	titleAccent: string;
+	longBrief: string[];
+	daysLeft: number;
+	bonus: { threshold: string; amount: string };
+}
+
+const CAMPAIGN_DETAILS: Record<number, CampaignDetail> = {
+	1: {
+		brandFollowers: "412k",
+		brandRating: "4.9",
+		brandPaidOut: "₹38L",
+		brandResponseTime: "~6h",
+		brandBio:
+			"Lumen Audio designs premium personal audio in Bengaluru. Backed by Sequoia, shipping to 22 countries. We prefer creators with quiet, considered visual sensibilities.",
+		titleAccent: "Lumen Pro 2 earbuds",
+		longBrief: [
+			"We're rolling out the Lumen Pro 2 — our most refined earbuds yet — and we want creators to capture how they slide into a real day. Not a spec read-out, not a feature dump. A moment.",
+			"Show the ANC kicking in on a noisy commute, the 12-hour battery getting you through a long studio session, or that first second when the spatial audio lands. Keep it grounded, keep it human.",
+			"Tone is quiet-confident. Think soft natural light, ambient room sound, no shouting. We'll send a unit (yours to keep) within 48 hours of approval.",
+		],
+		daysLeft: 22,
+		bonus: { threshold: "100k views", amount: "+₹40 / 1k" },
+	},
+	2: {
+		brandFollowers: "186k",
+		brandRating: "4.7",
+		brandPaidOut: "₹12L",
+		brandResponseTime: "~4h",
+		brandBio:
+			"Kavi Coffee Co. sources single-origin beans from Coorg and Chikmagalur. We roast slow, ship fast, and believe great coffee content should feel as unhurried as a pour-over.",
+		titleAccent: "cold brew launch",
+		longBrief: [
+			"We're launching our first cold brew bottle and want creators to weave it into their morning routine. Not a product review — a mood.",
+			"Show the bottle in your real kitchen, your real morning. Condensation on glass, steam from a mug, quiet ambient sound. We want viewers to feel the ritual, not hear a sales pitch.",
+			"Keep it under 60 seconds. Vertical. Natural light only. We'll ship a case of 12 bottles within 24 hours of approval.",
+		],
+		daysLeft: 28,
+		bonus: { threshold: "50k views", amount: "+₹30 / 1k" },
+	},
+	3: {
+		brandFollowers: "94k",
+		brandRating: "4.8",
+		brandPaidOut: "₹52L",
+		brandResponseTime: "~8h",
+		brandBio:
+			"Northform is a Mumbai-based design studio crafting slow fashion for the modern Indian wardrobe. Every collection is limited-run, locally made, and meant to last a decade.",
+		titleAccent: "SS26 collection",
+		longBrief: [
+			"We're opening our Mumbai studio doors for the SS26 collection and want creators to capture the behind-the-scenes energy — pattern-cutting, fabric draping, fittings.",
+			"Tone is cinematic and unhurried. Think natural studio light, close-ups of hands and fabric, ambient workshop sounds. No talking heads, no voiceover unless it's absolutely minimal.",
+			"Shorts format, 30–90 seconds. We'll arrange studio access windows over two weekends in May.",
+		],
+		daysLeft: 36,
+		bonus: { threshold: "80k views", amount: "+₹60 / 1k" },
+	},
+	4: {
+		brandFollowers: "320k",
+		brandRating: "4.6",
+		brandPaidOut: "₹28L",
+		brandResponseTime: "~5h",
+		brandBio:
+			"Glide Mobility builds electric micro-mobility for Indian cities. The G3 is our third-gen e-scooter — 80km range, swappable battery, designed in Pune.",
+		titleAccent: "Glide G3 e-scooter",
+		longBrief: [
+			"The G3 is our most refined scooter yet and we want first-ride POV content that captures the feeling of gliding through your city.",
+			"Mount your phone or GoPro, hit record, and ride. We want the wind, the traffic sounds, the lane changes. Hook viewers in under 2 seconds — start mid-ride, not at your front door.",
+			"End with a strong CTA to our test-ride events happening in 8 cities. We'll provide the event link and UTM. Scooter delivered to your door within 72 hours of approval.",
+		],
+		daysLeft: 34,
+		bonus: { threshold: "120k views", amount: "+₹50 / 1k" },
+	},
+	5: {
+		brandFollowers: "528k",
+		brandRating: "4.9",
+		brandPaidOut: "₹18L",
+		brandResponseTime: "~3h",
+		brandBio:
+			"Petal & Press makes clean, dermat-backed skincare that actually works. No greenwashing, no miracle claims. Just good ingredients and honest skin.",
+		titleAccent: "clean-skin serum",
+		longBrief: [
+			"Our Hydra Veil serum is launching and we want creators to feature it in an authentic get-ready-with-me clip.",
+			"No filters, no heavy editing, no studio lighting. Show your real skin, your real routine. Apply the serum, let viewers see the texture and finish. Talk about how it feels, not what it does — we'll handle the science.",
+			"Keep it 30–60 seconds. The serum should appear naturally in your routine, not as a standalone product demo.",
+		],
+		daysLeft: 25,
+		bonus: { threshold: "60k views", amount: "+₹35 / 1k" },
+	},
+	6: {
+		brandFollowers: "640k",
+		brandRating: "4.5",
+		brandPaidOut: "₹72L",
+		brandResponseTime: "~12h",
+		brandBio:
+			"Forge Finance is a SEBI-registered investment platform making mutual funds accessible to first-time investors. We believe financial literacy content should be calm, clear, and jargon-free.",
+		titleAccent: "SIP explainer",
+		longBrief: [
+			"We want 60-second educational shorts that explain why most people's SIPs underperform — and what to do about it.",
+			"We'll provide a script outline and data points. You bring the delivery: calm voiceover, clean on-screen captions, minimal visual clutter. Think 3Blue1Brown energy, not finance bro.",
+			"Must include our standard disclaimer footer. We'll supply the exact text. No specific fund recommendations — keep it educational.",
+		],
+		daysLeft: 44,
+		bonus: { threshold: "75k views", amount: "+₹80 / 1k" },
+	},
+	7: {
+		brandFollowers: "156k",
+		brandRating: "4.8",
+		brandPaidOut: "₹8L",
+		brandResponseTime: "~4h",
+		brandBio:
+			"Halfmoon Kitchen makes small-batch Japanese-inspired pantry staples in Goa. Our miso paste is fermented for 12 months and used by 40+ restaurants across India.",
+		titleAccent: "miso paste",
+		longBrief: [
+			"One recipe, one minute, one pan. That's the format. Feature our white miso paste as the star ingredient.",
+			"Show the cooking process start to finish — the sizzle, the stir, the final plated hero shot with the Halfmoon jar visible in frame. No long intros, no ingredient lists on screen.",
+			"We're open to any cuisine — don't feel limited to Japanese. Surprise us. Ship 3 jars within 48 hours of approval.",
+		],
+		daysLeft: 20,
+		bonus: { threshold: "40k views", amount: "+₹25 / 1k" },
+	},
+	8: {
+		brandFollowers: "210k",
+		brandRating: "4.7",
+		brandPaidOut: "₹44L",
+		brandResponseTime: "~10h",
+		brandBio:
+			"Atlas Outdoors builds technical gear tested in the Himalayas. Every jacket, pack, and layer is field-tested by our team before it ships. We sponsor 12 trail runners and 4 expedition teams.",
+		titleAccent: "Atlas X1 jacket",
+		longBrief: [
+			"We want real field-test footage of the Atlas X1 jacket in Himalayan conditions. Not a studio lookbook — actual trails, actual weather.",
+			"Capture the jacket in rain, wind, or snow if possible. Show layering, show venting, show the DWR finish repelling water. Include weather details (temp, altitude, conditions) as on-screen text.",
+			"Bonus payout for snow conditions. We'll ship the jacket in your size within 48 hours. You keep it regardless of views.",
+		],
+		daysLeft: 52,
+		bonus: { threshold: "90k views", amount: "+₹70 / 1k" },
+	},
+	9: {
+		brandFollowers: "72k",
+		brandRating: "4.9",
+		brandPaidOut: "₹4L",
+		brandResponseTime: "~2h",
+		brandBio:
+			"Soko Stationery makes tactile, minimal notebooks and desk tools in Jaipur. Every cover is hand-pressed, every page is 100gsm acid-free. For people who still write by hand.",
+		titleAccent: "Soko Daily notebook",
+		longBrief: [
+			"We want cozy desk-setup ASMR content featuring the new Soko Daily notebook line.",
+			"Think page-flipping sounds, pen scratching, the soft thud of a book on wood. Show the textured cover, the lay-flat binding, the ink-friendly paper. No voiceover — let the sounds do the talking.",
+			"Ambient lighting, warm tones, slow pacing. We'll ship 3 notebooks (dot grid, lined, blank) within 24 hours.",
+		],
+		daysLeft: 18,
+		bonus: { threshold: "30k views", amount: "+₹20 / 1k" },
+	},
 };
+
+function getCampaign(id: number) {
+	const base = CAMPAIGNS.find((c) => c.id === id) ?? CAMPAIGNS[0];
+	const detail = CAMPAIGN_DETAILS[id] ?? CAMPAIGN_DETAILS[1];
+	return { ...base, ...detail };
+}
+
+type MergedCampaign = ReturnType<typeof getCampaign>;
+
+const CampaignContext = createContext<MergedCampaign>(getCampaign(1));
+
+function useCampaign() {
+	return useContext(CampaignContext);
+}
 
 const SIMILAR = [
 	{
@@ -449,6 +585,7 @@ function Nav() {
 
 // ─── Breadcrumb ─────────────────────────────────────────────────────────────
 function Crumb() {
+	const CAMPAIGN = useCampaign();
 	const [saved, setSaved] = useState(false);
 
 	return (
@@ -538,6 +675,7 @@ function Crumb() {
 
 // ─── CampaignHero ───────────────────────────────────────────────────────────
 function CampaignHero({ onApply }: { onApply: () => void }) {
+	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 	const brandColors = BRAND_COLORS[CAMPAIGN.brand] ?? ["#d4d4d4", "#1a1a1a"];
 	const spotsUsedPct = ((CAMPAIGN.totalSpots - CAMPAIGN.spotsLeft) / CAMPAIGN.totalSpots) * 100;
@@ -895,6 +1033,7 @@ function Tabs({
 	active: number;
 	onChange: (i: number) => void;
 }) {
+	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 
 	return (
@@ -938,6 +1077,7 @@ function Tabs({
 
 // ─── BriefBlock ─────────────────────────────────────────────────────────────
 function BriefBlock() {
+	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 
 	return (
@@ -1068,6 +1208,7 @@ function DeliverablesBlock() {
 
 // ─── TimelineBlock ──────────────────────────────────────────────────────────
 function TimelineBlock() {
+	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 
 	return (
@@ -1124,6 +1265,7 @@ function TimelineBlock() {
 
 // ─── EarningsCalc ───────────────────────────────────────────────────────────
 function EarningsCalc() {
+	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 	const trackRef = useRef<HTMLDivElement>(null);
 	const dragging = useRef(false);
@@ -1364,6 +1506,7 @@ function ExamplesBlock() {
 
 // ─── FaqBlock ───────────────────────────────────────────────────────────────
 function FaqBlock() {
+	const CAMPAIGN = useCampaign();
 	const [open, setOpen] = useState(0);
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 
@@ -1443,6 +1586,7 @@ function FaqBlock() {
 
 // ─── MatchCard (aside) ──────────────────────────────────────────────────────
 function MatchCard() {
+	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 	const score = 92;
 	const circumference = 2 * Math.PI * 42;
@@ -1623,6 +1767,7 @@ function ActivityCard() {
 
 // ─── AboutBrandCard (aside) ─────────────────────────────────────────────────
 function AboutBrandCard() {
+	const CAMPAIGN = useCampaign();
 	const brandColors = BRAND_COLORS[CAMPAIGN.brand] ?? ["#d4d4d4", "#1a1a1a"];
 
 	const stats = [
@@ -1864,6 +2009,7 @@ function Footer() {
 
 // ─── ApplyModal ─────────────────────────────────────────────────────────────
 function ApplyModal({ onClose }: { onClose: () => void }) {
+	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 	const [step, setStep] = useState(0);
 	const [selectedPlatform, setSelectedPlatform] = useState(0);
@@ -2370,7 +2516,9 @@ function ApplyModal({ onClose }: { onClose: () => void }) {
 // ─── Main Page ──────────────────────────────────────────────────────────────
 export default function CampaignDetailPage() {
 	const params = useParams();
-	const _id = params.id;
+	const id = Number(params.id);
+	const campaign = getCampaign(id);
+
 	const [activeTab, setActiveTab] = useState(0);
 	const [showModal, setShowModal] = useState(false);
 
@@ -2384,44 +2532,46 @@ export default function CampaignDetailPage() {
 	];
 
 	return (
-		<div className="app">
-			<div className="ambient" />
-			<div className="grain" />
+		<CampaignContext.Provider value={campaign}>
+			<div className="app">
+				<div className="ambient" />
+				<div className="grain" />
 
-			<Nav />
+				<Nav />
 
-			<div className="shell">
-				<Crumb />
-				<CampaignHero onApply={() => setShowModal(true)} />
+				<div className="shell">
+					<Crumb />
+					<CampaignHero onApply={() => setShowModal(true)} />
 
-				<Tabs active={activeTab} onChange={setActiveTab} />
+					<Tabs active={activeTab} onChange={setActiveTab} />
 
-				{/* Two-column: content + sidebar */}
-				<div
-					style={{
-						display: "grid",
-						gridTemplateColumns: "1fr 340px",
-						gap: 32,
-						alignItems: "start",
-					}}
-				>
-					{/* Main content */}
-					<div>{tabContent[activeTab]}</div>
+					{/* Two-column: content + sidebar */}
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "1fr 340px",
+							gap: 32,
+							alignItems: "start",
+						}}
+					>
+						{/* Main content */}
+						<div>{tabContent[activeTab]}</div>
 
-					{/* Sidebar */}
-					<aside>
-						<MatchCard />
-						<ActivityCard />
-						<AboutBrandCard />
-					</aside>
+						{/* Sidebar */}
+						<aside>
+							<MatchCard />
+							<ActivityCard />
+							<AboutBrandCard />
+						</aside>
+					</div>
+
+					<SimilarSection />
 				</div>
 
-				<SimilarSection />
+				<Footer />
+
+				{showModal && <ApplyModal onClose={() => setShowModal(false)} />}
 			</div>
-
-			<Footer />
-
-			{showModal && <ApplyModal onClose={() => setShowModal(false)} />}
-		</div>
+		</CampaignContext.Provider>
 	);
 }

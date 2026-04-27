@@ -329,102 +329,96 @@ function CampaignCard({ c }: { c: Campaign }) {
 
 	return (
 		<div className="card" style={cardStyle}>
-			{c.trending && (
-				<div className="trending-flag">
-					<TrendIcon />
-					Trending
-				</div>
-			)}
-
-			{/* Head */}
-			<div className="card-head">
-				<div className="brand-cluster">
-					<div className="brand-mark" style={brandMarkStyle}>
-						{initials(c.brand)}
-					</div>
-					<div>
-						<div className="brand-name">
-							{c.brand}
-							<span className="verified">
-								<VerifiedIcon />
-							</span>
+			{/* Top zone — flows naturally */}
+			<div className="card-top">
+				<div className="card-head">
+					<div className="brand-cluster">
+						<div className="brand-mark" style={brandMarkStyle}>
+							{initials(c.brand)}
 						</div>
-						<div className="brand-handle">{c.brandHandle}</div>
+						<div>
+							<div className="brand-name">
+								{c.brand}
+								<span className="verified">
+									<VerifiedIcon />
+								</span>
+							</div>
+							<div className="brand-handle">{c.brandHandle}</div>
+						</div>
+					</div>
+					<div className="platform-pill">
+						<PlatformIcon name={c.platform} />
+						{c.platform}
 					</div>
 				</div>
-				<div className="platform-pill">
-					<PlatformIcon name={c.platform} />
-					{c.platform}
+
+				<h3 className="card-title">{c.title}</h3>
+				<p className="card-brief">{c.brief}</p>
+
+				<div className="tag-row">
+					{c.tags.map((tag) => (
+						<span key={tag} className="tag">
+							#{tag}
+						</span>
+					))}
 				</div>
 			</div>
 
-			{/* Title & brief */}
-			<h3 className="card-title">{c.title}</h3>
-			<p className="card-brief">{c.brief}</p>
-
-			{/* Tags */}
-			<div className="tag-row">
-				{c.tags.map((tag) => (
-					<span key={tag} className="tag">
-						#{tag}
-					</span>
-				))}
-			</div>
-
-			{/* Rate band */}
-			<div className="card-rate">
-				<div className="rate-label">CPM rate</div>
-				<div className="rate-amount">
-					<span className="currency">{c.currency}</span>
-					{c.rate}
-					<span className="per">per {c.perViews} views</span>
-				</div>
-				<div className="rate-meta">
-					<span>
-						Min. <span className="mono">{c.minViews}</span> views
-					</span>
-					<span>
-						Budget <span className="mono">₹{c.budget}</span>
-					</span>
-					<span>
-						Ends <span className="mono">{c.deadline}</span>
-					</span>
-				</div>
-			</div>
-
-			{/* Footer */}
-			<div className="card-foot">
-				<div className="spots-cluster">
-					<div className="spots-bar">
-						<div className="spots-fill" style={{ width: `${spotsUsedPct}%` }} />
+			{/* Bottom zone — pinned to bottom */}
+			<div className="card-bottom">
+				<div className="card-rate">
+					<div className="rate-label">CPM rate</div>
+					<div className="rate-amount">
+						<span className="currency">{c.currency}</span>
+						{c.rate}
+						<span className="per">per {c.perViews} views</span>
 					</div>
-					<span>
-						<strong style={{ color: "var(--color-ink-0)", fontWeight: 500 }}>
-							{c.spotsLeft}
-						</strong>{" "}
-						spots left
-					</span>
+					<div className="rate-meta">
+						<span>
+							Min. <span className="mono">{c.minViews}</span> views
+						</span>
+						<span>
+							Budget <span className="mono">₹{c.budget}</span>
+						</span>
+						<span>
+							Ends <span className="mono">{c.deadline}</span>
+						</span>
+					</div>
 				</div>
 
-				<div className="creators-stack">
-					<div className="creator-dots">
-						{CREATOR_DOT_GRADIENTS.map(([from, to], i) => (
-							<div
-								key={i}
-								className="creator-dot"
-								style={
-									{
-										"--cd-from": from,
-										"--cd-to": to,
-									} as React.CSSProperties
-								}
-							/>
-						))}
-						{c.creatorsJoined > 3 && (
-							<div className="creator-dot more">+{c.creatorsJoined - 3}</div>
-						)}
+				<div className="card-foot">
+					<div className="spots-cluster">
+						<div className="spots-bar">
+							<div className="spots-fill" style={{ width: `${spotsUsedPct}%` }} />
+						</div>
+						<span>
+							<strong style={{ color: "var(--color-ink-0)", fontWeight: 500 }}>
+								{c.spotsLeft}
+							</strong>{" "}
+							spots left
+						</span>
 					</div>
-					<span>{c.creatorsJoined} joined</span>
+
+					<div className="creators-stack">
+						<div className="creator-dots">
+							{CREATOR_DOT_GRADIENTS.map(([from, to], i) => (
+								<div
+									key={i}
+									className="creator-dot"
+									style={
+										{
+											"--cd-from": from,
+											"--cd-to": to,
+										} as React.CSSProperties
+									}
+								/>
+							))}
+							{c.creatorsJoined > 3 && (
+								<div className="creator-dot more">+{c.creatorsJoined - 3}</div>
+							)}
+						</div>
+						<span>{c.creatorsJoined} joined</span>
+					</div>
 				</div>
 			</div>
 
@@ -612,7 +606,9 @@ export default function MarketplacePage() {
 
 				<div className="grid">
 					{filtered.map((c) => (
-						<CampaignCard key={c.id} c={c} />
+						<Link key={c.id} href={`/campaign/${c.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+							<CampaignCard key={c.id} c={c} />
+						</Link>
 					))}
 				</div>
 

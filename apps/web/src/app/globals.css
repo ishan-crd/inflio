@@ -426,17 +426,7 @@ select {
 
 /* ---------- Filters ---------- */
 .filter-bar {
-	position: sticky;
-	top: 68px;
-	z-index: 30;
 	padding: 18px 0;
-	background: linear-gradient(
-		180deg,
-		rgba(10, 10, 12, 0.85),
-		rgba(10, 10, 12, 0.7)
-	);
-	backdrop-filter: blur(18px);
-	-webkit-backdrop-filter: blur(18px);
 	border-bottom: 1px solid var(--color-line);
 	margin-bottom: 32px;
 }
@@ -645,6 +635,7 @@ select {
 
 .card {
 	position: relative;
+	height: 440px;
 	background: linear-gradient(
 		180deg,
 		rgba(255, 255, 255, 0.025),
@@ -664,6 +655,15 @@ select {
 		0 1px 0 rgba(255, 255, 255, 0.04) inset,
 		0 0 0 1px rgba(255, 255, 255, 0.04),
 		0 30px 60px -30px rgba(0, 0, 0, 0.6);
+}
+.card-top {
+	/* flows naturally from the top */
+}
+.card-bottom {
+	position: absolute;
+	left: 22px;
+	right: 22px;
+	bottom: 22px;
 }
 .card::before {
 	content: "";
@@ -767,25 +767,27 @@ select {
 	letter-spacing: -0.018em;
 	line-height: 1.28;
 	color: var(--color-ink-0);
-	margin: 0 0 12px;
+	margin: 0 0 8px;
 	text-wrap: balance;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 .card-brief {
 	font-size: 13px;
 	line-height: 1.5;
 	color: var(--color-ink-1);
-	margin: 0 0 22px;
+	margin: 0 0 14px;
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
-	min-height: 39px;
 }
 
 .tag-row {
 	display: flex;
 	gap: 6px;
-	margin-bottom: 22px;
 	flex-wrap: wrap;
 }
 .tag {

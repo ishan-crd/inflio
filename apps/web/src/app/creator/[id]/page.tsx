@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type SVGProps } from "react";
+import { useState, createContext, useContext, type SVGProps } from "react";
+import { useParams } from "next/navigation";
+import { CREATORS, fmtFollowers, fmtViews } from "@/data/creators";
 import {
 	ArrowIcon,
 	BackIcon,
@@ -268,90 +270,630 @@ const ACCENT_MAP_C: Record<
 	},
 };
 
-const CREATOR = {
-	id: 1,
-	name: "Aanya Verma",
-	handle: "@aanya.shoots",
-	avatarColor: ["#fde68a", "#7c2d12"] as [string, string],
-	location: "Mumbai, IN",
-	timezone: "IST · GMT+5:30",
-	bio: "Cinematic fashion reels & street style. Worked with 38 indie labels.",
-	longBio: [
-		"I shoot slow, sunlit fashion reels rooted in Bombay street style. Lived-in fits, real walks, no over-styled studio sets — I want clothes to look like they belong to someone.",
-		"I work mostly with indie labels and emerging designers. Past partners include Almost Gods, Six Yard Story, Bhaane, and 35 others. I shoot, edit, and grade everything myself; turnaround is usually 5–7 days from kit-arrived to post-live.",
-		"Open to gifting + paid, prefer 30-day exclusivity windows for fashion. Not currently taking fast-fashion or dropship briefs.",
-	],
-	primaryPlatform: "Instagram",
-	platforms: [
-		{
-			name: "Instagram",
-			handle: "@aanya.shoots",
-			followers: "412K",
-			growth: "+4.2%",
-			primary: true,
-		},
-		{
-			name: "YouTube",
-			handle: "Aanya Verma",
-			followers: "82K",
-			growth: "+1.8%",
-			primary: false,
-		},
-		{
-			name: "TikTok",
-			handle: "@aanya.shoots",
-			followers: "146K",
-			growth: "+11.4%",
-			primary: false,
-		},
-	],
-	followers: 412000,
-	followersFmt: "412K",
-	monthlyViews: 6800000,
-	monthlyViewsFmt: "6.8M",
-	engagement: 7.8,
-	avgRate: 280,
-	ratePer: "1k",
-	currency: "₹",
-	category: "Fashion",
-	tags: ["Reels", "Street style", "GRWM", "Editorial", "Slow-cinema"],
-	completedDeals: 38,
-	responseTime: "~3h",
-	rating: 4.93,
-	ratingCount: 36,
-	trending: true,
-	tier: "Mid",
-	verified: true,
-	available: true,
-	exclusive: false,
-	color: "amber",
-	spark: [3, 5, 4, 6, 8, 7, 9, 9, 11, 10, 12, 13],
+/* ─── Creator Context ──────────────────────────────────────────────────────── */
+type CreatorData = {
+	id: number;
+	name: string;
+	handle: string;
+	avatarColor: [string, string];
+	location: string;
+	bio: string;
+	primaryPlatform: string;
+	followers: number;
+	monthlyViews: number;
+	engagement: number;
+	avgRate: number;
+	category: string;
+	tags: string[];
+	completedDeals: number;
+	trending: boolean;
+	tier: string;
+	verified: boolean;
+	spark: number[];
+	// Detail fields:
+	longBio: string[];
+	timezone: string;
+	responseTime: string;
+	rating: number;
+	ratingCount: number;
+	available: boolean;
+	exclusive: boolean;
+	color: string;
+	ratePer: string;
+	currency: string;
+	followersFmt: string;
+	monthlyViewsFmt: string;
 	audience: {
-		genderF: 68,
-		genderM: 32,
-		ageBuckets: [
-			{ label: "18–24", pct: 41 },
-			{ label: "25–34", pct: 38 },
-			{ label: "35–44", pct: 14 },
-			{ label: "45+", pct: 7 },
+		genderF: number;
+		genderM: number;
+		ageBuckets: { label: string; pct: number }[];
+		topGeo: { city: string; pct: number }[];
+		interests: string[];
+	};
+	rates: { kind: string; ig: string; yt: string; tt: string }[];
+	platforms: { name: string; handle: string; followers: string; growth: string; primary: boolean }[];
+};
+
+const CreatorCtx = createContext<CreatorData>(null as any);
+const useCreator = () => useContext(CreatorCtx);
+
+/* ─── Creator Detail Data ──────────────────────────────────────────────────── */
+interface CreatorDetail {
+	longBio: string[];
+	timezone: string;
+	responseTime: string;
+	rating: number;
+	ratingCount: number;
+	available: boolean;
+	exclusive: boolean;
+	color: string;
+	ratePer: string;
+	currency: string;
+	audience: {
+		genderF: number;
+		genderM: number;
+		ageBuckets: { label: string; pct: number }[];
+		topGeo: { city: string; pct: number }[];
+		interests: string[];
+	};
+	rates: { kind: string; ig: string; yt: string; tt: string }[];
+	platformsDetailed: { name: string; handle: string; followers: string; growth: string; primary: boolean }[];
+}
+
+const CREATOR_DETAILS: Record<number, CreatorDetail> = {
+	1: {
+		longBio: [
+			"I shoot slow, sunlit fashion reels rooted in Bombay street style. Lived-in fits, real walks, no over-styled studio sets — I want clothes to look like they belong to someone.",
+			"I work mostly with indie labels and emerging designers. Past partners include Almost Gods, Six Yard Story, Bhaane, and 35 others. I shoot, edit, and grade everything myself; turnaround is usually 5–7 days from kit-arrived to post-live.",
+			"Open to gifting + paid, prefer 30-day exclusivity windows for fashion. Not currently taking fast-fashion or dropship briefs.",
 		],
-		topGeo: [
-			{ city: "Mumbai", pct: 28 },
-			{ city: "Delhi NCR", pct: 17 },
-			{ city: "Bengaluru", pct: 11 },
-			{ city: "Pune", pct: 8 },
-			{ city: "Other IN", pct: 24 },
-			{ city: "Outside IN", pct: 12 },
+		timezone: "IST · GMT+5:30",
+		responseTime: "~3h",
+		rating: 4.93,
+		ratingCount: 36,
+		available: true,
+		exclusive: false,
+		color: "amber",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 68,
+			genderM: 32,
+			ageBuckets: [
+				{ label: "18–24", pct: 41 },
+				{ label: "25–34", pct: 38 },
+				{ label: "35–44", pct: 14 },
+				{ label: "45+", pct: 7 },
+			],
+			topGeo: [
+				{ city: "Mumbai", pct: 28 },
+				{ city: "Delhi NCR", pct: 17 },
+				{ city: "Bengaluru", pct: 11 },
+				{ city: "Pune", pct: 8 },
+				{ city: "Other IN", pct: 24 },
+				{ city: "Outside IN", pct: 12 },
+			],
+			interests: ["Fashion", "Beauty", "Travel", "Cafes", "Indie design"],
+		},
+		rates: [
+			{ kind: "Reel · 30–60s", ig: "₹38k", yt: "—", tt: "₹22k" },
+			{ kind: "Story · 3 frames", ig: "₹18k", yt: "—", tt: "—" },
+			{ kind: "Long-form · 5–8m", ig: "—", yt: "₹85k", tt: "—" },
+			{ kind: "Static post", ig: "₹14k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹280/1k", yt: "₹420/1k", tt: "₹160/1k" },
 		],
-		interests: ["Fashion", "Beauty", "Travel", "Cafes", "Indie design"],
+		platformsDetailed: [
+			{ name: "Instagram", handle: "@aanya.shoots", followers: "412K", growth: "+4.2%", primary: true },
+			{ name: "YouTube", handle: "Aanya Verma", followers: "82K", growth: "+1.8%", primary: false },
+			{ name: "TikTok", handle: "@aanya.shoots", followers: "146K", growth: "+11.4%", primary: false },
+		],
 	},
-	rates: [
-		{ kind: "Reel · 30–60s", ig: "₹38k", yt: "—", tt: "₹22k" },
-		{ kind: "Story · 3 frames", ig: "₹18k", yt: "—", tt: "—" },
-		{ kind: "Long-form · 5–8m", ig: "—", yt: "₹85k", tt: "—" },
-		{ kind: "Static post", ig: "₹14k", yt: "—", tt: "—" },
-		{ kind: "CPM (organic)", ig: "₹280/1k", yt: "₹420/1k", tt: "₹160/1k" },
-	],
+	2: {
+		longBio: [
+			"I do honest, slow-burn tech reviews — the kind where I use a product for two weeks before saying a word on camera. No sponsored fluff, no first-impressions content.",
+			"My audience trusts me because I don't chase launch-day views. I wait, test, compare, and then tell people what I actually think. Past collaborations include OnePlus, Nothing, and Samsung India.",
+			"Currently open to long-term ambassador deals and single-video reviews. I won't do 'unboxing reactions' — if that's the brief, I'm not the right creator.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~8h",
+		rating: 4.85,
+		ratingCount: 22,
+		available: true,
+		exclusive: false,
+		color: "sky",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 24,
+			genderM: 76,
+			ageBuckets: [
+				{ label: "18–24", pct: 35 },
+				{ label: "25–34", pct: 42 },
+				{ label: "35–44", pct: 16 },
+				{ label: "45+", pct: 7 },
+			],
+			topGeo: [
+				{ city: "Bengaluru", pct: 22 },
+				{ city: "Delhi NCR", pct: 18 },
+				{ city: "Mumbai", pct: 14 },
+				{ city: "Hyderabad", pct: 9 },
+				{ city: "Other IN", pct: 26 },
+				{ city: "Outside IN", pct: 11 },
+			],
+			interests: ["Tech", "Gadgets", "Gaming", "Startups", "AI"],
+		},
+		rates: [
+			{ kind: "Review · 10–15m", ig: "—", yt: "₹1.2L", tt: "—" },
+			{ kind: "Shorts · 60s", ig: "₹28k", yt: "₹42k", tt: "—" },
+			{ kind: "Integration · 2–3m", ig: "—", yt: "₹85k", tt: "—" },
+			{ kind: "Story · 3 frames", ig: "₹16k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹320/1k", yt: "₹480/1k", tt: "—" },
+		],
+		platformsDetailed: [
+			{ name: "YouTube", handle: "Rohan Sethi", followers: "1.2M", growth: "+2.1%", primary: true },
+			{ name: "Instagram", handle: "@rohansetsbeats", followers: "180K", growth: "+3.4%", primary: false },
+		],
+	},
+	3: {
+		longBio: [
+			"I make 60-second recipe reels with one pan and one mood. South-Indian-first, always seasonal, never fussy.",
+			"My content is about making cooking feel easy and joyful. No chef coats, no marble countertops. Just my actual kitchen in Chennai with actual sunlight.",
+			"Open to food, kitchen, and lifestyle brands. I shoot, style, cook, and edit myself. Turnaround is 4–5 days. Happy to do recipe development if the brief allows creative freedom.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~2h",
+		rating: 4.96,
+		ratingCount: 48,
+		available: true,
+		exclusive: false,
+		color: "amber",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 72,
+			genderM: 28,
+			ageBuckets: [
+				{ label: "18–24", pct: 28 },
+				{ label: "25–34", pct: 44 },
+				{ label: "35–44", pct: 20 },
+				{ label: "45+", pct: 8 },
+			],
+			topGeo: [
+				{ city: "Chennai", pct: 24 },
+				{ city: "Bengaluru", pct: 16 },
+				{ city: "Mumbai", pct: 12 },
+				{ city: "Hyderabad", pct: 10 },
+				{ city: "Other IN", pct: 28 },
+				{ city: "Outside IN", pct: 10 },
+			],
+			interests: ["Cooking", "Food", "Wellness", "Home", "South Indian culture"],
+		},
+		rates: [
+			{ kind: "Reel · 30–60s", ig: "₹32k", yt: "—", tt: "₹18k" },
+			{ kind: "Story · 3 frames", ig: "₹14k", yt: "—", tt: "—" },
+			{ kind: "Recipe dev + reel", ig: "₹48k", yt: "—", tt: "₹28k" },
+			{ kind: "Static post", ig: "₹10k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹220/1k", yt: "—", tt: "₹140/1k" },
+		],
+		platformsDetailed: [
+			{ name: "Instagram", handle: "@tarainthekitchen", followers: "286K", growth: "+5.8%", primary: true },
+			{ name: "TikTok", handle: "@tarainthekitchen", followers: "94K", growth: "+9.2%", primary: false },
+		],
+	},
+	4: {
+		longBio: [
+			"POV motovlogs on long Indian highways. Royal Enfield and Triumph are my regulars, but I've ridden everything from Bajaj Pulsars to Ducatis.",
+			"I shoot with a chin-mount GoPro and edit tight — 3 to 8 minutes, never longer. The road is the story; the bike is the character.",
+			"Looking for automotive, travel gear, and adventure brands. I don't do scripted integrations — if the product fits the ride, it shows up naturally.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~4h",
+		rating: 4.78,
+		ratingCount: 17,
+		available: true,
+		exclusive: false,
+		color: "lime",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 18,
+			genderM: 82,
+			ageBuckets: [
+				{ label: "18–24", pct: 38 },
+				{ label: "25–34", pct: 40 },
+				{ label: "35–44", pct: 15 },
+				{ label: "45+", pct: 7 },
+			],
+			topGeo: [
+				{ city: "Delhi NCR", pct: 26 },
+				{ city: "Jaipur", pct: 12 },
+				{ city: "Mumbai", pct: 11 },
+				{ city: "Chandigarh", pct: 8 },
+				{ city: "Other IN", pct: 32 },
+				{ city: "Outside IN", pct: 11 },
+			],
+			interests: ["Motorcycles", "Travel", "Adventure", "Auto", "Camping"],
+		},
+		rates: [
+			{ kind: "Vlog · 5–8m", ig: "—", yt: "₹72k", tt: "—" },
+			{ kind: "Shorts · 60s", ig: "₹24k", yt: "₹36k", tt: "—" },
+			{ kind: "Reel · 30–60s", ig: "₹28k", yt: "—", tt: "—" },
+			{ kind: "Story · 3 frames", ig: "₹12k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹280/1k", yt: "₹360/1k", tt: "—" },
+		],
+		platformsDetailed: [
+			{ name: "YouTube", handle: "Kabir Joshi", followers: "640K", growth: "+3.6%", primary: true },
+			{ name: "Instagram", handle: "@kabirrides", followers: "210K", growth: "+4.8%", primary: false },
+		],
+	},
+	5: {
+		longBio: [
+			"Strength coaching content focused on form over volume. NSCA-CSCS certified. I train real people, not influencer physiques.",
+			"My content breaks down compound lifts, mobility work, and programming for beginners. Everything is evidence-based — I cite studies, not bro-science.",
+			"Open to fitness, supplement, and activewear brands. I don't promote anything I haven't used for at least 30 days.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~6h",
+		rating: 4.88,
+		ratingCount: 24,
+		available: true,
+		exclusive: false,
+		color: "rose",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 32,
+			genderM: 68,
+			ageBuckets: [
+				{ label: "18–24", pct: 45 },
+				{ label: "25–34", pct: 38 },
+				{ label: "35–44", pct: 12 },
+				{ label: "45+", pct: 5 },
+			],
+			topGeo: [
+				{ city: "Pune", pct: 20 },
+				{ city: "Mumbai", pct: 18 },
+				{ city: "Delhi NCR", pct: 14 },
+				{ city: "Bengaluru", pct: 10 },
+				{ city: "Other IN", pct: 28 },
+				{ city: "Outside IN", pct: 10 },
+			],
+			interests: ["Fitness", "Strength training", "Nutrition", "Wellness", "Sports science"],
+		},
+		rates: [
+			{ kind: "Reel · 30–60s", ig: "₹18k", yt: "—", tt: "—" },
+			{ kind: "Form breakdown · 3m", ig: "—", yt: "₹32k", tt: "—" },
+			{ kind: "Story · 3 frames", ig: "₹8k", yt: "—", tt: "—" },
+			{ kind: "Static post", ig: "₹6k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹140/1k", yt: "₹200/1k", tt: "—" },
+		],
+		platformsDetailed: [
+			{ name: "Instagram", handle: "@ishaan.lifts", followers: "94K", growth: "+8.2%", primary: true },
+			{ name: "YouTube", handle: "Ishaan Kapoor", followers: "22K", growth: "+5.4%", primary: false },
+		],
+	},
+	6: {
+		longBio: [
+			"Dermat-backed skincare reviews with no filters and real skin textures. I studied dermatology for 2 years before pivoting to content.",
+			"I test every product for a minimum of 28 days — one full skin cycle — before reviewing. My audience comes for the honesty: if it breaks me out, I'll say so.",
+			"Open to skincare, clean beauty, and wellness brands. No whitening products, no miracle claims. Happy to do ingredient deep-dives and comparison reviews.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~3h",
+		rating: 4.91,
+		ratingCount: 41,
+		available: true,
+		exclusive: false,
+		color: "rose",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 78,
+			genderM: 22,
+			ageBuckets: [
+				{ label: "18–24", pct: 36 },
+				{ label: "25–34", pct: 40 },
+				{ label: "35–44", pct: 18 },
+				{ label: "45+", pct: 6 },
+			],
+			topGeo: [
+				{ city: "Hyderabad", pct: 20 },
+				{ city: "Mumbai", pct: 16 },
+				{ city: "Bengaluru", pct: 14 },
+				{ city: "Delhi NCR", pct: 12 },
+				{ city: "Other IN", pct: 26 },
+				{ city: "Outside IN", pct: 12 },
+			],
+			interests: ["Skincare", "Beauty", "Wellness", "Dermatology", "Clean beauty"],
+		},
+		rates: [
+			{ kind: "Reel · 30–60s", ig: "₹42k", yt: "—", tt: "—" },
+			{ kind: "Review · 5–8m", ig: "—", yt: "₹78k", tt: "—" },
+			{ kind: "Story · 3 frames", ig: "₹20k", yt: "—", tt: "—" },
+			{ kind: "Static post", ig: "₹16k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹320/1k", yt: "₹440/1k", tt: "—" },
+		],
+		platformsDetailed: [
+			{ name: "Instagram", handle: "@nainacleanskin", followers: "528K", growth: "+3.2%", primary: true },
+			{ name: "YouTube", handle: "Naina Bhatt", followers: "140K", growth: "+4.6%", primary: false },
+		],
+	},
+	7: {
+		longBio: [
+			"Practical AI tutorials and dev-tool deep-dives. I've shipped at 2 startups and now teach what I've learned.",
+			"My videos are project-based: build something real in 20 minutes, understand why it works, then ship it. No clickbait thumbnails, no '10x engineer' nonsense.",
+			"Open to dev tools, SaaS, AI/ML platforms, and education brands. I only promote tools I actively use in my workflow.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~6h",
+		rating: 4.82,
+		ratingCount: 10,
+		available: true,
+		exclusive: false,
+		color: "lime",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 20,
+			genderM: 80,
+			ageBuckets: [
+				{ label: "18–24", pct: 42 },
+				{ label: "25–34", pct: 40 },
+				{ label: "35–44", pct: 14 },
+				{ label: "45+", pct: 4 },
+			],
+			topGeo: [
+				{ city: "Bengaluru", pct: 24 },
+				{ city: "Delhi NCR", pct: 14 },
+				{ city: "Mumbai", pct: 12 },
+				{ city: "Hyderabad", pct: 10 },
+				{ city: "Other IN", pct: 22 },
+				{ city: "Outside IN", pct: 18 },
+			],
+			interests: ["AI/ML", "Dev tools", "Startups", "Open source", "SaaS"],
+		},
+		rates: [
+			{ kind: "Tutorial · 15–20m", ig: "—", yt: "₹1.4L", tt: "—" },
+			{ kind: "Shorts · 60s", ig: "₹22k", yt: "₹38k", tt: "—" },
+			{ kind: "Integration · 2–3m", ig: "—", yt: "₹72k", tt: "—" },
+			{ kind: "Story · 3 frames", ig: "₹10k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹360/1k", yt: "₹540/1k", tt: "—" },
+		],
+		platformsDetailed: [
+			{ name: "YouTube", handle: "Devansh Mehra", followers: "318K", growth: "+6.8%", primary: true },
+			{ name: "Instagram", handle: "@devansh.codes", followers: "56K", growth: "+4.2%", primary: false },
+		],
+	},
+	8: {
+		longBio: [
+			"Choreographer who catches trending audio before it trends. I've been dancing since I was 4 and trained in contemporary, hip-hop, and Bollywood.",
+			"My content is movement-first: clean choreography, tight timing, and transitions that make people want to learn the steps. I post tutorials alongside every performance reel.",
+			"Open to fashion, athleisure, music, and lifestyle brands. I work with a team of 3 dancers for group content and can turn around choreo in 48 hours.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~2h",
+		rating: 4.94,
+		ratingCount: 58,
+		available: true,
+		exclusive: false,
+		color: "violet",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 62,
+			genderM: 38,
+			ageBuckets: [
+				{ label: "13–17", pct: 18 },
+				{ label: "18–24", pct: 48 },
+				{ label: "25–34", pct: 26 },
+				{ label: "35+", pct: 8 },
+			],
+			topGeo: [
+				{ city: "Mumbai", pct: 22 },
+				{ city: "Delhi NCR", pct: 18 },
+				{ city: "Bengaluru", pct: 10 },
+				{ city: "Pune", pct: 8 },
+				{ city: "Other IN", pct: 24 },
+				{ city: "Outside IN", pct: 18 },
+			],
+			interests: ["Dance", "Fashion", "Music", "Fitness", "Choreography"],
+		},
+		rates: [
+			{ kind: "Choreo reel · 30–60s", ig: "₹62k", yt: "—", tt: "₹48k" },
+			{ kind: "Tutorial · 2m", ig: "—", yt: "₹52k", tt: "₹38k" },
+			{ kind: "Story · 3 frames", ig: "₹28k", yt: "—", tt: "—" },
+			{ kind: "Group choreo · 60s", ig: "₹92k", yt: "—", tt: "₹72k" },
+			{ kind: "CPM (organic)", ig: "₹420/1k", yt: "—", tt: "₹620/1k" },
+		],
+		platformsDetailed: [
+			{ name: "TikTok", handle: "@mehermoves", followers: "2.1M", growth: "+8.4%", primary: true },
+			{ name: "Instagram", handle: "@mehermoves", followers: "740K", growth: "+5.6%", primary: false },
+		],
+	},
+	9: {
+		longBio: [
+			"Trail runner and solo trekker based in Manali. I field-test gear on real trails and make slow, cinematic content about mountain life.",
+			"My videos are quiet by design — ambient trail sounds, minimal narration, long landscape shots. I believe outdoor content should feel like being there, not watching someone talk about being there.",
+			"Open to outdoor gear, trail running, and adventure travel brands. I only review gear I've tested for at least 2 weeks in the field.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~12h",
+		rating: 4.72,
+		ratingCount: 14,
+		available: true,
+		exclusive: false,
+		color: "sky",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 28,
+			genderM: 72,
+			ageBuckets: [
+				{ label: "18–24", pct: 30 },
+				{ label: "25–34", pct: 44 },
+				{ label: "35–44", pct: 18 },
+				{ label: "45+", pct: 8 },
+			],
+			topGeo: [
+				{ city: "Delhi NCR", pct: 20 },
+				{ city: "Mumbai", pct: 14 },
+				{ city: "Bengaluru", pct: 12 },
+				{ city: "Chandigarh", pct: 8 },
+				{ city: "Other IN", pct: 30 },
+				{ city: "Outside IN", pct: 16 },
+			],
+			interests: ["Trekking", "Trail running", "Outdoor gear", "Mountains", "Photography"],
+		},
+		rates: [
+			{ kind: "Field-test vlog · 8–12m", ig: "—", yt: "₹58k", tt: "—" },
+			{ kind: "Shorts · 60s", ig: "₹16k", yt: "₹24k", tt: "—" },
+			{ kind: "Reel · 30–60s", ig: "₹18k", yt: "—", tt: "—" },
+			{ kind: "Story · 3 frames", ig: "₹8k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹180/1k", yt: "₹260/1k", tt: "—" },
+		],
+		platformsDetailed: [
+			{ name: "YouTube", handle: "Arjun Pillai", followers: "186K", growth: "+2.8%", primary: true },
+			{ name: "Instagram", handle: "@arjun.outsides", followers: "104K", growth: "+3.6%", primary: false },
+		],
+	},
+	10: {
+		longBio: [
+			"Slow book reviews and quiet aesthetic shorts. I read about 40 books a year and review the ones that stay with me.",
+			"My content is intentionally quiet — soft lighting, page sounds, carefully arranged flatlays. I'm a Penguin India regular and have done campaigns with Juggernaut and HarperCollins.",
+			"Open to publishing, stationery, lifestyle, and cozy home brands. I prefer long-term partnerships over one-off posts.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~4h",
+		rating: 4.90,
+		ratingCount: 20,
+		available: true,
+		exclusive: false,
+		color: "violet",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 74,
+			genderM: 26,
+			ageBuckets: [
+				{ label: "18–24", pct: 38 },
+				{ label: "25–34", pct: 40 },
+				{ label: "35–44", pct: 16 },
+				{ label: "45+", pct: 6 },
+			],
+			topGeo: [
+				{ city: "Delhi NCR", pct: 18 },
+				{ city: "Mumbai", pct: 16 },
+				{ city: "Lucknow", pct: 14 },
+				{ city: "Bengaluru", pct: 10 },
+				{ city: "Other IN", pct: 30 },
+				{ city: "Outside IN", pct: 12 },
+			],
+			interests: ["Books", "Literature", "Aesthetic", "Stationery", "Slow living"],
+		},
+		rates: [
+			{ kind: "Reel · 30–60s", ig: "₹12k", yt: "—", tt: "—" },
+			{ kind: "Story · 3 frames", ig: "₹6k", yt: "—", tt: "—" },
+			{ kind: "Long-form review · 5m", ig: "—", yt: "₹22k", tt: "—" },
+			{ kind: "Static post", ig: "₹5k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹110/1k", yt: "₹160/1k", tt: "—" },
+		],
+		platformsDetailed: [
+			{ name: "Instagram", handle: "@sairareadsbooks", followers: "72K", growth: "+6.4%", primary: true },
+			{ name: "YouTube", handle: "Saira Reads", followers: "18K", growth: "+4.2%", primary: false },
+		],
+	},
+	11: {
+		longBio: [
+			"Personal finance for first-jobbers. SEBI-registered RIA. I explain money in plain Hindi-English because jargon is the enemy of financial literacy.",
+			"My content covers SIPs, tax filing, emergency funds, and budgeting — the basics that school never taught. I use real portfolio screenshots (anonymized) and actual returns data.",
+			"Open to fintech, banking, insurance, and investment platforms. I will not promote high-risk instruments to my audience. Every collaboration goes through compliance review.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~8h",
+		rating: 4.86,
+		ratingCount: 28,
+		available: true,
+		exclusive: false,
+		color: "sky",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 30,
+			genderM: 70,
+			ageBuckets: [
+				{ label: "18–24", pct: 32 },
+				{ label: "25–34", pct: 46 },
+				{ label: "35–44", pct: 16 },
+				{ label: "45+", pct: 6 },
+			],
+			topGeo: [
+				{ city: "Mumbai", pct: 24 },
+				{ city: "Delhi NCR", pct: 20 },
+				{ city: "Bengaluru", pct: 14 },
+				{ city: "Pune", pct: 8 },
+				{ city: "Other IN", pct: 22 },
+				{ city: "Outside IN", pct: 12 },
+			],
+			interests: ["Finance", "Investing", "Tax planning", "Startups", "Economics"],
+		},
+		rates: [
+			{ kind: "Explainer · 8–12m", ig: "—", yt: "₹1.1L", tt: "—" },
+			{ kind: "Shorts · 60s", ig: "₹32k", yt: "₹48k", tt: "—" },
+			{ kind: "Integration · 2m", ig: "—", yt: "₹78k", tt: "—" },
+			{ kind: "Story · 3 frames", ig: "₹18k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹340/1k", yt: "₹520/1k", tt: "—" },
+		],
+		platformsDetailed: [
+			{ name: "YouTube", handle: "Vivaan Rao", followers: "880K", growth: "+3.8%", primary: true },
+			{ name: "Instagram", handle: "@vivaaninvests", followers: "320K", growth: "+5.2%", primary: false },
+		],
+	},
+	12: {
+		longBio: [
+			"Daily-vlog girlie based in Goa. Soft, sunlit, very thrifted. My content is about finding beauty in the everyday — morning routines, market walks, sunset sessions.",
+			"I moved to Goa from Delhi two years ago and my content documents this slower life. Thrift hauls, cafe reviews, beach walks, and the occasional fashion reel.",
+			"Open to lifestyle, fashion, beauty, and travel brands. I love thrift and sustainable brands. Nothing fast-fashion, nothing that doesn't fit my Goa aesthetic.",
+		],
+		timezone: "IST · GMT+5:30",
+		responseTime: "~3h",
+		rating: 4.87,
+		ratingCount: 32,
+		available: true,
+		exclusive: false,
+		color: "amber",
+		ratePer: "1k",
+		currency: "₹",
+		audience: {
+			genderF: 70,
+			genderM: 30,
+			ageBuckets: [
+				{ label: "18–24", pct: 44 },
+				{ label: "25–34", pct: 36 },
+				{ label: "35–44", pct: 14 },
+				{ label: "45+", pct: 6 },
+			],
+			topGeo: [
+				{ city: "Mumbai", pct: 20 },
+				{ city: "Delhi NCR", pct: 18 },
+				{ city: "Bengaluru", pct: 12 },
+				{ city: "Goa", pct: 10 },
+				{ city: "Other IN", pct: 26 },
+				{ city: "Outside IN", pct: 14 },
+			],
+			interests: ["Lifestyle", "Thrifting", "Fashion", "Travel", "Cafes"],
+		},
+		rates: [
+			{ kind: "Reel · 30–60s", ig: "₹26k", yt: "—", tt: "₹16k" },
+			{ kind: "Story · 3 frames", ig: "₹12k", yt: "—", tt: "—" },
+			{ kind: "Vlog · 5m", ig: "—", yt: "—", tt: "₹32k" },
+			{ kind: "Static post", ig: "₹10k", yt: "—", tt: "—" },
+			{ kind: "CPM (organic)", ig: "₹200/1k", yt: "—", tt: "₹140/1k" },
+		],
+		platformsDetailed: [
+			{ name: "Instagram", handle: "@parithedaily", followers: "248K", growth: "+4.6%", primary: true },
+			{ name: "TikTok", handle: "@parithedaily", followers: "120K", growth: "+7.8%", primary: false },
+		],
+	},
 };
 
 const PAST_BRANDS = [
@@ -468,50 +1010,6 @@ const REVIEWS = [
 	},
 ];
 
-const SIMILAR_CREATORS = [
-	{
-		id: 12,
-		name: "Pari Gulati",
-		handle: "@parithedaily",
-		color: ["#fef3c7", "#422006"] as [string, string],
-		location: "Goa",
-		category: "Lifestyle",
-		followers: "248K",
-		monthlyViews: "3.8M",
-		engagement: 8.6,
-		rate: 200,
-		accent: "amber",
-		platform: "Instagram",
-	},
-	{
-		id: 6,
-		name: "Naina Bhatt",
-		handle: "@nainacleanskin",
-		color: ["#fecdd3", "#4c0519"] as [string, string],
-		location: "Hyderabad",
-		category: "Beauty",
-		followers: "528K",
-		monthlyViews: "7.6M",
-		engagement: 8.1,
-		rate: 320,
-		accent: "rose",
-		platform: "Instagram",
-	},
-	{
-		id: 3,
-		name: "Tara Iyer",
-		handle: "@tarainthekitchen",
-		color: ["#fed7aa", "#451a03"] as [string, string],
-		location: "Chennai",
-		category: "Food",
-		followers: "286K",
-		monthlyViews: "4.2M",
-		engagement: 9.2,
-		rate: 220,
-		accent: "amber",
-		platform: "Instagram",
-	},
-];
 
 const CAMPAIGN_OPTS = [
 	{
@@ -1631,6 +2129,7 @@ function NavCr() {
 
 /* ─── CrumbCr ──────────────────────────────────────────────────────────────── */
 function CrumbCr() {
+	const CREATOR = useCreator();
 	return (
 		<div style={S.crumb}>
 			<div style={S.crumbLeft}>
@@ -1667,6 +2166,7 @@ function CrumbCr() {
 
 /* ─── CreatorHero ──────────────────────────────────────────────────────────── */
 function CreatorHero({ onInvite }: { onInvite: () => void }) {
+	const CREATOR = useCreator();
 	const ac = ACCENT_MAP_C[CREATOR.color] ?? ACCENT_MAP_C.amber;
 
 	return (
@@ -1910,6 +2410,7 @@ function TabBar({
 
 /* ─── AboutBlock ───────────────────────────────────────────────────────────── */
 function AboutBlock() {
+	const CREATOR = useCreator();
 	return (
 		<div>
 			<div style={S.blockEyebrow}>
@@ -1932,6 +2433,7 @@ function AboutBlock() {
 
 /* ─── AudienceBlock ────────────────────────────────────────────────────────── */
 function AudienceBlock() {
+	const CREATOR = useCreator();
 	const aud = CREATOR.audience;
 	return (
 		<div style={S.audGrid}>
@@ -2061,6 +2563,7 @@ function PostsBlock() {
 
 /* ─── RatesBlock ───────────────────────────────────────────────────────────── */
 function RatesBlock() {
+	const CREATOR = useCreator();
 	return (
 		<div style={S.ratesWrap}>
 			<div>
@@ -2284,6 +2787,7 @@ function ActivityCardCr() {
 
 /* ─── ContactCard (aside) ──────────────────────────────────────────────────── */
 function ContactCard() {
+	const CREATOR = useCreator();
 	const rows: { key: string; val: React.ReactNode }[] = [
 		{ key: "Location", val: CREATOR.location },
 		{ key: "Timezone", val: CREATOR.timezone },
@@ -2323,12 +2827,28 @@ function ContactCard() {
 }
 
 /* ─── SimilarCreators ──────────────────────────────────────────────────────── */
-function SimilarCreators() {
+type SimilarCreator = {
+	id: number;
+	name: string;
+	handle: string;
+	color: [string, string];
+	location: string;
+	category: string;
+	followers: string;
+	monthlyViews: string;
+	engagement: number;
+	rate: number;
+	accent: string;
+	platform: string;
+};
+
+function SimilarCreators({ similarCreators }: { similarCreators: SimilarCreator[] }) {
+	const CREATOR = useCreator();
 	return (
 		<div style={S.similarSection}>
 			<h2 style={S.blockH2}>Similar creators</h2>
 			<div style={S.similarGrid}>
-				{SIMILAR_CREATORS.map((c) => (
+				{similarCreators.map((c) => (
 					<Link
 						key={c.id}
 						href={`/creator/${c.id}`}
@@ -2385,6 +2905,7 @@ function SimilarCreators() {
 
 /* ─── InviteModal ──────────────────────────────────────────────────────────── */
 function InviteModal({ onClose }: { onClose: () => void }) {
+	const CREATOR = useCreator();
 	const [step, setStep] = useState(0);
 	const [selectedCampaign, setSelectedCampaign] = useState<number | null>(null);
 	const [selectedDelivs, setSelectedDelivs] = useState<string[]>([]);
@@ -2698,8 +3219,56 @@ function FooterCr() {
 /*  PAGE                                                                      */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 export default function CreatorDetailPage() {
+	const params = useParams();
+	const id = Number(params.id);
+	const base = CREATORS.find((c) => c.id === id);
+
 	const [tab, setTab] = useState<TabName>("About");
 	const [showInvite, setShowInvite] = useState(false);
+
+	if (!base) {
+		return (
+			<div style={{ padding: 80, textAlign: "center", color: "var(--color-ink-2)" }}>
+				Creator not found
+			</div>
+		);
+	}
+
+	const details = CREATOR_DETAILS[id] ?? CREATOR_DETAILS[1];
+	const creator: CreatorData = {
+		...base,
+		...details,
+		followersFmt: fmtFollowers(base.followers),
+		monthlyViewsFmt: fmtViews(base.monthlyViews),
+		platforms: details.platformsDetailed,
+	};
+
+	const similarCreators = (() => {
+		const matched = CREATORS
+			.filter((c) => c.id !== id)
+			.filter((c) => c.category === base.category || c.tags.some((t) => base.tags.includes(t)))
+			.slice(0, 3);
+		const result = matched.length >= 3
+			? matched
+			: [
+					...matched,
+					...CREATORS.filter((c) => c.id !== id && !matched.includes(c)).slice(0, 3 - matched.length),
+				];
+		return result.map((c) => ({
+			id: c.id,
+			name: c.name,
+			handle: c.handle,
+			color: c.avatarColor,
+			location: c.location,
+			category: c.category,
+			followers: fmtFollowers(c.followers),
+			monthlyViews: fmtViews(c.monthlyViews),
+			engagement: c.engagement,
+			rate: c.avgRate,
+			accent: CREATOR_DETAILS[c.id]?.color ?? "amber",
+			platform: c.primaryPlatform,
+		}));
+	})();
 
 	const renderTab = () => {
 		switch (tab) {
@@ -2719,28 +3288,30 @@ export default function CreatorDetailPage() {
 	};
 
 	return (
-		<>
-			<div className="ambient" />
-			<div className="grain" />
-			<div style={S.page}>
-				<NavCr />
-				<div className="shell">
-					<CrumbCr />
-					<CreatorHero onInvite={() => setShowInvite(true)} />
-					<TabBar active={tab} onChange={setTab} />
-					<div style={S.contentGrid}>
-						<div style={S.main}>{renderTab()}</div>
-						<aside style={S.aside}>
-							<FitCard />
-							<ActivityCardCr />
-							<ContactCard />
-						</aside>
+		<CreatorCtx.Provider value={creator}>
+			<>
+				<div className="ambient" />
+				<div className="grain" />
+				<div style={S.page}>
+					<NavCr />
+					<div className="shell">
+						<CrumbCr />
+						<CreatorHero onInvite={() => setShowInvite(true)} />
+						<TabBar active={tab} onChange={setTab} />
+						<div style={S.contentGrid}>
+							<div style={S.main}>{renderTab()}</div>
+							<aside style={S.aside}>
+								<FitCard />
+								<ActivityCardCr />
+								<ContactCard />
+							</aside>
+						</div>
+						<SimilarCreators similarCreators={similarCreators} />
 					</div>
-					<SimilarCreators />
+					<FooterCr />
 				</div>
-				<FooterCr />
-			</div>
-			{showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
-		</>
+				{showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
+			</>
+		</CreatorCtx.Provider>
 	);
 }

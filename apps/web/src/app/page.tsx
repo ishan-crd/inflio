@@ -32,11 +32,8 @@ function LNav() {
 					className="nav-links"
 					style={{ flex: 1, justifyContent: "center", display: "flex" }}
 				>
-					<a href="#how-it-works">How it works</a>
-					<a href="#marketplace">Marketplace</a>
 					<Link href="/marketplace">Campaigns</Link>
 					<Link href="/creators">Creators</Link>
-					<a href="#pricing">Pricing</a>
 				</div>
 
 				{/* CTA */}
