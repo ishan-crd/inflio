@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, createContext, useContext, type SVGProps } from "react";
 import { useParams } from "next/navigation";
 import { CREATORS, fmtFollowers, fmtViews } from "@/data/creators";
+import { Nav as SharedNav } from "@/components/nav";
 import {
 	ArrowIcon,
 	BackIcon,
@@ -2076,56 +2077,7 @@ const S: Record<string, React.CSSProperties> = {
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ─── NavCr ────────────────────────────────────────────────────────────────── */
-function NavCr() {
-	return (
-		<nav className="nav">
-			<div className="shell">
-				<div className="nav-inner">
-					<Link
-						href="/"
-						className="logo"
-						style={{ textDecoration: "none", color: "inherit" }}
-					>
-						<div className="logo-dot" />
-						inflio
-					</Link>
-
-					<div className="nav-links">
-						<Link href="/marketplace">Marketplace</Link>
-						<Link href="/creators" className="active">
-							Creators
-						</Link>
-						<a href="#">Lists</a>
-						<a href="#">Analytics</a>
-						<a href="#">Help</a>
-					</div>
-
-					<div className="nav-cta">
-						<button
-							className="btn btn-ghost"
-							style={{ padding: "8px 10px" }}
-							aria-label="Notifications"
-						>
-							<BellIcon />
-						</button>
-						<button className="btn btn-glass" style={{ fontSize: 13 }}>
-							For creators
-						</button>
-						<div
-							className="avatar"
-							style={{
-								background: "linear-gradient(135deg, #4ade80, #16a34a)",
-								color: "#052e16",
-							}}
-						>
-							BR
-						</div>
-					</div>
-				</div>
-			</div>
-		</nav>
-	);
-}
+// Nav is now shared via @/components/nav
 
 /* ─── CrumbCr ──────────────────────────────────────────────────────────────── */
 function CrumbCr() {
@@ -3293,7 +3245,7 @@ export default function CreatorDetailPage() {
 				<div className="ambient" />
 				<div className="grain" />
 				<div style={S.page}>
-					<NavCr />
+					<SharedNav />
 					<div className="shell">
 						<CrumbCr />
 						<CreatorHero onInvite={() => setShowInvite(true)} />

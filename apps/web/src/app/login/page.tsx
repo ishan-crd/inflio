@@ -15,6 +15,7 @@ import {
 	VerifiedIcon,
 	YTIcon,
 } from "@/components/icons";
+import { signIn } from "@/lib/auth-client";
 
 // ---------- AuthAside ----------
 
@@ -185,7 +186,10 @@ function AuthPanel() {
 	}
 
 	function handleGoogle() {
-		router.push(`/onboarding?role=${role}`);
+		signIn.social({
+			provider: "google",
+			callbackURL: `/onboarding?role=${role}`,
+		});
 	}
 
 	function handleSubmit(e: React.FormEvent) {

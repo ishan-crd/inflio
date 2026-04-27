@@ -19,6 +19,7 @@ import {
 	YTIcon,
 } from "@/components/icons";
 import { CAMPAIGNS, ACCENT_MAP, BRAND_COLORS } from "@/data/campaigns";
+import { Nav as SharedNav } from "@/components/nav";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type P = SVGProps<SVGSVGElement>;
@@ -548,40 +549,7 @@ const TAB_NAMES = [
 ];
 
 // ─── Nav ────────────────────────────────────────────────────────────────────
-function Nav() {
-	return (
-		<nav className="nav">
-			<div className="shell">
-				<div className="nav-inner">
-					<Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
-						<div className="logo">
-							<div className="logo-dot" />
-							inflio
-						</div>
-					</Link>
-					<div className="nav-links">
-						<Link href="/marketplace" className="active">
-							Marketplace
-						</Link>
-						<Link href="/campaigns">My campaigns</Link>
-						<Link href="/earnings">Earnings</Link>
-						<Link href="/insights">Insights</Link>
-						<Link href="/help">Help</Link>
-					</div>
-					<div className="nav-cta">
-						<button className="btn btn-ghost" aria-label="Notifications">
-							<BellIcon />
-						</button>
-						<Link href="/brands" className="btn btn-primary">
-							For brands
-						</Link>
-						<div className="avatar">RA</div>
-					</div>
-				</div>
-			</div>
-		</nav>
-	);
-}
+// Nav is now shared via @/components/nav
 
 // ─── Breadcrumb ─────────────────────────────────────────────────────────────
 function Crumb() {
@@ -2537,7 +2505,7 @@ export default function CampaignDetailPage() {
 				<div className="ambient" />
 				<div className="grain" />
 
-				<Nav />
+				<SharedNav />
 
 				<div className="shell">
 					<Crumb />

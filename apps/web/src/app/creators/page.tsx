@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Nav as SharedNav } from "@/components/nav";
 import {
 	ArrowIcon,
 	BellIcon,
@@ -32,59 +33,7 @@ import {
 /* ─────────────────────────────────────────────
    CNav
 ───────────────────────────────────────────── */
-function CNav() {
-	return (
-		<nav className="nav">
-			<div className="shell">
-				<div className="nav-inner">
-					{/* Logo */}
-					<Link
-						href="/"
-						className="logo"
-						style={{ textDecoration: "none", color: "inherit" }}
-					>
-						<div className="logo-dot" />
-						inflio
-					</Link>
-
-					{/* Links */}
-					<div className="nav-links">
-						<Link href="/marketplace">Campaigns</Link>
-						<Link href="/creators" className="active">
-							Creators
-						</Link>
-						<a href="#">Lists</a>
-						<a href="#">Analytics</a>
-						<a href="#">Help</a>
-					</div>
-
-					{/* Right side */}
-					<div className="nav-cta">
-						<button
-							className="btn btn-ghost"
-							style={{ padding: "8px 10px" }}
-							aria-label="Notifications"
-						>
-							<BellIcon />
-						</button>
-						<button className="btn btn-glass" style={{ fontSize: 13 }}>
-							For creators
-						</button>
-						<div
-							className="avatar"
-							style={{
-								background: "linear-gradient(135deg, #4ade80, #16a34a)",
-								color: "#052e16",
-							}}
-						>
-							BR
-						</div>
-					</div>
-				</div>
-			</div>
-		</nav>
-	);
-}
+// Nav is now shared via @/components/nav
 
 /* ─────────────────────────────────────────────
    CHero
@@ -831,7 +780,7 @@ export default function CreatorsPage() {
 			<div className="ambient" />
 			<div className="grain" />
 
-			<CNav />
+			<SharedNav />
 
 			<CHero search={search} onSearch={setSearch} />
 

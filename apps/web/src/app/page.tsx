@@ -9,46 +9,7 @@ import {
 	VerifiedIcon,
 	YTIcon,
 } from "@/components/icons";
-
-/* ─────────────────────────────────────────
-   LNav
-───────────────────────────────────────── */
-function LNav() {
-	return (
-		<nav className="nav">
-			<div className="shell nav-inner">
-				{/* Logo */}
-				<Link
-					href="/"
-					className="logo"
-					style={{ textDecoration: "none", color: "inherit" }}
-				>
-					<div className="logo-dot" />
-					Inflio
-				</Link>
-
-				{/* Links */}
-				<div
-					className="nav-links"
-					style={{ flex: 1, justifyContent: "center", display: "flex" }}
-				>
-					<Link href="/marketplace">Campaigns</Link>
-					<Link href="/creators">Creators</Link>
-				</div>
-
-				{/* CTA */}
-				<div className="nav-cta">
-					<Link href="/login" className="btn btn-ghost">
-						Sign in
-					</Link>
-					<Link href="/login?mode=signup" className="btn btn-primary">
-						Get started <ArrowIcon />
-					</Link>
-				</div>
-			</div>
-		</nav>
-	);
-}
+import { Nav as SharedNav } from "@/components/nav";
 
 /* ─────────────────────────────────────────
    Float cards – hero preview
@@ -780,7 +741,7 @@ export default function LandingPage() {
 			<div className="ambient" />
 			<div className="grain" />
 			<div className="landing">
-				<LNav />
+				<SharedNav />
 				<LHero />
 				<HowItWorks />
 				<MarketplacePreview />

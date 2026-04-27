@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Nav as SharedNav } from "@/components/nav";
 import {
 	ArrowIcon,
 	BellIcon,
@@ -431,45 +432,7 @@ function CampaignCard({ c }: { c: Campaign }) {
 }
 
 // ─── Nav ───────────────────────────────────────────────────────────────────
-function Nav() {
-	return (
-		<nav className="nav">
-			<div className="shell">
-				<div className="nav-inner">
-					{/* Logo */}
-					<Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
-						<div className="logo">
-							<div className="logo-dot" />
-							inflio
-						</div>
-					</Link>
-
-					{/* Links */}
-					<div className="nav-links">
-						<Link href="/marketplace" className="active">
-							Marketplace
-						</Link>
-						<Link href="/campaigns">My campaigns</Link>
-						<Link href="/earnings">Earnings</Link>
-						<Link href="/insights">Insights</Link>
-						<Link href="/help">Help</Link>
-					</div>
-
-					{/* Right actions */}
-					<div className="nav-cta">
-						<button className="btn btn-ghost" aria-label="Notifications">
-							<BellIcon />
-						</button>
-						<Link href="/brands" className="btn btn-primary">
-							For brands
-						</Link>
-						<div className="avatar">RA</div>
-					</div>
-				</div>
-			</div>
-		</nav>
-	);
-}
+// Nav is now shared via @/components/nav
 
 // ─── Hero ──────────────────────────────────────────────────────────────────
 function Hero() {
@@ -580,7 +543,7 @@ export default function MarketplacePage() {
 			<div className="ambient" />
 			<div className="grain" />
 
-			<Nav />
+			<SharedNav />
 			<Hero />
 
 			<FilterBar
