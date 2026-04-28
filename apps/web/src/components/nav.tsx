@@ -45,7 +45,7 @@ export function Nav() {
 function PublicNav({ pathname }: { pathname: string }) {
 	return (
 		<nav className="nav">
-			<div className="shell nav-inner">
+			<div className="shell nav-inner" style={{ position: "relative" }}>
 				<Link
 					href="/"
 					className="logo"
@@ -57,7 +57,12 @@ function PublicNav({ pathname }: { pathname: string }) {
 
 				<div
 					className="nav-links"
-					style={{ flex: 1, justifyContent: "center", display: "flex" }}
+					style={{
+						position: "absolute",
+						left: "50%",
+						transform: "translateX(-50%)",
+						display: "flex",
+					}}
 				>
 					<Link href="/marketplace" className={pathname === "/marketplace" ? "active" : ""}>
 						Campaigns
