@@ -187,7 +187,9 @@ function AuthPanel() {
 	function handleGoogle() {
 		signIn.social({
 			provider: "google",
-			callbackURL: `/onboarding?role=${role}`,
+			callbackURL: isSignup
+				? `/auth/callback?role=${role}`
+				: "/marketplace",
 		});
 	}
 

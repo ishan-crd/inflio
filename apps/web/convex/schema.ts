@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export default defineSchema({
 	brands: defineTable({
+		userId: v.optional(v.string()), // linked auth user id
 		name: v.string(),
 		handle: v.string(),
 		logoColors: v.array(v.string()), // [bg, text]
@@ -13,7 +14,9 @@ export default defineSchema({
 		responseTime: v.string(),
 		website: v.optional(v.string()),
 		category: v.string(),
-	}).index("by_handle", ["handle"]),
+	})
+		.index("by_handle", ["handle"])
+		.index("by_userId", ["userId"]),
 
 	campaigns: defineTable({
 		brandId: v.id("brands"),
@@ -116,6 +119,12 @@ export default defineSchema({
 		campaignId: v.number(), // local campaign id (from static data for now)
 		campaignTitle: v.string(),
 		campaignBrand: v.string(),
+		campaignCategory: v.optional(v.string()),
+		campaignRate: v.optional(v.number()),
+		campaignCurrency: v.optional(v.string()),
+		campaignPerViews: v.optional(v.string()),
+		campaignDeadline: v.optional(v.string()),
+		campaignColor: v.optional(v.string()),
 		platform: v.string(), // which platform they're applying with
 		platformHandle: v.string(),
 		platformFollowers: v.string(),

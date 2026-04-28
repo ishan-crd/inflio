@@ -1013,9 +1013,7 @@ function Tabs({
 				position: "sticky",
 				top: 68,
 				zIndex: 40,
-				backdropFilter: "blur(16px)",
-				WebkitBackdropFilter: "blur(16px)",
-				background: "linear-gradient(180deg, rgba(10,10,12,0.9), rgba(10,10,12,0.7))",
+				background: "transparent",
 				borderBottom: "1px solid var(--color-line)",
 				marginBottom: 32,
 			}}
@@ -2173,6 +2171,12 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 				campaignId: CAMPAIGN.id,
 				campaignTitle: CAMPAIGN.title,
 				campaignBrand: CAMPAIGN.brand,
+				campaignCategory: CAMPAIGN.category,
+				campaignRate: CAMPAIGN.rate,
+				campaignCurrency: CAMPAIGN.currency,
+				campaignPerViews: CAMPAIGN.perViews,
+				campaignDeadline: CAMPAIGN.deadline,
+				campaignColor: CAMPAIGN.color,
 				platform: platform.name,
 				platformHandle: platform.handle,
 				platformFollowers: platform.followers,
@@ -2329,22 +2333,41 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 								</div>
 							</div>
 						</div>
-						<button
-							onClick={onClose}
-							style={{
-								width: "100%",
-								padding: "12px 0",
-								borderRadius: 10,
-								border: "none",
-								background: `linear-gradient(135deg, ${accent.chip}, ${accent.text})`,
-								color: "#0a0a0c",
-								fontSize: 13.5,
-								fontWeight: 700,
-								cursor: "pointer",
-							}}
-						>
-							Done
-						</button>
+						<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+							<button
+								onClick={onClose}
+								style={{
+									padding: "12px 0",
+									borderRadius: 10,
+									border: "1px solid var(--color-line-2)",
+									background: "var(--color-glass)",
+									color: "var(--color-ink-1)",
+									fontSize: 13.5,
+									fontWeight: 600,
+									cursor: "pointer",
+								}}
+							>
+								Done
+							</button>
+							<Link
+								href="/applications?tab=applications"
+								style={{
+									padding: "12px 0",
+									borderRadius: 10,
+									border: "none",
+									background: `linear-gradient(135deg, ${accent.chip}, ${accent.text})`,
+									color: "#0a0a0c",
+									fontSize: 13.5,
+									fontWeight: 700,
+									cursor: "pointer",
+									textAlign: "center",
+									textDecoration: "none",
+									display: "block",
+								}}
+							>
+								View Applications
+							</Link>
+						</div>
 					</div>
 				) : (
 					/* Step-based form */

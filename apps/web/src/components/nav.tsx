@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { ArrowIcon, BellIcon } from "@/components/icons";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 function initials(s: string) {
 	return s
@@ -20,9 +22,21 @@ export function Nav() {
 	const { data: session } = useSession();
 	const pathname = usePathname();
 	const loggedIn = !!session?.user;
+	const userId = session?.user?.id;
+
+	const creatorProfile = useQuery(
+		api.creators.getByUserId,
+		userId ? { userId } : "skip",
+	);
+	const brandProfile = useQuery(
+		api.brands.getByUserId,
+		userId ? { userId } : "skip",
+	);
+
+	const role: "creator" | "brand" = brandProfile ? "brand" : "creator";
 
 	if (loggedIn) {
-		return <LoggedInNav pathname={pathname} name={session.user.name ?? ""} image={session.user.image} />;
+		return <LoggedInNav pathname={pathname} name={session.user.name ?? ""} image={session.user.image} role={role} />;
 	}
 
 	return <PublicNav pathname={pathname} />;
@@ -196,11 +210,28 @@ function LoggedInNav({
 	pathname,
 	name,
 	image,
+	role,
 }: {
 	pathname: string;
 	name: string;
 	image?: string | null;
+	role: "creator" | "brand";
 }) {
+	const links =
+		role === "brand"
+			? [
+					{ href: "/marketplace", label: "Campaigns" },
+					{ href: "/creators", label: "Creators" },
+					{ href: "/campaigns", label: "My Campaigns" },
+					{ href: "/dashboard", label: "Dashboard" },
+				]
+			: [
+					{ href: "/marketplace", label: "Campaigns" },
+					{ href: "/creators", label: "Creators" },
+					{ href: "/applications?tab=submissions", label: "My Submissions" },
+					{ href: "/dashboard", label: "Dashboard" },
+				];
+
 	return (
 		<nav className="nav">
 			<div className="shell">
@@ -213,18 +244,15 @@ function LoggedInNav({
 					</Link>
 
 					<div className="nav-links">
-						<Link href="/marketplace" className={pathname === "/marketplace" ? "active" : ""}>
-							Campaigns
-						</Link>
-						<Link href="/creators" className={pathname === "/creators" ? "active" : ""}>
-							Creators
-						</Link>
-						<Link href="/campaigns" className={pathname === "/campaigns" ? "active" : ""}>
-							My campaigns
-						</Link>
-						<Link href="/earnings" className={pathname === "/earnings" ? "active" : ""}>
-							Earnings
-						</Link>
+						{links.map((l) => (
+							<Link
+								key={l.href}
+								href={l.href}
+								className={pathname === l.href.split("?")[0] ? "active" : ""}
+							>
+								{l.label}
+							</Link>
+						))}
 					</div>
 
 					<div className="nav-cta">

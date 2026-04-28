@@ -35,6 +35,70 @@ export const getByUserId = query({
 	},
 });
 
+export const onboard = mutation({
+	args: {
+		userId: v.string(),
+		name: v.string(),
+		handle: v.string(),
+		city: v.string(),
+		tier: v.string(),
+		niches: v.array(v.string()),
+		connected: v.array(v.string()),
+		upi: v.string(),
+		pan: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const colors = ["#bef264", "#a3e635"];
+		const primaryPlatform = args.connected[0] || "Instagram";
+		const platforms = args.connected.map((name, i) => ({
+			name,
+			handle: `@${args.handle}`,
+			followers: "0",
+			growth: "+0%",
+			primary: i === 0,
+		}));
+
+		return await ctx.db.insert("creators", {
+			userId: args.userId,
+			name: args.name,
+			handle: args.handle,
+			avatarColor: colors,
+			location: args.city,
+			bio: `${args.niches.slice(0, 2).join(" & ")} creator`,
+			longBio: [`${args.niches.join(", ")} content creator based in ${args.city}.`],
+			primaryPlatform,
+			platforms: platforms.length > 0 ? platforms : [{ name: "Instagram", handle: `@${args.handle}`, followers: "0", growth: "+0%", primary: true }],
+			followers: 0,
+			monthlyViews: 0,
+			engagement: 0,
+			avgRate: 0,
+			currency: "₹",
+			category: args.niches[0] || "Lifestyle",
+			tags: args.niches,
+			completedDeals: 0,
+			trending: false,
+			tier: args.tier,
+			verified: false,
+			spark: [0, 0, 0, 0, 0, 0, 0],
+			timezone: "IST",
+			responseTime: "—",
+			rating: 0,
+			ratingCount: 0,
+			available: true,
+			exclusive: false,
+			color: "lime",
+			audience: {
+				genderF: 50,
+				genderM: 50,
+				ageBuckets: [{ label: "18-24", pct: 40 }, { label: "25-34", pct: 35 }, { label: "35+", pct: 25 }],
+				topGeo: [{ city: args.city || "India", pct: 60 }],
+				interests: args.niches,
+			},
+			rates: [{ kind: "Reel", ig: "—", yt: "—", tt: "—" }],
+		});
+	},
+});
+
 export const create = mutation({
 	args: {
 		userId: v.optional(v.string()),

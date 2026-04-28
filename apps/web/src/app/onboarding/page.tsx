@@ -14,6 +14,9 @@ import {
 	TTIcon,
 	YTIcon,
 } from "@/components/icons";
+import { useSession } from "@/lib/auth-client";
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -55,19 +58,19 @@ const TIERS = [
 	{
 		id: "micro",
 		label: "Micro",
-		range: "10K – 100K",
+		range: "1K – 50K",
 		desc: "High engagement, niche reach",
 	},
 	{
-		id: "mid",
-		label: "Mid",
-		range: "100K – 1M",
+		id: "med",
+		label: "Med",
+		range: "50K – 100K",
 		desc: "Balanced scale & community",
 	},
 	{
 		id: "macro",
 		label: "Macro",
-		range: "1M+",
+		range: "100K+",
 		desc: "Broad reach, premium deals",
 	},
 ];
@@ -254,11 +257,45 @@ function CreatorStep2({
 	data: CreatorData;
 	onChange: (patch: Partial<CreatorData>) => void;
 }) {
+	const [showOtherInput, setShowOtherInput] = useState(false);
+	const [otherValue, setOtherValue] = useState("");
+
+	const customNiche = data.niches.find((n) => !CREATOR_NICHES.includes(n));
+
 	function toggle(niche: string) {
 		if (data.niches.includes(niche)) {
 			onChange({ niches: data.niches.filter((n) => n !== niche) });
 		} else if (data.niches.length < 4) {
 			onChange({ niches: [...data.niches, niche] });
+		}
+	}
+
+	function handleOtherClick() {
+		if (customNiche) {
+			// Already has a custom niche — open input to edit it
+			setOtherValue(customNiche);
+			setShowOtherInput(true);
+		} else {
+			setShowOtherInput(true);
+		}
+	}
+
+	function addCustomNiche() {
+		const trimmed = otherValue.trim();
+		if (!trimmed) return;
+		// Remove old custom niche if editing, then add new one
+		const withoutCustom = data.niches.filter((n) => CREATOR_NICHES.includes(n));
+		if (withoutCustom.includes(trimmed)) return;
+		if (withoutCustom.length >= 4) return;
+		onChange({ niches: [...withoutCustom, trimmed] });
+		setShowOtherInput(false);
+		setOtherValue("");
+	}
+
+	function handleKeyDown(e: React.KeyboardEvent) {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			addCustomNiche();
 		}
 	}
 
@@ -280,9 +317,54 @@ function CreatorStep2({
 						{n}
 					</button>
 				))}
+				<button
+					className={customNiche ? "active" : ""}
+					onClick={handleOtherClick}
+				>
+					{customNiche || "Other"}
+				</button>
 			</div>
 
-			<div style={{ fontSize: 12, color: "var(--color-ink-2)" }}>
+			{showOtherInput && (
+				<div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+					<input
+						type="text"
+						value={otherValue}
+						onChange={(e) => setOtherValue(e.target.value)}
+						onKeyDown={handleKeyDown}
+						placeholder="Type your niche..."
+						autoFocus
+						style={{
+							flex: 1,
+							padding: "10px 14px",
+							borderRadius: 10,
+							border: "1px solid var(--color-line-2)",
+							background: "rgba(255,255,255,0.03)",
+							color: "var(--color-ink-0)",
+							fontSize: 13.5,
+							outline: "none",
+						}}
+					/>
+					<button
+						onClick={addCustomNiche}
+						disabled={!otherValue.trim()}
+						style={{
+							padding: "10px 16px",
+							borderRadius: 10,
+							border: "none",
+							background: otherValue.trim() ? "var(--color-accent)" : "var(--color-glass)",
+							color: otherValue.trim() ? "#0a0a0c" : "var(--color-ink-3)",
+							fontSize: 13,
+							fontWeight: 600,
+							cursor: otherValue.trim() ? "pointer" : "default",
+						}}
+					>
+						Add
+					</button>
+				</div>
+			)}
+
+			<div style={{ fontSize: 12, color: "var(--color-ink-2)", marginTop: showOtherInput ? 8 : 0 }}>
 				{data.niches.length} / 4 selected
 			</div>
 		</div>
@@ -647,7 +729,12 @@ function OnboardingInner() {
 		| "creator"
 		| "brand";
 
+	const { data: session } = useSession();
+	const onboardCreator = useMutation(api.creators.onboard);
+	const onboardBrand = useMutation(api.brands.onboard);
+
 	const [step, setStep] = useState(0);
+	const [saving, setSaving] = useState(false);
 
 	const [creatorData, setCreatorData] = useState<CreatorData>({
 		name: "",
@@ -673,6 +760,7 @@ function OnboardingInner() {
 
 	// ---- Validation ----
 	function canContinue(): boolean {
+		if (saving) return false;
 		if (role === "creator") {
 			if (step === 0)
 				return (
@@ -698,8 +786,52 @@ function OnboardingInner() {
 		return true;
 	}
 
-	function handleNext() {
-		if (step < TOTAL_STEPS) setStep((s) => s + 1);
+	async function handleNext() {
+		if (step < TOTAL_STEPS - 1) {
+			setStep((s) => s + 1);
+			return;
+		}
+
+		// Final step — save to DB
+		if (!session?.user) {
+			// Not logged in, just advance to show success (data won't persist)
+			setStep((s) => s + 1);
+			return;
+		}
+
+		setSaving(true);
+		try {
+			if (role === "creator") {
+				await onboardCreator({
+					userId: session.user.id,
+					name: creatorData.name,
+					handle: creatorData.handle,
+					city: creatorData.city,
+					tier: creatorData.tier,
+					niches: creatorData.niches,
+					connected: creatorData.connected,
+					upi: creatorData.upi,
+					pan: creatorData.pan,
+				});
+			} else {
+				await onboardBrand({
+					userId: session.user.id,
+					company: brandData.company,
+					website: brandData.website,
+					role: brandData.role,
+					industry: brandData.industry,
+					goal: brandData.goal,
+					budget: brandData.budget,
+				});
+			}
+			setStep((s) => s + 1);
+		} catch (err) {
+			console.error("Failed to save onboarding data:", err);
+			// Still advance so user isn't stuck
+			setStep((s) => s + 1);
+		} finally {
+			setSaving(false);
+		}
 	}
 
 	function handleBack() {
@@ -825,7 +957,7 @@ function OnboardingInner() {
 							onBack={handleBack}
 							onNext={handleNext}
 							canContinue={canContinue()}
-							nextLabel={step === TOTAL_STEPS - 1 ? "Finish" : "Continue"}
+							nextLabel={saving ? "Saving..." : step === TOTAL_STEPS - 1 ? "Finish" : "Continue"}
 						/>
 					</div>
 				)}

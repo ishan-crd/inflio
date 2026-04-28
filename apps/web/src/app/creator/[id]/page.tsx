@@ -1401,6 +1401,7 @@ const S: Record<string, React.CSSProperties> = {
 		gap: 0,
 		borderBottom: "1px solid var(--color-line)",
 		margin: "40px 0 0",
+		background: "transparent",
 	},
 	tab: {
 		fontSize: 13.5,

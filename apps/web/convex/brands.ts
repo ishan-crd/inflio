@@ -25,8 +25,47 @@ export const getByHandle = query({
 	},
 });
 
+export const getByUserId = query({
+	args: { userId: v.string() },
+	handler: async (ctx, args) => {
+		return await ctx.db
+			.query("brands")
+			.withIndex("by_userId", (q) => q.eq("userId", args.userId))
+			.first();
+	},
+});
+
+export const onboard = mutation({
+	args: {
+		userId: v.string(),
+		company: v.string(),
+		website: v.string(),
+		role: v.string(),
+		industry: v.string(),
+		goal: v.string(),
+		budget: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const handle = args.company.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+		return await ctx.db.insert("brands", {
+			userId: args.userId,
+			name: args.company,
+			handle,
+			logoColors: ["#1e1e24", "#f5f5f5"],
+			bio: `${args.industry} brand focused on ${args.goal}`,
+			followers: "0",
+			rating: "—",
+			totalPaidOut: "₹0",
+			responseTime: "—",
+			website: args.website || undefined,
+			category: args.industry,
+		});
+	},
+});
+
 export const create = mutation({
 	args: {
+		userId: v.optional(v.string()),
 		name: v.string(),
 		handle: v.string(),
 		logoColors: v.array(v.string()),
@@ -46,6 +85,7 @@ export const create = mutation({
 export const update = mutation({
 	args: {
 		id: v.id("brands"),
+		userId: v.optional(v.string()),
 		name: v.optional(v.string()),
 		handle: v.optional(v.string()),
 		logoColors: v.optional(v.array(v.string())),
