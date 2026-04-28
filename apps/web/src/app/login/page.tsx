@@ -38,27 +38,37 @@ function AuthAside({ role }: { role: "creator" | "brand" }) {
 		{ num: "₹2.4 Cr", label: "Paid this month" },
 	];
 
-	// Mini campaign card data
-	const campaignCard = {
-		brand: "ZestBrew",
-		brandInitial: "Z",
-		brandColor: "linear-gradient(135deg, #f97316, #ea580c)",
-		handle: "@zestbrew",
-		title: "Summer Energy Drink Launch",
-		platforms: ["Instagram", "YouTube"],
-		rate: "18,000",
-		per: "post",
-		spotsLeft: 3,
-		spotsTotal: 10,
-	};
+	const features = isCreator
+		? [
+				{ text: "Get paid per view — no flat fees, no lowballs" },
+				{ text: "Pick campaigns that match your niche" },
+				{ text: "Track earnings in real-time" },
+				{ text: "Keep full creative control" },
+			]
+		: [
+				{ text: "Access 12,000+ verified creators" },
+				{ text: "Pay only for real, verified views" },
+				{ text: "Campaign analytics in real-time" },
+				{ text: "Average 6-hour creator response time" },
+			];
 
-	// Mini earnings ticker
-	const ticker = {
-		label: "Earnings this week",
-		num: "₹42,800",
-		delta: "+₹3,200 today",
-		bars: [40, 65, 45, 80, 55, 90, 70],
-	};
+	const testimonial = isCreator
+		? {
+				quote:
+					"I made ₹1.8L in my first month on Inflio. The CPM model means I actually get rewarded when my content performs.",
+				name: "Aanya Verma",
+				handle: "@aanya.shoots",
+				stat: "₹4.2L earned",
+				colors: ["#fde68a", "#7c2d12"] as [string, string],
+			}
+		: {
+				quote:
+					"We ran our cold brew launch entirely through Inflio. 22 creators, 4.8M views, sold out in 3 days. Best ROI we've ever seen.",
+				name: "Kavi Coffee Co.",
+				handle: "@kavicoffee",
+				stat: "4.8M views",
+				colors: ["#fed7aa", "#431407"] as [string, string],
+			};
 
 	return (
 		<aside className="auth-aside">
@@ -78,10 +88,23 @@ function AuthAside({ role }: { role: "creator" | "brand" }) {
 				</Link>
 			</div>
 
-			{/* Quote + stats */}
-			<div>
+			{/* Main content — centered */}
+			<div className="auth-aside-content">
 				<p className="auth-aside-quote">{quote}</p>
 
+				{/* Feature list */}
+				<div className="auth-aside-features">
+					{features.map((f, i) => (
+						<div key={i} className="auth-aside-feature">
+							<div className="auth-aside-check">
+								<CheckIcon />
+							</div>
+							<span>{f.text}</span>
+						</div>
+					))}
+				</div>
+
+				{/* Stats */}
 				<div className="auth-aside-stats">
 					{stats.map((s) => (
 						<div className="auth-aside-stat" key={s.label}>
@@ -90,70 +113,46 @@ function AuthAside({ role }: { role: "creator" | "brand" }) {
 						</div>
 					))}
 				</div>
-			</div>
 
-			{/* Floating cards */}
-			<div className="auth-side-cards">
-				{/* Campaign card */}
-				<div className="aside-fc a1">
-					<div className="fc-row">
+				{/* Testimonial */}
+				<div className="auth-aside-testimonial">
+					<p className="auth-aside-testimonial-text">
+						&ldquo;{testimonial.quote}&rdquo;
+					</p>
+					<div className="auth-aside-testimonial-author">
 						<div
-							className="fc-mark"
-							style={{ background: campaignCard.brandColor, color: "#fff" }}
+							className="auth-aside-testimonial-avatar"
+							style={{
+								background: `linear-gradient(135deg, ${testimonial.colors[0]}, ${testimonial.colors[1]})`,
+								color: testimonial.colors[1],
+							}}
 						>
-							{campaignCard.brandInitial}
+							{testimonial.name
+								.split(/\s+/)
+								.slice(0, 2)
+								.map((w) => w[0])
+								.join("")
+								.toUpperCase()}
 						</div>
 						<div>
-							<div className="fc-name">
-								{campaignCard.brand}
-								<VerifiedIcon
-									style={{
-										color: "var(--color-accent-strong)",
-										marginLeft: 4,
-										verticalAlign: "middle",
-									}}
-								/>
+							<div className="auth-aside-testimonial-name">
+								{testimonial.name}
 							</div>
-							<div className="fc-handle">{campaignCard.handle}</div>
-						</div>
-					</div>
-
-					<p className="fc-title">{campaignCard.title}</p>
-
-					<div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-						{campaignCard.platforms.map((p) => (
-							<span className="platform-pill" key={p}>
-								{p === "Instagram" && <IGIcon />}
-								{p === "YouTube" && <YTIcon />}
-								{p === "TikTok" && <TTIcon />}
-								{p}
-							</span>
-						))}
-					</div>
-
-					<div className="fc-rate">
-						<div className="fc-rate-num">
-							<span className="currency">₹</span>
-							{campaignCard.rate}
-							<span className="per">/ {campaignCard.per}</span>
-						</div>
-						<div className="fc-rate-pulse">
-							{campaignCard.spotsLeft} spots left
+							<div className="auth-aside-testimonial-handle">
+								{testimonial.handle} &middot; {testimonial.stat}
+							</div>
 						</div>
 					</div>
 				</div>
+			</div>
 
-				{/* Earnings ticker */}
-				<div className="aside-fc a2">
-					<div className="tick-label">{ticker.label}</div>
-					<div className="tick-num">{ticker.num}</div>
-					<div className="tick-delta">{ticker.delta}</div>
-					<div className="tick-bar">
-						{ticker.bars.map((h, i) => (
-							<span key={i} style={{ height: `${h}%` }} />
-						))}
-					</div>
-				</div>
+			{/* Trust bar */}
+			<div className="auth-aside-trust">
+				<span>256-bit encryption</span>
+				<span className="auth-aside-trust-dot" />
+				<span>GDPR compliant</span>
+				<span className="auth-aside-trust-dot" />
+				<span>No spam, ever</span>
 			</div>
 		</aside>
 	);
@@ -214,15 +213,13 @@ function AuthPanel() {
 	return (
 		<div className="auth-panel">
 			<div className="auth-card">
-				{/* Logo (mobile only, aside is hidden on mobile) */}
+				{/* Logo — mobile only (aside is hidden on mobile) */}
 				<Link
 					href="/"
-					className="logo"
+					className="logo auth-card-logo-mobile"
 					style={{
-						display: "inline-flex",
 						textDecoration: "none",
 						color: "inherit",
-						marginBottom: 36,
 					}}
 				>
 					<div className="logo-dot" />
