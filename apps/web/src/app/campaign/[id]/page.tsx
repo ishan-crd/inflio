@@ -20,6 +20,9 @@ import {
 } from "@/components/icons";
 import { CAMPAIGNS, ACCENT_MAP, BRAND_COLORS } from "@/data/campaigns";
 import { Nav as SharedNav } from "@/components/nav";
+import { useSession, signIn } from "@/lib/auth-client";
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type P = SVGProps<SVGSVGElement>;
@@ -1975,8 +1978,160 @@ function Footer() {
 	);
 }
 
+// ─── SignInModal ────────────────────────────────────────────────────────────
+function SignInModal({ onClose }: { onClose: () => void }) {
+	const CAMPAIGN = useCampaign();
+	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
+
+	useEffect(() => {
+		function onKey(e: KeyboardEvent) {
+			if (e.key === "Escape") onClose();
+		}
+		document.addEventListener("keydown", onKey);
+		return () => document.removeEventListener("keydown", onKey);
+	}, [onClose]);
+
+	return (
+		<div
+			style={{
+				position: "fixed",
+				inset: 0,
+				zIndex: 100,
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center",
+			}}
+		>
+			<div
+				onClick={onClose}
+				style={{
+					position: "absolute",
+					inset: 0,
+					background: "rgba(0,0,0,0.65)",
+					backdropFilter: "blur(6px)",
+				}}
+			/>
+			<div
+				style={{
+					position: "relative",
+					width: 420,
+					background: "var(--color-bg-1)",
+					border: "1px solid var(--color-line-2)",
+					borderRadius: 16,
+					padding: 32,
+					textAlign: "center",
+				}}
+			>
+				<button
+					onClick={onClose}
+					style={{
+						position: "absolute",
+						top: 16,
+						right: 16,
+						width: 30,
+						height: 30,
+						borderRadius: 8,
+						border: "1px solid var(--color-line)",
+						background: "transparent",
+						color: "var(--color-ink-2)",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						cursor: "pointer",
+					}}
+					aria-label="Close"
+				>
+					<CloseIcon />
+				</button>
+
+				<div
+					style={{
+						width: 56,
+						height: 56,
+						borderRadius: "50%",
+						background: accent.from,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						margin: "0 auto 16px",
+					}}
+				>
+					<SparkIcon style={{ color: accent.chip, width: 24, height: 24 }} />
+				</div>
+
+				<h3
+					style={{
+						fontFamily: "'Geist', system-ui, sans-serif",
+						fontSize: 20,
+						fontWeight: 700,
+						margin: "0 0 8px",
+					}}
+				>
+					Sign in to apply
+				</h3>
+				<p
+					style={{
+						fontSize: 13.5,
+						color: "var(--color-ink-2)",
+						margin: "0 0 24px",
+						lineHeight: 1.6,
+					}}
+				>
+					You need an account to apply to <strong style={{ color: "var(--color-ink-1)" }}>{CAMPAIGN.brand}</strong>&apos;s campaign. It only takes a few seconds.
+				</p>
+
+				<button
+					onClick={() => {
+						signIn.social({
+							provider: "google",
+							callbackURL: window.location.pathname,
+						});
+					}}
+					style={{
+						width: "100%",
+						padding: "12px 0",
+						borderRadius: 10,
+						border: "1px solid var(--color-line-2)",
+						background: "rgba(255,255,255,0.04)",
+						color: "var(--color-ink-0)",
+						fontSize: 13.5,
+						fontWeight: 600,
+						cursor: "pointer",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						gap: 10,
+						marginBottom: 12,
+						transition: "background 0.15s",
+					}}
+					onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+					onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+				>
+					<svg width="18" height="18" viewBox="0 0 18 18">
+						<path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+						<path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+						<path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+						<path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 2.58 9 2.58z" fill="#EA4335"/>
+					</svg>
+					Continue with Google
+				</button>
+
+				<p style={{ fontSize: 12.5, color: "var(--color-ink-2)", margin: "16px 0 0", lineHeight: 1.5 }}>
+					Don&apos;t have an account?{" "}
+					<Link
+						href="/login?mode=signup&role=creator"
+						style={{ color: "var(--color-accent-strong)", textDecoration: "none", fontWeight: 500 }}
+					>
+						Sign up now
+					</Link>
+				</p>
+			</div>
+		</div>
+	);
+}
+
 // ─── ApplyModal ─────────────────────────────────────────────────────────────
-function ApplyModal({ onClose }: { onClose: () => void }) {
+function ApplyModal({ onClose, session }: { onClose: () => void; session: { user: { id: string; name: string; email: string; image?: string | null } } }) {
 	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 	const [step, setStep] = useState(0);
@@ -1986,6 +2141,7 @@ function ApplyModal({ onClose }: { onClose: () => void }) {
 	const [checkGuidelines, setCheckGuidelines] = useState(false);
 	const [checkDeadline, setCheckDeadline] = useState(false);
 	const [submitted, setSubmitted] = useState(false);
+	const createApplication = useMutation(api.applications.create);
 
 	useEffect(() => {
 		function onKey(e: KeyboardEvent) {
@@ -2004,10 +2160,26 @@ function ApplyModal({ onClose }: { onClose: () => void }) {
 					? checkGuidelines && checkDeadline
 					: false;
 
-	function handleNext() {
+	async function handleNext() {
 		if (step < 2) {
 			setStep(step + 1);
 		} else {
+			const platform = PLATFORM_OPTS[selectedPlatform];
+			await createApplication({
+				userId: session.user.id,
+				userName: session.user.name,
+				userEmail: session.user.email,
+				userImage: session.user.image ?? undefined,
+				campaignId: CAMPAIGN.id,
+				campaignTitle: CAMPAIGN.title,
+				campaignBrand: CAMPAIGN.brand,
+				platform: platform.name,
+				platformHandle: platform.handle,
+				platformFollowers: platform.followers,
+				pitch,
+				exampleUrl: exampleUrl || undefined,
+				status: "pending",
+			});
 			setSubmitted(true);
 		}
 	}
@@ -2486,9 +2658,18 @@ export default function CampaignDetailPage() {
 	const params = useParams();
 	const id = Number(params.id);
 	const campaign = getCampaign(id);
+	const { data: session } = useSession();
 
 	const [activeTab, setActiveTab] = useState(0);
-	const [showModal, setShowModal] = useState(false);
+	const [showModal, setShowModal] = useState<"apply" | "signin" | null>(null);
+
+	function handleApplyClick() {
+		if (session?.user) {
+			setShowModal("apply");
+		} else {
+			setShowModal("signin");
+		}
+	}
 
 	const tabContent = [
 		<BriefBlock key="brief" />,
@@ -2509,7 +2690,7 @@ export default function CampaignDetailPage() {
 
 				<div className="shell">
 					<Crumb />
-					<CampaignHero onApply={() => setShowModal(true)} />
+					<CampaignHero onApply={handleApplyClick} />
 
 					<Tabs active={activeTab} onChange={setActiveTab} />
 
@@ -2538,7 +2719,13 @@ export default function CampaignDetailPage() {
 
 				<Footer />
 
-				{showModal && <ApplyModal onClose={() => setShowModal(false)} />}
+				{showModal === "signin" && <SignInModal onClose={() => setShowModal(null)} />}
+			{showModal === "apply" && session?.user && (
+				<ApplyModal
+					onClose={() => setShowModal(null)}
+					session={{ user: { id: session.user.id, name: session.user.name ?? "", email: session.user.email ?? "", image: session.user.image } }}
+				/>
+			)}
 			</div>
 		</CampaignContext.Provider>
 	);

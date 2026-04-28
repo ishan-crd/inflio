@@ -107,4 +107,23 @@ export default defineSchema({
 		.index("by_userId", ["userId"])
 		.index("by_category", ["category"])
 		.index("by_platform", ["primaryPlatform"]),
+
+	applications: defineTable({
+		userId: v.string(), // BetterAuth user id
+		userName: v.string(),
+		userEmail: v.string(),
+		userImage: v.optional(v.string()),
+		campaignId: v.number(), // local campaign id (from static data for now)
+		campaignTitle: v.string(),
+		campaignBrand: v.string(),
+		platform: v.string(), // which platform they're applying with
+		platformHandle: v.string(),
+		platformFollowers: v.string(),
+		pitch: v.string(),
+		exampleUrl: v.optional(v.string()),
+		status: v.string(), // "pending" | "approved" | "rejected"
+	})
+		.index("by_userId", ["userId"])
+		.index("by_campaignId", ["campaignId"])
+		.index("by_status", ["status"]),
 });
