@@ -21,7 +21,7 @@ import {
 import { CAMPAIGNS, ACCENT_MAP, BRAND_COLORS } from "@/data/campaigns";
 import { Nav as SharedNav } from "@/components/nav";
 import { useSession, signIn } from "@/lib/auth-client";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -2128,6 +2128,105 @@ function SignInModal({ onClose }: { onClose: () => void }) {
 	);
 }
 
+// ─── BrandBlockedModal ──────────────────────────────────────────────────────
+function BrandBlockedModal({ onClose }: { onClose: () => void }) {
+	useEffect(() => {
+		function onKey(e: KeyboardEvent) {
+			if (e.key === "Escape") onClose();
+		}
+		document.addEventListener("keydown", onKey);
+		return () => document.removeEventListener("keydown", onKey);
+	}, [onClose]);
+
+	return (
+		<div
+			onClick={onClose}
+			style={{
+				position: "fixed",
+				inset: 0,
+				zIndex: 999,
+				background: "rgba(0,0,0,0.7)",
+				backdropFilter: "blur(8px)",
+				display: "grid",
+				placeItems: "center",
+				padding: 24,
+			}}
+		>
+			<div
+				onClick={(e) => e.stopPropagation()}
+				style={{
+					background: "var(--color-bg-1)",
+					border: "1px solid var(--color-line-2)",
+					borderRadius: 20,
+					padding: "40px 36px",
+					maxWidth: 400,
+					width: "100%",
+					textAlign: "center",
+				}}
+			>
+				<div style={{
+					width: 56,
+					height: 56,
+					borderRadius: "50%",
+					background: "rgba(251,146,60,0.12)",
+					border: "1px solid rgba(251,146,60,0.25)",
+					display: "grid",
+					placeItems: "center",
+					margin: "0 auto 20px",
+				}}>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fb923c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+						<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+						<line x1="12" y1="9" x2="12" y2="13" />
+						<line x1="12" y1="17" x2="12.01" y2="17" />
+					</svg>
+				</div>
+
+				<h3 style={{ fontSize: 18, fontWeight: 600, margin: "0 0 8px" }}>
+					You&apos;re signed in as a Brand
+				</h3>
+				<p style={{ fontSize: 13.5, color: "var(--color-ink-2)", lineHeight: 1.6, margin: "0 0 24px" }}>
+					Brand accounts can&apos;t apply to campaigns. To apply as a creator, sign up with a different email as a creator account.
+				</p>
+
+				<div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+					<button
+						onClick={onClose}
+						style={{
+							padding: "10px 20px",
+							borderRadius: 10,
+							background: "rgba(255,255,255,0.06)",
+							border: "1px solid var(--color-line-2)",
+							color: "var(--color-ink-1)",
+							fontSize: 13,
+							fontWeight: 500,
+							cursor: "pointer",
+						}}
+					>
+						Close
+					</button>
+					<Link
+						href="/login?mode=signup&role=creator"
+						style={{
+							padding: "10px 20px",
+							borderRadius: 10,
+							background: "var(--color-accent)",
+							color: "#0b0c08",
+							fontSize: 13,
+							fontWeight: 600,
+							textDecoration: "none",
+							display: "inline-flex",
+							alignItems: "center",
+							gap: 6,
+						}}
+					>
+						Switch to Creator
+					</Link>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 // ─── ApplyModal ─────────────────────────────────────────────────────────────
 function ApplyModal({ onClose, session }: { onClose: () => void; session: { user: { id: string; name: string; email: string; image?: string | null } } }) {
 	const CAMPAIGN = useCampaign();
@@ -2682,13 +2781,23 @@ export default function CampaignDetailPage() {
 	const id = Number(params.id);
 	const campaign = getCampaign(id);
 	const { data: session } = useSession();
+	const userId = session?.user?.id;
+
+	const brandProfile = useQuery(
+		api.brands.getByUserId,
+		userId ? { userId } : "skip",
+	);
 
 	const [activeTab, setActiveTab] = useState(0);
-	const [showModal, setShowModal] = useState<"apply" | "signin" | null>(null);
+	const [showModal, setShowModal] = useState<"apply" | "signin" | "brand-blocked" | null>(null);
 
 	function handleApplyClick() {
 		if (session?.user) {
-			setShowModal("apply");
+			if (brandProfile) {
+				setShowModal("brand-blocked");
+			} else {
+				setShowModal("apply");
+			}
 		} else {
 			setShowModal("signin");
 		}
@@ -2748,6 +2857,9 @@ export default function CampaignDetailPage() {
 					onClose={() => setShowModal(null)}
 					session={{ user: { id: session.user.id, name: session.user.name ?? "", email: session.user.email ?? "", image: session.user.image } }}
 				/>
+			)}
+			{showModal === "brand-blocked" && (
+				<BrandBlockedModal onClose={() => setShowModal(null)} />
 			)}
 			</div>
 		</CampaignContext.Provider>

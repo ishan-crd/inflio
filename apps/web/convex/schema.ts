@@ -111,6 +111,27 @@ export default defineSchema({
 		.index("by_category", ["category"])
 		.index("by_platform", ["primaryPlatform"]),
 
+	submissions: defineTable({
+		userId: v.string(),
+		userName: v.string(),
+		userImage: v.optional(v.string()),
+		campaignId: v.id("campaigns"),
+		applicationId: v.id("applications"),
+		platform: v.string(),
+		contentUrl: v.string(),
+		contentType: v.string(), // "reel" | "post" | "short" | "video"
+		views: v.optional(v.number()),
+		likes: v.optional(v.number()),
+		comments: v.optional(v.number()),
+		shares: v.optional(v.number()),
+		status: v.string(), // "pending" | "approved" | "rejected"
+		submittedAt: v.string(),
+		earnings: v.optional(v.number()),
+	})
+		.index("by_userId", ["userId"])
+		.index("by_campaignId", ["campaignId"])
+		.index("by_status", ["status"]),
+
 	applications: defineTable({
 		userId: v.string(), // BetterAuth user id
 		userName: v.string(),
