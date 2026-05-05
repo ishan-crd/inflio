@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import {
 	ArrowIcon,
 	BackIcon,
@@ -15,7 +15,7 @@ import {
 	VerifiedIcon,
 	YTIcon,
 } from "@/components/icons";
-import { signIn } from "@/lib/auth-client";
+import { signIn, signUp } from "@/lib/auth-client";
 
 // ---------- AuthAside ----------
 
@@ -170,7 +170,14 @@ function AuthPanel() {
 	const isSignup = mode === "signup";
 	const isCreator = role === "creator";
 
+	const [name, setName] = useState("");
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
+	const [loading, setLoading] = useState(false);
+
 	function switchMode(newMode: "signin" | "signup") {
+		setError("");
 		const params = new URLSearchParams();
 		params.set("mode", newMode);
 		if (newMode === "signup") params.set("role", role);
@@ -178,6 +185,7 @@ function AuthPanel() {
 	}
 
 	function switchRole(newRole: "creator" | "brand") {
+		setError("");
 		const params = new URLSearchParams();
 		params.set("mode", "signup");
 		params.set("role", newRole);
@@ -189,16 +197,68 @@ function AuthPanel() {
 			provider: "google",
 			callbackURL: isSignup
 				? `/auth/callback?role=${role}`
-				: "/marketplace",
+				: "/auth/callback",
 		});
 	}
 
-	function handleSubmit(e: React.FormEvent) {
+	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		if (isSignup) {
-			router.push(`/onboarding?role=${role}`);
-		} else {
-			router.push("/");
+		setError("");
+		setLoading(true);
+
+		try {
+			if (isSignup) {
+				// Create account with email/password via BetterAuth
+				const result = await signUp.email({
+					email,
+					password,
+					name,
+				});
+
+				if (result.error) {
+					if (
+						result.error.message?.toLowerCase().includes("already") ||
+						result.error.message?.toLowerCase().includes("exists") ||
+						result.error.code === "USER_ALREADY_EXISTS"
+					) {
+						setError("An account with this email already exists. Please sign in instead.");
+					} else {
+						setError(result.error.message || "Failed to create account. Please try again.");
+					}
+					setLoading(false);
+					return;
+				}
+
+				// Account created — go to onboarding
+				router.push(`/onboarding?role=${role}`);
+			} else {
+				// Sign in with email/password via BetterAuth
+				const result = await signIn.email({
+					email,
+					password,
+				});
+
+				if (result.error) {
+					if (
+						result.error.message?.toLowerCase().includes("credential") ||
+						result.error.message?.toLowerCase().includes("invalid") ||
+						result.error.message?.toLowerCase().includes("password") ||
+						result.error.message?.toLowerCase().includes("not found")
+					) {
+						setError("Invalid email or password. Please try again.");
+					} else {
+						setError(result.error.message || "Failed to sign in. Please try again.");
+					}
+					setLoading(false);
+					return;
+				}
+
+				// Signed in — go to callback to check profile
+				router.push("/auth/callback");
+			}
+		} catch (err) {
+			setError("Something went wrong. Please try again.");
+			setLoading(false);
 		}
 	}
 
@@ -291,6 +351,24 @@ function AuthPanel() {
 				{/* Divider */}
 				<div className="divider">or with email</div>
 
+				{/* Error message */}
+				{error && (
+					<div
+						style={{
+							padding: "10px 14px",
+							borderRadius: 10,
+							background: "rgba(251,113,133,0.08)",
+							border: "1px solid rgba(251,113,133,0.2)",
+							color: "#fb7185",
+							fontSize: 13,
+							lineHeight: 1.5,
+							marginBottom: 16,
+						}}
+					>
+						{error}
+					</div>
+				)}
+
 				{/* Form */}
 				<form onSubmit={handleSubmit}>
 					{/* Name field — signup only */}
@@ -305,6 +383,8 @@ function AuthPanel() {
 								className="field-input"
 								placeholder={namePlaceholderMap[role]}
 								autoComplete="name"
+								value={name}
+								onChange={(e) => setName(e.target.value)}
 								required
 							/>
 						</div>
@@ -321,6 +401,8 @@ function AuthPanel() {
 							className="field-input"
 							placeholder="you@example.com"
 							autoComplete="email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
 							required
 						/>
 					</div>
@@ -338,6 +420,8 @@ function AuthPanel() {
 								isSignup ? "Create a password" : "Enter your password"
 							}
 							autoComplete={isSignup ? "new-password" : "current-password"}
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
 							required
 						/>
 					</div>
@@ -367,8 +451,12 @@ function AuthPanel() {
 					)}
 
 					{/* Submit */}
-					<button type="submit" className="btn-submit">
-						{isSignup ? (
+					<button type="submit" className="btn-submit" disabled={loading}>
+						{loading ? (
+							<>
+								{isSignup ? "Creating account..." : "Signing in..."}
+							</>
+						) : isSignup ? (
 							<>
 								Create account
 								<ArrowIcon />

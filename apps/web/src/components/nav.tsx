@@ -36,7 +36,7 @@ export function Nav() {
 	const role: "creator" | "brand" = brandProfile ? "brand" : "creator";
 
 	if (loggedIn) {
-		return <LoggedInNav pathname={pathname} name={session.user.name ?? ""} image={session.user.image} role={role} />;
+		return <LoggedInNav pathname={pathname} name={session.user.name ?? ""} image={session.user.image} role={role} brandName={brandProfile?.name} />;
 	}
 
 	return <PublicNav pathname={pathname} />;
@@ -216,11 +216,13 @@ function LoggedInNav({
 	name,
 	image,
 	role,
+	brandName,
 }: {
 	pathname: string;
 	name: string;
 	image?: string | null;
 	role: "creator" | "brand";
+	brandName?: string;
 }) {
 	const links =
 		role === "brand"
@@ -261,10 +263,15 @@ function LoggedInNav({
 					</div>
 
 					<div className="nav-cta">
+						{role === "brand" && (
+							<Link href="/campaigns/create" className="btn btn-primary" style={{ fontSize: 13, padding: "8px 16px", textDecoration: "none" }}>
+								+ Create Campaign
+							</Link>
+						)}
 						<button className="btn btn-ghost" aria-label="Notifications">
 							<BellIcon />
 						</button>
-						<ProfileDropdown name={name} image={image} />
+						<ProfileDropdown name={brandName || name} image={image} />
 					</div>
 				</div>
 			</div>

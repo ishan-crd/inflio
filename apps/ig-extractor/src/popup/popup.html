@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inflio Extractor</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <div class="logo-dot"></div>
+        inflio
+      </div>
+      <span class="badge">Extractor</span>
+    </div>
+
+    <!-- Not on Instagram -->
+    <div id="not-instagram" class="state" style="display: none">
+      <div class="state-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <p class="state-title">Not on Instagram</p>
+      <p class="state-desc">Navigate to an Instagram profile to extract analytics.</p>
+      <a href="https://www.instagram.com" target="_blank" class="btn btn-primary">Open Instagram</a>
+    </div>
+
+    <!-- Ready state -->
+    <div id="ready" class="state" style="display: none">
+      <div class="profile-row" id="profile-row">
+        <div class="profile-avatar" id="profile-avatar">?</div>
+        <div>
+          <div class="profile-name" id="profile-name">—</div>
+          <div class="profile-handle" id="profile-handle">@—</div>
+        </div>
+      </div>
+
+      <div class="stats-row" id="stats-row">
+        <div class="stat">
+          <div class="stat-num" id="stat-followers">—</div>
+          <div class="stat-label">Followers</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stat-following">—</div>
+          <div class="stat-label">Following</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stat-posts">—</div>
+          <div class="stat-label">Posts</div>
+        </div>
+      </div>
+
+      <button id="btn-extract" class="btn btn-primary btn-full">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        Extract Analytics
+      </button>
+      <p class="hint">Extracts reels, engagement, reach, audience data and more.</p>
+    </div>
+
+    <!-- Extracting state -->
+    <div id="extracting" class="state" style="display: none">
+      <div class="spinner"></div>
+      <p class="state-title">Extracting analytics...</p>
+      <p class="state-desc" id="extract-status">Fetching profile data</p>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <p class="api-count">
+        <span id="api-count">0</span> API responses captured
+      </p>
+    </div>
+
+    <!-- Results state -->
+    <div id="results" class="state" style="display: none">
+      <div class="success-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <p class="state-title">Extraction Complete</p>
+      <div class="result-stats" id="result-stats"></div>
+
+      <div class="btn-group">
+        <button id="btn-copy" class="btn btn-primary btn-full">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copy JSON
+        </button>
+        <button id="btn-download" class="btn btn-secondary btn-full">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download JSON
+        </button>
+      </div>
+
+      <button id="btn-new" class="btn btn-ghost btn-full" style="margin-top: 8px">
+        Extract Another
+      </button>
+    </div>
+
+    <!-- Error state -->
+    <div id="error" class="state" style="display: none">
+      <div class="error-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <p class="state-title">Extraction Failed</p>
+      <p class="state-desc" id="error-msg">Something went wrong.</p>
+      <button id="btn-retry" class="btn btn-primary btn-full">Try Again</button>
+    </div>
+  </div>
+
+  <script src="../content/parser.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

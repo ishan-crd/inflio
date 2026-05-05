@@ -10,7 +10,7 @@ import { api } from "../../../../convex/_generated/api";
 function CallbackInner() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const role = searchParams.get("role") ?? "creator";
+	const role = searchParams.get("role"); // null means sign-in (no role specified)
 
 	const { data: session, isPending: authPending } = useSession();
 	const userId = session?.user?.id;
@@ -38,16 +38,29 @@ function CallbackInner() {
 		// Still loading profiles from Convex
 		if (creatorProfile === undefined || brandProfile === undefined) return;
 
-		// Has an existing profile — go to dashboard
-		if (creatorProfile || brandProfile) {
+		// Has an existing profile — route to appropriate dashboard
+		if (creatorProfile) {
 			setRedirected(true);
-			router.replace(creatorProfile ? "/marketplace" : "/creators");
+			router.replace("/marketplace");
+			return;
+		}
+		if (brandProfile) {
+			setRedirected(true);
+			router.replace("/creators");
 			return;
 		}
 
-		// No profile — go to onboarding
-		setRedirected(true);
-		router.replace(`/onboarding?role=${role}`);
+		// No profile exists — this is a new user
+		if (role) {
+			// Sign-up flow: role was specified, go to onboarding
+			setRedirected(true);
+			router.replace(`/onboarding?role=${role}`);
+		} else {
+			// Sign-in flow but no profile: this shouldn't normally happen,
+			// but if it does, send them to onboarding as creator
+			setRedirected(true);
+			router.replace("/onboarding?role=creator");
+		}
 	}, [authPending, userId, creatorProfile, brandProfile, role, router, redirected]);
 
 	return (
