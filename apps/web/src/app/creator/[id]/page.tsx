@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, createContext, useContext, type SVGProps } from "react";
+import { useState, useEffect, createContext, useContext, type SVGProps } from "react";
 import { useParams } from "next/navigation";
 import { CREATORS, fmtFollowers, fmtViews } from "@/data/creators";
 import { Nav as SharedNav } from "@/components/nav";
@@ -19,6 +19,9 @@ import {
 	TTIcon,
 	PlatformIcon,
 } from "@/components/icons";
+import { useSession } from "@/lib/auth-client";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 /* ─── Local icons ──────────────────────────────────────────────────────────── */
 type P = SVGProps<SVGSVGElement>;
@@ -2118,7 +2121,7 @@ function CrumbCr() {
 }
 
 /* ─── CreatorHero ──────────────────────────────────────────────────────────── */
-function CreatorHero({ onInvite }: { onInvite: () => void }) {
+function CreatorHero({ onInvite, onAddToList, isInList }: { onInvite: () => void; onAddToList: () => void; isInList: boolean }) {
 	const CREATOR = useCreator();
 	const ac = ACCENT_MAP_C[CREATOR.color] ?? ACCENT_MAP_C.amber;
 
@@ -2286,10 +2289,11 @@ function CreatorHero({ onInvite }: { onInvite: () => void }) {
 							Send message
 						</button>
 						<button
-							className="btn btn-glass"
+							className={`btn ${isInList ? "btn-listed" : "btn-glass"}`}
 							style={{ flex: 1, justifyContent: "center" }}
+							onClick={onAddToList}
 						>
-							<PlusIcon /> Add to list
+							{isInList ? <><CheckIcon /> Added</> : <><PlusIcon /> Add to list</>}
 						</button>
 					</div>
 					<p style={S.fineprint}>
@@ -3097,6 +3101,351 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 	);
 }
 
+/* ─── AddToListModal ──────────────────────────────────────────────────────── */
+
+const LIST_COLORS = [
+	{ name: "lime", hex: "#bef264" },
+	{ name: "sky", hex: "#7dd3fc" },
+	{ name: "violet", hex: "#c084fc" },
+	{ name: "rose", hex: "#fb7185" },
+	{ name: "amber", hex: "#fbbf24" },
+	{ name: "cyan", hex: "#22d3ee" },
+];
+
+function AddToListModal({
+	creatorId,
+	creatorName,
+	onClose,
+}: {
+	creatorId: number;
+	creatorName: string;
+	onClose: () => void;
+}) {
+	const { data: session } = useSession();
+	const userId = session?.user?.id;
+
+	const lists = useQuery(api.lists.listByUser, userId ? { userId } : "skip");
+	const createList = useMutation(api.lists.create);
+	const addCreator = useMutation(api.lists.addCreator);
+	const removeCreator = useMutation(api.lists.removeCreator);
+
+	const [mode, setMode] = useState<"select" | "create">("select");
+	const [newName, setNewName] = useState("");
+	const [newDesc, setNewDesc] = useState("");
+	const [newColor, setNewColor] = useState("lime");
+	const [justAdded, setJustAdded] = useState<string | null>(null);
+	const [creating, setCreating] = useState(false);
+
+	useEffect(() => {
+		function onKey(e: KeyboardEvent) {
+			if (e.key === "Escape") onClose();
+		}
+		document.addEventListener("keydown", onKey);
+		return () => document.removeEventListener("keydown", onKey);
+	}, [onClose]);
+
+	async function handleCreateList() {
+		if (!userId || !newName.trim()) return;
+		setCreating(true);
+		const listId = await createList({
+			userId,
+			name: newName.trim(),
+			description: newDesc.trim() || undefined,
+			color: newColor,
+			creatorIds: [creatorId],
+			createdAt: new Date().toISOString(),
+		});
+		setJustAdded(newName.trim());
+		setCreating(false);
+		setMode("select");
+		setNewName("");
+		setNewDesc("");
+		setNewColor("lime");
+	}
+
+	async function handleToggle(listId: any, isInList: boolean) {
+		if (isInList) {
+			await removeCreator({ id: listId, creatorId });
+		} else {
+			await addCreator({ id: listId, creatorId });
+			const list = (lists ?? []).find((l) => l._id === listId);
+			if (list) setJustAdded(list.name);
+		}
+	}
+
+	if (!session?.user) {
+		return (
+			<div style={S.overlay} onClick={onClose}>
+				<div style={S.modal} onClick={(e) => e.stopPropagation()}>
+					<button style={S.modalClose} onClick={onClose}><CloseIcon /></button>
+					<h3 style={S.modalH3}>Sign in required</h3>
+					<p style={S.modalSub}>Please sign in as a brand to create and manage lists.</p>
+					<Link href="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>
+						Sign in
+					</Link>
+				</div>
+			</div>
+		);
+	}
+
+	const selectedColor = LIST_COLORS.find((c) => c.name === newColor)?.hex ?? "#bef264";
+
+	return (
+		<div style={S.overlay} onClick={onClose}>
+			<div style={S.modal} onClick={(e) => e.stopPropagation()}>
+				<button style={S.modalClose} onClick={onClose}><CloseIcon /></button>
+
+				{/* ── Just added toast ── */}
+				{justAdded && (
+					<div style={{
+						padding: "10px 14px",
+						borderRadius: 10,
+						background: "rgba(190,242,100,0.08)",
+						border: "1px solid rgba(190,242,100,0.2)",
+						color: "var(--color-accent-strong)",
+						fontSize: 12.5,
+						marginBottom: 18,
+						display: "flex",
+						alignItems: "center",
+						gap: 8,
+					}}>
+						<CheckIcon style={{ width: 14, height: 14 }} />
+						Added {creatorName.split(" ")[0]} to &ldquo;{justAdded}&rdquo;
+					</div>
+				)}
+
+				{/* ── Select list mode ── */}
+				{mode === "select" && (
+					<>
+						<div style={S.modalStep}>Add to list</div>
+						<h3 style={S.modalH3}>
+							Save {creatorName.split(" ")[0]}
+						</h3>
+						<p style={S.modalSub}>
+							Add this creator to one of your lists, or create a new one.
+						</p>
+
+						{/* Existing lists */}
+						<div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 8 }}>
+							{(lists ?? []).length === 0 && !justAdded && (
+								<div style={{
+									padding: "24px 0",
+									textAlign: "center",
+									fontSize: 13,
+									color: "var(--color-ink-3)",
+								}}>
+									No lists yet. Create your first one below.
+								</div>
+							)}
+							{(lists ?? []).map((list) => {
+								const isInList = list.creatorIds.includes(creatorId);
+								const colorHex = LIST_COLORS.find((c) => c.name === list.color)?.hex ?? "#bef264";
+								return (
+									<button
+										key={list._id}
+										style={{
+											...S.campaignOpt,
+											...(isInList ? S.campaignOptActive : {}),
+										}}
+										onClick={() => handleToggle(list._id, isInList)}
+									>
+										<div style={{
+											width: 34,
+											height: 34,
+											borderRadius: 9,
+											background: `linear-gradient(135deg, ${colorHex}, ${colorHex}55)`,
+											display: "grid",
+											placeItems: "center",
+											fontSize: 14,
+											flexShrink: 0,
+										}}>
+											<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="1.5" strokeLinecap="round">
+												<line x1="3" y1="5" x2="13" y2="5" /><line x1="3" y1="8" x2="10" y2="8" /><line x1="3" y1="11" x2="7" y2="11" />
+											</svg>
+										</div>
+										<div style={{ flex: 1, textAlign: "left" as const }}>
+											<div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--color-ink-0)" }}>
+												{list.name}
+											</div>
+											<div style={{ fontSize: 11.5, color: "var(--color-ink-2)", marginTop: 1 }}>
+												{list.creatorIds.length} creator{list.creatorIds.length !== 1 ? "s" : ""}
+												{list.description ? ` · ${list.description}` : ""}
+											</div>
+										</div>
+										{isInList ? (
+											<CheckIcon style={{ color: "var(--color-accent-strong)" }} />
+										) : (
+											<PlusIcon style={{ color: "var(--color-ink-3)", width: 14, height: 14 }} />
+										)}
+									</button>
+								);
+							})}
+						</div>
+
+						{/* Create new list button */}
+						<button
+							onClick={() => setMode("create")}
+							style={{
+								width: "100%",
+								padding: "13px 16px",
+								borderRadius: 14,
+								border: "1px dashed var(--color-line-2)",
+								background: "transparent",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								gap: 8,
+								fontSize: 13,
+								color: "var(--color-accent-strong)",
+								fontWeight: 500,
+								transition: "all 0.15s",
+								marginBottom: 6,
+							}}
+						>
+							<PlusIcon style={{ width: 14, height: 14 }} />
+							Create new list
+						</button>
+
+						<div style={S.modalFooter}>
+							<div />
+							<button className="btn btn-primary" onClick={onClose}>
+								Done
+							</button>
+						</div>
+					</>
+				)}
+
+				{/* ── Create list mode ── */}
+				{mode === "create" && (
+					<>
+						<div style={S.modalStep}>New list</div>
+						<h3 style={S.modalH3}>Create a list</h3>
+						<p style={S.modalSub}>
+							{creatorName.split(" ")[0]} will be added automatically.
+						</p>
+
+						{/* Name input */}
+						<div style={{ marginBottom: 16 }}>
+							<label style={S.fieldLabel}>List name</label>
+							<input
+								type="text"
+								value={newName}
+								onChange={(e) => setNewName(e.target.value)}
+								style={S.fieldInput}
+								placeholder="e.g. Tech reviewers, Food creators"
+								autoFocus
+							/>
+						</div>
+
+						{/* Description input */}
+						<div style={{ marginBottom: 18 }}>
+							<label style={S.fieldLabel}>Description <span style={{ color: "var(--color-ink-3)" }}>(optional)</span></label>
+							<input
+								type="text"
+								value={newDesc}
+								onChange={(e) => setNewDesc(e.target.value)}
+								style={S.fieldInput}
+								placeholder="What's this list for?"
+							/>
+						</div>
+
+						{/* Color picker */}
+						<div style={{ marginBottom: 4 }}>
+							<label style={S.fieldLabel}>Color</label>
+							<div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+								{LIST_COLORS.map((c) => (
+									<button
+										key={c.name}
+										onClick={() => setNewColor(c.name)}
+										style={{
+											width: 32,
+											height: 32,
+											borderRadius: 10,
+											background: c.hex,
+											border: newColor === c.name
+												? `2px solid ${c.hex}`
+												: "2px solid transparent",
+											outline: newColor === c.name
+												? `2px solid ${c.hex}44`
+												: "none",
+											cursor: "pointer",
+											transition: "all 0.15s",
+											position: "relative",
+										}}
+									>
+										{newColor === c.name && (
+											<CheckIcon style={{
+												position: "absolute",
+												inset: 0,
+												margin: "auto",
+												width: 14,
+												height: 14,
+												color: "rgba(0,0,0,0.6)",
+											}} />
+										)}
+									</button>
+								))}
+							</div>
+						</div>
+
+						{/* Preview */}
+						<div style={{
+							marginTop: 18,
+							padding: "14px 16px",
+							borderRadius: 14,
+							border: "1px solid var(--color-line)",
+							background: "rgba(255,255,255,0.02)",
+							display: "flex",
+							alignItems: "center",
+							gap: 12,
+						}}>
+							<div style={{
+								width: 34,
+								height: 34,
+								borderRadius: 9,
+								background: `linear-gradient(135deg, ${selectedColor}, ${selectedColor}55)`,
+								display: "grid",
+								placeItems: "center",
+								flexShrink: 0,
+							}}>
+								<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="1.5" strokeLinecap="round">
+									<line x1="3" y1="5" x2="13" y2="5" /><line x1="3" y1="8" x2="10" y2="8" /><line x1="3" y1="11" x2="7" y2="11" />
+								</svg>
+							</div>
+							<div style={{ flex: 1 }}>
+								<div style={{ fontSize: 13.5, fontWeight: 500 }}>
+									{newName || "List name"}
+								</div>
+								<div style={{ fontSize: 11.5, color: "var(--color-ink-3)", marginTop: 1 }}>
+									1 creator{newDesc ? ` · ${newDesc}` : ""}
+								</div>
+							</div>
+						</div>
+
+						<div style={S.modalFooter}>
+							<button className="btn btn-ghost" onClick={() => setMode("select")}>
+								<BackIcon /> Back
+							</button>
+							<button
+								className="btn btn-primary"
+								style={{
+									opacity: newName.trim() ? 1 : 0.4,
+									pointerEvents: newName.trim() ? "auto" : "none",
+								}}
+								onClick={handleCreateList}
+								disabled={creating}
+							>
+								{creating ? "Creating..." : <>Create list <ArrowIcon /></>}
+							</button>
+						</div>
+					</>
+				)}
+			</div>
+		</div>
+	);
+}
+
 /* ─── Footer ───────────────────────────────────────────────────────────────── */
 function FooterCr() {
 	return (
@@ -3176,8 +3525,14 @@ export default function CreatorDetailPage() {
 	const id = Number(params.id);
 	const base = CREATORS.find((c) => c.id === id);
 
+	const { data: session } = useSession();
+	const userId = session?.user?.id;
+	const userLists = useQuery(api.lists.listByUser, userId ? { userId } : "skip");
+	const isInList = (userLists ?? []).some((l) => l.creatorIds.includes(id));
+
 	const [tab, setTab] = useState<TabName>("About");
 	const [showInvite, setShowInvite] = useState(false);
+	const [showAddToList, setShowAddToList] = useState(false);
 
 	if (!base) {
 		return (
@@ -3249,7 +3604,7 @@ export default function CreatorDetailPage() {
 					<SharedNav />
 					<div className="shell">
 						<CrumbCr />
-						<CreatorHero onInvite={() => setShowInvite(true)} />
+						<CreatorHero onInvite={() => setShowInvite(true)} onAddToList={() => setShowAddToList(true)} isInList={isInList} />
 						<TabBar active={tab} onChange={setTab} />
 						<div style={S.contentGrid}>
 							<div style={S.main}>{renderTab()}</div>
@@ -3264,6 +3619,7 @@ export default function CreatorDetailPage() {
 					<FooterCr />
 				</div>
 				{showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
+			{showAddToList && <AddToListModal creatorId={id} creatorName={creator.name} onClose={() => setShowAddToList(false)} />}
 			</>
 		</CreatorCtx.Provider>
 	);

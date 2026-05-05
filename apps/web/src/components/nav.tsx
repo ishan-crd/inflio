@@ -229,7 +229,6 @@ function LoggedInNav({
 			? [
 					{ href: "/marketplace", label: "Campaigns" },
 					{ href: "/creators", label: "Creators" },
-					{ href: "/campaigns", label: "My Campaigns" },
 					{ href: "/dashboard", label: "Dashboard" },
 				]
 			: [

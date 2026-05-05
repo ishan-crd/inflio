@@ -111,6 +111,16 @@ export default defineSchema({
 		.index("by_category", ["category"])
 		.index("by_platform", ["primaryPlatform"]),
 
+	lists: defineTable({
+		userId: v.string(), // brand's BetterAuth user id
+		name: v.string(),
+		description: v.optional(v.string()),
+		color: v.string(),
+		creatorIds: v.array(v.number()), // static creator IDs for now
+		createdAt: v.string(),
+	})
+		.index("by_userId", ["userId"]),
+
 	submissions: defineTable({
 		userId: v.string(),
 		userName: v.string(),
