@@ -1,15 +1,3 @@
-import {
-	IconBasket2 as IconBasket2Filled,
-	IconCryptopunk as IconCryptopunkFilled,
-	IconVideoClip as IconVideoClipFilled,
-	IconWallet4 as IconWallet4Filled,
-} from "@central-icons-react-native/round-filled-radius-3-stroke-1.5";
-import {
-	IconBasket2,
-	IconCryptopunk,
-	IconVideoClip,
-	IconWallet4,
-} from "@central-icons-react-native/round-outlined-radius-3-stroke-1.5";
 import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
 import type React from "react";
@@ -23,31 +11,87 @@ import {
 	View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Circle, Path, Rect } from "react-native-svg";
 
 const TAB_COUNT = 5;
 const INDICATOR_SIZE = 44;
 const INDICATOR_RADIUS = 12;
-const INACTIVE_COLOR = "#6B7280";
-const ACTIVE_COLOR = "#000000";
-const CENTER_ACTIVE_COLOR = "#EC4899";
+const INACTIVE_COLOR = "rgba(245,245,244,0.4)";
+const ACTIVE_COLOR = "#0a0a0c";
+const CENTER_ACTIVE_COLOR = "#bef264";
 
 const TAB_KEYS = ["campaigns", "videos", "index", "wallet", "profile"] as const;
-
 type TabKey = (typeof TAB_KEYS)[number];
 
-const TAB_ICONS: Record<
-	TabKey,
-	{
-		outlined: React.ComponentType<{ size: number; color: string }>;
-		filled: React.ComponentType<{ size: number; color: string }>;
-	} | null
-> = {
-	campaigns: { outlined: IconBasket2, filled: IconBasket2Filled },
-	videos: { outlined: IconVideoClip, filled: IconVideoClipFilled },
+function CampaignsIcon({ color, size }: { color: string; size: number }) {
+	return (
+		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"
+				stroke={color}
+				strokeWidth={1.8}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
+function VideosIcon({ color, size }: { color: string; size: number }) {
+	return (
+		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+			<Rect x={2} y={4} width={20} height={16} rx={3} stroke={color} strokeWidth={1.8} />
+			<Path
+				d="M10 9l5 3-5 3V9z"
+				stroke={color}
+				strokeWidth={1.8}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
+function WalletIcon({ color, size }: { color: string; size: number }) {
+	return (
+		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M21 12V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2v-5z"
+				stroke={color}
+				strokeWidth={1.8}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<Path
+				d="M16 12h5v4h-5a2 2 0 010-4z"
+				stroke={color}
+				strokeWidth={1.8}
+			/>
+		</Svg>
+	);
+}
+
+function ProfileIcon({ color, size }: { color: string; size: number }) {
+	return (
+		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+			<Circle cx={12} cy={8} r={4} stroke={color} strokeWidth={1.8} />
+			<Path
+				d="M5 20c0-3 3.1-5 7-5s7 2 7 5"
+				stroke={color}
+				strokeWidth={1.8}
+				strokeLinecap="round"
+			/>
+		</Svg>
+	);
+}
+
+const TAB_ICONS: Record<TabKey, React.ComponentType<{ size: number; color: string }> | null> = {
+	campaigns: CampaignsIcon,
+	videos: VideosIcon,
 	index: null,
-	wallet: { outlined: IconWallet4, filled: IconWallet4Filled },
-	profile: { outlined: IconCryptopunk, filled: IconCryptopunkFilled },
-} as const;
+	wallet: WalletIcon,
+	profile: ProfileIcon,
+};
 
 function CustomTabBar({
 	state,
@@ -89,7 +133,7 @@ function CustomTabBar({
 					const { options } = descriptors[route.key];
 					const isFocused = state.index === index;
 					const tabKey = TAB_KEYS[index];
-					const iconSet = TAB_ICONS[tabKey];
+					const IconComponent = TAB_ICONS[tabKey];
 
 					const onPress = () => {
 						const event = navigation.emit({
@@ -127,12 +171,11 @@ function CustomTabBar({
 								>
 									f
 								</Text>
-							) : iconSet ? (
-								isFocused ? (
-									<iconSet.filled size={24} color={ACTIVE_COLOR} />
-								) : (
-									<iconSet.outlined size={24} color={INACTIVE_COLOR} />
-								)
+							) : IconComponent ? (
+								<IconComponent
+									size={24}
+									color={isFocused ? ACTIVE_COLOR : INACTIVE_COLOR}
+								/>
 							) : null}
 						</Pressable>
 					);
@@ -180,11 +223,11 @@ const styles = StyleSheet.create({
 		width: INDICATOR_SIZE,
 		height: INDICATOR_SIZE,
 		borderRadius: INDICATOR_RADIUS,
-		backgroundColor: "#FFFFFF",
-		shadowColor: "#FFFFFF",
+		backgroundColor: "#d9f99d",
+		shadowColor: "#bef264",
 		shadowOffset: { width: 0, height: 0 },
-		shadowOpacity: 0.25,
-		shadowRadius: 10,
+		shadowOpacity: 0.3,
+		shadowRadius: 12,
 		elevation: 8,
 	},
 	tab: {
