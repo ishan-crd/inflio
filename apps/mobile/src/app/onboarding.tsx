@@ -463,18 +463,25 @@ function CreatorStep1({
 			</View>
 
 			<Text style={[styles.label, { marginBottom: 12 }]}>Creator tier</Text>
-			<View style={styles.tierRow}>
-				{TIERS.map((t) => (
-					<OptionCard
-						key={t.id}
-						selected={data.tier === t.id}
-						onPress={() => onChange({ tier: t.id })}
-					>
-						<Text style={styles.optionTitle}>{t.label}</Text>
-						<Text style={styles.optionDesc}>{t.range}</Text>
-						<Text style={styles.optionDesc}>{t.desc}</Text>
-					</OptionCard>
-				))}
+			<View style={styles.tierGrid}>
+				{TIERS.map((t) => {
+					const selected = data.tier === t.id;
+					return (
+						<Pressable
+							key={t.id}
+							style={[styles.tierCard, selected && styles.tierCardActive]}
+							onPress={() => onChange({ tier: t.id })}
+						>
+							{selected && (
+								<View style={styles.optionCheck}>
+									<CheckIcon />
+								</View>
+							)}
+							<Text style={styles.tierLabel}>{t.label}</Text>
+							<Text style={styles.tierRange}>{t.range}</Text>
+						</Pressable>
+					);
+				})}
 			</View>
 		</View>
 	);
@@ -1037,9 +1044,13 @@ export default function OnboardingScreen() {
 					</Text>
 				)}
 
-				<Pressable onPress={handleLogout} style={styles.logoutBtn}>
-					<LogOutIcon />
-				</Pressable>
+				{!isSuccess ? (
+					<Pressable onPress={handleLogout} style={styles.logoutBtn}>
+						<LogOutIcon />
+					</Pressable>
+				) : (
+					<View style={{ width: 40 }} />
+				)}
 			</View>
 
 			{/* Progress bar */}
@@ -1162,6 +1173,39 @@ const styles = StyleSheet.create({
 		color: "#FFFFFF",
 	},
 	tierRow: { gap: 10 },
+	tierGrid: {
+		flexDirection: "row",
+		gap: 10,
+	},
+	tierCard: {
+		flex: 1,
+		backgroundColor: "#1A1A1E",
+		borderWidth: 1.5,
+		borderColor: "#2A2A2E",
+		borderRadius: 14,
+		paddingVertical: 20,
+		paddingHorizontal: 14,
+		position: "relative",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	tierCardActive: {
+		borderColor: "#d9f99d",
+		backgroundColor: "rgba(217,249,157,0.05)",
+	},
+	tierLabel: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 15,
+		color: "#FFFFFF",
+		textAlign: "center",
+		marginBottom: 2,
+	},
+	tierRange: {
+		fontFamily: "Inter-Regular",
+		fontSize: 12,
+		color: "#9CA3AF",
+		textAlign: "center",
+	},
 	optionCard: {
 		backgroundColor: "#1A1A1E",
 		borderWidth: 1.5,
@@ -1267,7 +1311,7 @@ const styles = StyleSheet.create({
 		fontFamily: "Inter-SemiBold",
 	},
 	btnDisabled: { opacity: 0.4 },
-	successWrap: { alignItems: "center", paddingTop: 40 },
+	successWrap: { alignItems: "center", paddingTop: 80 },
 	summaryCard: {
 		backgroundColor: "#1A1A1E",
 		borderRadius: 14,
