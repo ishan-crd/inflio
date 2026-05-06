@@ -33,11 +33,11 @@
         {
           "backgroundColor": "#000000"
         }
-      ]
+      ],
+      "expo-image"
     ],
     "experiments": {
-      "tsconfigPaths": true,
-      "typedRoutes": true
+      "tsconfigPaths": true
     }
   }
 }

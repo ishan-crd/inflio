@@ -1,16 +1,22 @@
+import {
+	BottomSheetBackdrop,
+	BottomSheetModal,
+	BottomSheetScrollView,
+} from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
 	Pressable,
 	ScrollView,
 	StyleSheet,
 	Text,
+	TextInput,
 	View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Path } from "react-native-svg";
-import { colors, ACCENT_MAP, BRAND_COLORS } from "~/utils/theme";
+import Svg, { Circle, Path, Rect } from "react-native-svg";
+import { ACCENT_MAP, BRAND_COLORS, colors } from "~/utils/theme";
 
 interface Campaign {
 	id: number;
@@ -41,7 +47,8 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 		brand: "Lumen Audio",
 		brandHandle: "@lumenaudio",
 		title: "Launch reels for the new Lumen Pro 2 earbuds",
-		brief: "Authentic 30\u201360s reel showcasing Lumen Pro 2 in a daily-life moment. Highlight ANC and 12-hour battery.",
+		brief:
+			"Authentic 30\u201360s reel showcasing Lumen Pro 2 in a daily-life moment. Highlight ANC and 12-hour battery.",
 		longBrief: [
 			"Create an authentic 30\u201360s reel featuring the Lumen Pro 2 earbuds in a daily-life scenario.",
 			"Highlight the Active Noise Cancellation feature and 12-hour battery life.",
@@ -69,7 +76,8 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 		brand: "Kavi Coffee Co.",
 		brandHandle: "@kavicoffee",
 		title: "Morning ritual UGC for cold brew launch",
-		brief: "Short-form video starring our cold brew bottle. Bonus payout for >50k views in first 72 hours.",
+		brief:
+			"Short-form video starring our cold brew bottle. Bonus payout for >50k views in first 72 hours.",
 		longBrief: [
 			"Feature our cold brew bottle in your morning routine.",
 			"Keep it cozy, aesthetic, and authentic \u2014 no hard selling.",
@@ -96,7 +104,8 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 		brand: "Northform",
 		brandHandle: "@northform.studio",
 		title: "Studio-tour shorts for the SS26 collection",
-		brief: "Behind-the-scenes shorts from our Mumbai studio. Quiet, cinematic tone preferred.",
+		brief:
+			"Behind-the-scenes shorts from our Mumbai studio. Quiet, cinematic tone preferred.",
 		longBrief: [
 			"Film a behind-the-scenes short from our Mumbai design studio.",
 			"Quiet, cinematic tone \u2014 think soft lighting, fabric textures, minimal dialogue.",
@@ -123,7 +132,8 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 		brand: "Glide Mobility",
 		brandHandle: "@rideglide",
 		title: "First-ride POV for the Glide G3 e-scooter",
-		brief: "POV ride through your city. Hooks under 2s. Strong CTA to test-ride event.",
+		brief:
+			"POV ride through your city. Hooks under 2s. Strong CTA to test-ride event.",
 		longBrief: [
 			"Film a first-person POV ride through your city on the Glide G3.",
 			"Hook must land in under 2 seconds \u2014 speed, wind, city energy.",
@@ -150,7 +160,8 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 		brand: "Petal & Press",
 		brandHandle: "@petalandpress",
 		title: "GRWM with our new clean-skin serum",
-		brief: "Get-ready-with-me clip featuring the Hydra Veil serum. No filters, no over-editing.",
+		brief:
+			"Get-ready-with-me clip featuring the Hydra Veil serum. No filters, no over-editing.",
 		longBrief: [
 			"Get-ready-with-me clip featuring the Hydra Veil serum.",
 			"No beauty filters, no heavy editing \u2014 we want real skin.",
@@ -177,7 +188,8 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 		brand: "Forge Finance",
 		brandHandle: "@forgefin",
 		title: "60-second explainer: why your SIP isn\u2019t working",
-		brief: "Educational short. Calm voiceover, on-screen captions. We\u2019ll provide the script outline.",
+		brief:
+			"Educational short. Calm voiceover, on-screen captions. We\u2019ll provide the script outline.",
 		longBrief: [
 			"Create a 60-second educational short on SIP investing mistakes.",
 			"Calm voiceover with on-screen captions/graphics.",
@@ -230,7 +242,8 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 		brand: "Atlas Outdoors",
 		brandHandle: "@atlas.outdoors",
 		title: "Trail-test the Atlas X1 jacket in the Himalayas",
-		brief: "Field-test footage with weather details. Bonus payout for snow conditions.",
+		brief:
+			"Field-test footage with weather details. Bonus payout for snow conditions.",
 		longBrief: [
 			"Test the Atlas X1 jacket on a real Himalayan trail.",
 			"Show weather conditions \u2014 rain, wind, snow all qualify.",
@@ -257,7 +270,8 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 		brand: "Soko Stationery",
 		brandHandle: "@sokostationery",
 		title: "Desk-setup ASMR with our new notebook line",
-		brief: "Cozy, ambient desk-setup video. Highlight the textured cover of the Soko Daily.",
+		brief:
+			"Cozy, ambient desk-setup video. Highlight the textured cover of the Soko Daily.",
 		longBrief: [
 			"Create a cozy desk-setup ASMR video featuring the Soko Daily notebook.",
 			"Highlight the textured cover \u2014 close-ups are encouraged.",
@@ -298,11 +312,485 @@ function BackIcon() {
 	);
 }
 
+// ── Platform options (mock creator profile) ─────────────────────────
+const PLATFORM_OPTS = [
+	{ name: "Instagram", handle: "@riya.makes", followers: "84.2k" },
+	{ name: "YouTube", handle: "Riya Makes", followers: "12.4k" },
+	{ name: "TikTok", handle: "@riyamakes", followers: "31.9k" },
+];
+
+// ── Icons for modal ─────────────────────────────────────────────────
+function CheckSmallIcon({ color = "#0a0a0c" }: { color?: string }) {
+	return (
+		<Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M20 6L9 17l-5-5"
+				stroke={color}
+				strokeWidth={3}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
+function IGIcon() {
+	return (
+		<Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+			<Rect
+				x={2}
+				y={2}
+				width={20}
+				height={20}
+				rx={5}
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+			/>
+			<Circle
+				cx={12}
+				cy={12}
+				r={5}
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+			/>
+			<Circle cx={17.5} cy={6.5} r={1} fill={colors.textSecondary} />
+		</Svg>
+	);
+}
+
+function YTIcon() {
+	return (
+		<Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.4 19.6C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-2A29 29 0 0023 12a29 29 0 00-.46-5.58z"
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+			/>
+			<Path
+				d="M9.75 15.02l5.75-3.27-5.75-3.27v6.54z"
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+			/>
+		</Svg>
+	);
+}
+
+function TTIcon() {
+	return (
+		<Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M9 12a4 4 0 108 0 4 4 0 00-8 0zM16 8v8"
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+				strokeLinecap="round"
+			/>
+		</Svg>
+	);
+}
+
+function CheckBigIcon({ color }: { color: string }) {
+	return (
+		<Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M20 6L9 17l-5-5"
+				stroke={color}
+				strokeWidth={2.5}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
+// ── Apply Modal ─────────────────────────────────────────────────────
+function ApplyModal({
+	sheetRef,
+	campaign,
+	onDismiss,
+}: {
+	sheetRef: React.RefObject<BottomSheetModal | null>;
+	campaign: Campaign;
+	onDismiss: () => void;
+}) {
+	const insets = useSafeAreaInsets();
+	const accent = ACCENT_MAP[campaign.color] || ACCENT_MAP.lime;
+	const snapPoints = useMemo(() => ["70%", "90%"], []);
+	const [step, setStep] = useState(0);
+	const [selectedPlatform, setSelectedPlatform] = useState(0);
+	const [pitch, setPitch] = useState("");
+	const [exampleUrl, setExampleUrl] = useState("");
+	const [checkGuidelines, setCheckGuidelines] = useState(false);
+	const [checkDeadline, setCheckDeadline] = useState(false);
+	const [submitted, setSubmitted] = useState(false);
+
+	const renderBackdrop = useCallback(
+		(props: any) => (
+			<BottomSheetBackdrop
+				{...props}
+				disappearsOnIndex={-1}
+				appearsOnIndex={0}
+				opacity={0.6}
+			/>
+		),
+		[],
+	);
+
+	const canNext =
+		step === 0
+			? true
+			: step === 1
+				? pitch.length >= 20
+				: step === 2
+					? checkGuidelines && checkDeadline
+					: false;
+
+	function handleNext() {
+		if (step < 2) {
+			setStep(step + 1);
+		} else {
+			setSubmitted(true);
+		}
+	}
+
+	function handleClose() {
+		sheetRef.current?.dismiss();
+		setStep(0);
+		setPitch("");
+		setExampleUrl("");
+		setCheckGuidelines(false);
+		setCheckDeadline(false);
+		setSubmitted(false);
+		setSelectedPlatform(0);
+	}
+
+	const PlatformIconComp = (name: string) => {
+		if (name === "Instagram") return <IGIcon />;
+		if (name === "YouTube") return <YTIcon />;
+		return <TTIcon />;
+	};
+
+	return (
+		<BottomSheetModal
+			ref={sheetRef}
+			snapPoints={snapPoints}
+			backdropComponent={renderBackdrop}
+			backgroundStyle={modalStyles.sheetBg}
+			handleIndicatorStyle={modalStyles.handleIndicator}
+			onDismiss={onDismiss}
+		>
+			<BottomSheetScrollView
+				contentContainerStyle={[
+					modalStyles.sheetContent,
+					{ paddingBottom: insets.bottom + 24 },
+				]}
+			>
+				{submitted ? (
+					/* ── Success state ── */
+					<>
+						<View style={modalStyles.successRow}>
+							<View
+								style={[
+									modalStyles.successIcon,
+									{ backgroundColor: accent.from },
+								]}
+							>
+								<CheckBigIcon color={accent.chip} />
+							</View>
+							<View style={{ flex: 1 }}>
+								<Text style={modalStyles.successTitle}>Application sent!</Text>
+								<Text style={modalStyles.successSub}>
+									You're #{campaign.creatorsJoined + 1} in the queue.
+								</Text>
+							</View>
+						</View>
+
+						{/* Summary cards */}
+						<View style={modalStyles.summaryRow}>
+							<View style={modalStyles.summaryCard}>
+								<Text style={modalStyles.summaryLabel}>Platform</Text>
+								<Text style={modalStyles.summaryValue}>
+									{PLATFORM_OPTS[selectedPlatform].name}
+								</Text>
+							</View>
+							<View style={modalStyles.summaryCard}>
+								<Text style={modalStyles.summaryLabel}>CPM Rate</Text>
+								<Text style={modalStyles.summaryValue}>
+									{campaign.currency}
+									{campaign.rate}/{campaign.perViews}
+								</Text>
+							</View>
+							<View style={modalStyles.summaryCard}>
+								<Text style={modalStyles.summaryLabel}>Deadline</Text>
+								<Text style={modalStyles.summaryValue}>
+									{campaign.deadline}
+								</Text>
+							</View>
+						</View>
+
+						{/* Action buttons */}
+						<View style={modalStyles.successActions}>
+							<Pressable onPress={handleClose} style={modalStyles.doneBtn}>
+								<Text style={modalStyles.doneBtnText}>Done</Text>
+							</Pressable>
+							<Pressable
+								style={[
+									modalStyles.viewAppsBtn,
+									{ backgroundColor: accent.chip },
+								]}
+							>
+								<Text style={modalStyles.viewAppsBtnText}>
+									View Applications
+								</Text>
+							</Pressable>
+						</View>
+					</>
+				) : (
+					/* ── Step form ── */
+					<>
+						{/* Step dots */}
+						<View style={modalStyles.dotsRow}>
+							{[0, 1, 2].map((s) => (
+								<View
+									key={s}
+									style={[
+										modalStyles.dot,
+										{
+											width: s === step ? 20 : 6,
+											backgroundColor:
+												s === step ? accent.chip : "rgba(255,255,255,0.1)",
+										},
+									]}
+								/>
+							))}
+						</View>
+
+						{/* Header */}
+						<Text style={modalStyles.stepLabel}>Step {step + 1} of 3</Text>
+						<Text style={modalStyles.stepTitle}>
+							{step === 0
+								? "Select your platform"
+								: step === 1
+									? "Write your pitch"
+									: "Confirm & apply"}
+						</Text>
+
+						{/* Step 0: Platform picker */}
+						{step === 0 && (
+							<View style={modalStyles.platformList}>
+								{PLATFORM_OPTS.map((p, i) => {
+									const selected = selectedPlatform === i;
+									return (
+										<Pressable
+											key={p.name}
+											onPress={() => setSelectedPlatform(i)}
+											style={[
+												modalStyles.platformCard,
+												{
+													borderColor: selected ? accent.chip : colors.border,
+													backgroundColor: selected
+														? accent.from
+														: colors.bgCard,
+												},
+											]}
+										>
+											<View style={modalStyles.platformIconBox}>
+												{PlatformIconComp(p.name)}
+											</View>
+											<View style={{ flex: 1 }}>
+												<Text style={modalStyles.platformName}>{p.name}</Text>
+												<Text style={modalStyles.platformMeta}>
+													{p.handle} · {p.followers}
+												</Text>
+											</View>
+											<View
+												style={[
+													modalStyles.radioOuter,
+													{
+														borderColor: selected
+															? accent.chip
+															: colors.textTertiary,
+														backgroundColor: selected
+															? accent.chip
+															: "transparent",
+													},
+												]}
+											>
+												{selected && <CheckSmallIcon />}
+											</View>
+										</Pressable>
+									);
+								})}
+							</View>
+						)}
+
+						{/* Step 1: Pitch */}
+						{step === 1 && (
+							<View style={modalStyles.pitchContainer}>
+								<Text style={modalStyles.inputLabel}>
+									Your pitch{" "}
+									<Text style={{ color: colors.textTertiary }}>
+										(min 20 characters)
+									</Text>
+								</Text>
+								<TextInput
+									value={pitch}
+									onChangeText={setPitch}
+									placeholder="Tell the brand why you'd be a great fit..."
+									placeholderTextColor={colors.textTertiary}
+									multiline
+									numberOfLines={4}
+									style={modalStyles.textArea}
+									textAlignVertical="top"
+								/>
+								<Text
+									style={[
+										modalStyles.charCount,
+										{
+											color:
+												pitch.length >= 20 ? accent.chip : colors.textTertiary,
+										},
+									]}
+								>
+									{pitch.length}/20
+								</Text>
+
+								<Text style={[modalStyles.inputLabel, { marginTop: 14 }]}>
+									Example post URL{" "}
+									<Text style={{ color: colors.textTertiary }}>(optional)</Text>
+								</Text>
+								<TextInput
+									value={exampleUrl}
+									onChangeText={setExampleUrl}
+									placeholder="https://instagram.com/p/..."
+									placeholderTextColor={colors.textTertiary}
+									style={modalStyles.urlInput}
+									autoCapitalize="none"
+									keyboardType="url"
+								/>
+							</View>
+						)}
+
+						{/* Step 2: Confirm */}
+						{step === 2 && (
+							<View style={modalStyles.confirmContainer}>
+								<Pressable
+									onPress={() => setCheckGuidelines(!checkGuidelines)}
+									style={[
+										modalStyles.checkCard,
+										{
+											borderColor: checkGuidelines
+												? `${accent.chip}66`
+												: colors.border,
+											backgroundColor: checkGuidelines
+												? accent.from
+												: colors.bgCard,
+										},
+									]}
+								>
+									<View
+										style={[
+											modalStyles.checkbox,
+											{
+												borderColor: checkGuidelines
+													? accent.chip
+													: colors.textTertiary,
+												backgroundColor: checkGuidelines
+													? accent.chip
+													: "transparent",
+											},
+										]}
+									>
+										{checkGuidelines && <CheckSmallIcon />}
+									</View>
+									<Text style={modalStyles.checkText}>
+										I've read the campaign guidelines and will include required
+										hashtags in my post.
+									</Text>
+								</Pressable>
+
+								<Pressable
+									onPress={() => setCheckDeadline(!checkDeadline)}
+									style={[
+										modalStyles.checkCard,
+										{
+											borderColor: checkDeadline
+												? `${accent.chip}66`
+												: colors.border,
+											backgroundColor: checkDeadline
+												? accent.from
+												: colors.bgCard,
+										},
+									]}
+								>
+									<View
+										style={[
+											modalStyles.checkbox,
+											{
+												borderColor: checkDeadline
+													? accent.chip
+													: colors.textTertiary,
+												backgroundColor: checkDeadline
+													? accent.chip
+													: "transparent",
+											},
+										]}
+									>
+										{checkDeadline && <CheckSmallIcon />}
+									</View>
+									<Text style={modalStyles.checkText}>
+										I understand the deadline is {campaign.deadline} and the
+										post must stay live for 30 days.
+									</Text>
+								</Pressable>
+							</View>
+						)}
+
+						{/* Navigation buttons */}
+						<View style={modalStyles.navRow}>
+							{step > 0 && (
+								<Pressable
+									onPress={() => setStep(step - 1)}
+									style={modalStyles.backStepBtn}
+								>
+									<Text style={modalStyles.backStepBtnText}>Back</Text>
+								</Pressable>
+							)}
+							<Pressable
+								onPress={handleNext}
+								disabled={!canNext}
+								style={[
+									modalStyles.nextBtn,
+									{
+										backgroundColor: canNext
+											? accent.chip
+											: "rgba(255,255,255,0.06)",
+										flex: 1,
+									},
+								]}
+							>
+								<Text
+									style={[
+										modalStyles.nextBtnText,
+										{ color: canNext ? "#0a0a0c" : colors.textTertiary },
+									]}
+								>
+									{step === 2 ? "Submit application" : "Continue"}
+								</Text>
+							</Pressable>
+						</View>
+					</>
+				)}
+			</BottomSheetScrollView>
+		</BottomSheetModal>
+	);
+}
+
 export default function CampaignDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const router = useRouter();
 	const insets = useSafeAreaInsets();
 	const [activeTab, setActiveTab] = useState<Tab>("Brief");
+	const applySheetRef = useRef<BottomSheetModal>(null);
 
 	const campaign = id ? CAMPAIGNS_DATA[id] : null;
 
@@ -316,7 +804,8 @@ export default function CampaignDetailScreen() {
 
 	const accent = ACCENT_MAP[campaign.color] || ACCENT_MAP.lime;
 	const brandColor = BRAND_COLORS[campaign.brand] || ["#d9f99d", "#1a2e05"];
-	const spotsPercent = ((campaign.totalSpots - campaign.spotsLeft) / campaign.totalSpots) * 100;
+	const spotsPercent =
+		((campaign.totalSpots - campaign.spotsLeft) / campaign.totalSpots) * 100;
 
 	return (
 		<View style={styles.container}>
@@ -341,7 +830,9 @@ export default function CampaignDetailScreen() {
 
 					{/* Brand */}
 					<View style={styles.brandSection}>
-						<View style={[styles.brandAvatar, { backgroundColor: brandColor[0] }]}>
+						<View
+							style={[styles.brandAvatar, { backgroundColor: brandColor[0] }]}
+						>
 							<Text style={[styles.brandAvatarText, { color: brandColor[1] }]}>
 								{campaign.brand[0]}
 							</Text>
@@ -373,13 +864,17 @@ export default function CampaignDetailScreen() {
 					<View style={styles.statCard}>
 						<Text style={styles.statLabel}>Rate</Text>
 						<Text style={[styles.statValue, { color: accent.chip }]}>
-							{campaign.currency}{campaign.rate}
+							{campaign.currency}
+							{campaign.rate}
 						</Text>
 						<Text style={styles.statSub}>per {campaign.perViews} views</Text>
 					</View>
 					<View style={styles.statCard}>
 						<Text style={styles.statLabel}>Budget</Text>
-						<Text style={styles.statValue}>{campaign.currency}{campaign.budget}</Text>
+						<Text style={styles.statValue}>
+							{campaign.currency}
+							{campaign.budget}
+						</Text>
 						<Text style={styles.statSub}>total pool</Text>
 					</View>
 					<View style={styles.statCard}>
@@ -398,11 +893,20 @@ export default function CampaignDetailScreen() {
 						</Text>
 					</View>
 					<View style={styles.spotsBarBg}>
-						<View style={[styles.spotsBarFill, { width: `${spotsPercent}%`, backgroundColor: accent.chip }]} />
+						<View
+							style={[
+								styles.spotsBarFill,
+								{ width: `${spotsPercent}%`, backgroundColor: accent.chip },
+							]}
+						/>
 					</View>
 					<View style={styles.spotsFooter}>
-						<Text style={styles.spotsFooterText}>{campaign.creatorsJoined} creators joined</Text>
-						<Text style={styles.spotsFooterText}>{campaign.spotsLeft} spots remaining</Text>
+						<Text style={styles.spotsFooterText}>
+							{campaign.creatorsJoined} creators joined
+						</Text>
+						<Text style={styles.spotsFooterText}>
+							{campaign.spotsLeft} spots remaining
+						</Text>
 					</View>
 				</View>
 
@@ -414,9 +918,17 @@ export default function CampaignDetailScreen() {
 							<Pressable
 								key={tab}
 								onPress={() => setActiveTab(tab)}
-								style={[styles.tabBtn, isActive && { borderBottomColor: accent.chip, borderBottomWidth: 2 }]}
+								style={[
+									styles.tabBtn,
+									isActive && {
+										borderBottomColor: accent.chip,
+										borderBottomWidth: 2,
+									},
+								]}
 							>
-								<Text style={[styles.tabText, isActive && { color: colors.text }]}>
+								<Text
+									style={[styles.tabText, isActive && { color: colors.text }]}
+								>
 									{tab}
 								</Text>
 							</Pressable>
@@ -433,7 +945,12 @@ export default function CampaignDetailScreen() {
 							<View style={styles.briefList}>
 								{campaign.longBrief.map((item, i) => (
 									<View key={i} style={styles.briefItem}>
-										<View style={[styles.briefDot, { backgroundColor: accent.chip }]} />
+										<View
+											style={[
+												styles.briefDot,
+												{ backgroundColor: accent.chip },
+											]}
+										/>
 										<Text style={styles.briefItemText}>{item}</Text>
 									</View>
 								))}
@@ -459,7 +976,9 @@ export default function CampaignDetailScreen() {
 								))}
 							</View>
 
-							<Text style={[styles.sectionTitle, { marginTop: 24 }]}>Guidelines</Text>
+							<Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+								Guidelines
+							</Text>
 							<View style={styles.briefList}>
 								{[
 									"Content must be original \u2014 no reposts or recycled footage",
@@ -469,8 +988,17 @@ export default function CampaignDetailScreen() {
 									"Submit within deadline for payment eligibility",
 								].map((item, i) => (
 									<View key={i} style={styles.briefItem}>
-										<View style={[styles.briefNumber, { backgroundColor: `${accent.chip}18` }]}>
-											<Text style={[styles.briefNumberText, { color: accent.chip }]}>{i + 1}</Text>
+										<View
+											style={[
+												styles.briefNumber,
+												{ backgroundColor: `${accent.chip}18` },
+											]}
+										>
+											<Text
+												style={[styles.briefNumberText, { color: accent.chip }]}
+											>
+												{i + 1}
+											</Text>
 										</View>
 										<Text style={styles.briefItemText}>{item}</Text>
 									</View>
@@ -487,11 +1015,20 @@ export default function CampaignDetailScreen() {
 									{ label: "Brand", value: campaign.brand },
 									{ label: "Category", value: campaign.category },
 									{ label: "Platform", value: campaign.platform },
-									{ label: "Rate", value: `${campaign.currency}${campaign.rate} / ${campaign.perViews} views` },
+									{
+										label: "Rate",
+										value: `${campaign.currency}${campaign.rate} / ${campaign.perViews} views`,
+									},
 									{ label: "Min Views", value: campaign.minViews },
-									{ label: "Total Budget", value: `${campaign.currency}${campaign.budget}` },
+									{
+										label: "Total Budget",
+										value: `${campaign.currency}${campaign.budget}`,
+									},
 									{ label: "Deadline", value: campaign.deadline },
-									{ label: "Spots", value: `${campaign.spotsLeft} of ${campaign.totalSpots} left` },
+									{
+										label: "Spots",
+										value: `${campaign.spotsLeft} of ${campaign.totalSpots} left`,
+									},
 								].map((item) => (
 									<View key={item.label} style={styles.detailItem}>
 										<Text style={styles.detailLabel}>{item.label}</Text>
@@ -502,14 +1039,26 @@ export default function CampaignDetailScreen() {
 
 							{/* Brand card */}
 							<View style={styles.brandCard}>
-								<View style={[styles.brandCardAvatar, { backgroundColor: brandColor[0] }]}>
-									<Text style={[styles.brandCardAvatarText, { color: brandColor[1] }]}>
+								<View
+									style={[
+										styles.brandCardAvatar,
+										{ backgroundColor: brandColor[0] },
+									]}
+								>
+									<Text
+										style={[
+											styles.brandCardAvatarText,
+											{ color: brandColor[1] },
+										]}
+									>
 										{campaign.brand[0]}
 									</Text>
 								</View>
 								<View style={{ flex: 1 }}>
 									<Text style={styles.brandCardName}>{campaign.brand}</Text>
-									<Text style={styles.brandCardHandle}>{campaign.brandHandle}</Text>
+									<Text style={styles.brandCardHandle}>
+										{campaign.brandHandle}
+									</Text>
 								</View>
 								<View style={styles.verifiedBadge}>
 									<Text style={styles.verifiedText}>Verified</Text>
@@ -525,11 +1074,15 @@ export default function CampaignDetailScreen() {
 				<View style={styles.bottomBarInner}>
 					<View>
 						<Text style={[styles.bottomRate, { color: accent.chip }]}>
-							{campaign.currency}{campaign.rate}
+							{campaign.currency}
+							{campaign.rate}
 						</Text>
-						<Text style={styles.bottomRateSub}>per {campaign.perViews} views</Text>
+						<Text style={styles.bottomRateSub}>
+							per {campaign.perViews} views
+						</Text>
 					</View>
 					<Pressable
+						onPress={() => applySheetRef.current?.present()}
 						style={({ pressed }) => [
 							styles.applyBtn,
 							{ backgroundColor: accent.chip },
@@ -540,6 +1093,13 @@ export default function CampaignDetailScreen() {
 					</Pressable>
 				</View>
 			</View>
+
+			{/* Apply Bottom Sheet */}
+			<ApplyModal
+				sheetRef={applySheetRef}
+				campaign={campaign}
+				onDismiss={() => {}}
+			/>
 		</View>
 	);
 }
@@ -937,6 +1497,270 @@ const styles = StyleSheet.create({
 	},
 	applyBtnText: {
 		fontSize: 15,
+		fontFamily: "Inter-SemiBold",
+		color: "#0a0a0c",
+	},
+});
+
+// ── Bottom Sheet Styles ──────────────────────────────────────────────
+const modalStyles = StyleSheet.create({
+	sheetBg: {
+		backgroundColor: colors.bg,
+	},
+	handleIndicator: {
+		backgroundColor: "rgba(255,255,255,0.2)",
+		width: 36,
+	},
+	sheetContent: {
+		paddingHorizontal: 24,
+		paddingTop: 8,
+	},
+
+	// Step header
+	stepLabel: {
+		fontSize: 11,
+		fontFamily: "Inter-Regular",
+		color: colors.textTertiary,
+		textTransform: "uppercase",
+		letterSpacing: 0.8,
+		marginBottom: 4,
+	},
+	stepTitle: {
+		fontSize: 20,
+		fontFamily: "Inter-SemiBold",
+		color: colors.text,
+		marginBottom: 20,
+	},
+
+	// Platform picker
+	platformList: {
+		gap: 8,
+	},
+	platformCard: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+		padding: 14,
+		borderRadius: 12,
+		borderWidth: 1.5,
+	},
+	platformIconBox: {
+		width: 36,
+		height: 36,
+		borderRadius: 9,
+		backgroundColor: "rgba(255,255,255,0.06)",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	platformName: {
+		fontSize: 14,
+		fontFamily: "Inter-SemiBold",
+		color: colors.text,
+	},
+	platformMeta: {
+		fontSize: 12,
+		fontFamily: "Inter-Regular",
+		color: colors.textTertiary,
+		marginTop: 1,
+	},
+	radioOuter: {
+		width: 20,
+		height: 20,
+		borderRadius: 10,
+		borderWidth: 2,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+
+	// Pitch
+	pitchContainer: {
+		gap: 0,
+	},
+	inputLabel: {
+		fontSize: 13,
+		fontFamily: "Inter-Regular",
+		color: colors.textSecondary,
+		marginBottom: 6,
+	},
+	textArea: {
+		backgroundColor: colors.bgCard,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 12,
+		padding: 14,
+		fontSize: 14,
+		fontFamily: "Inter-Regular",
+		color: colors.text,
+		minHeight: 100,
+		lineHeight: 21,
+	},
+	charCount: {
+		fontSize: 11,
+		fontFamily: "Inter-Regular",
+		textAlign: "right",
+		marginTop: 4,
+	},
+	urlInput: {
+		backgroundColor: colors.bgCard,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 12,
+		paddingHorizontal: 14,
+		paddingVertical: 12,
+		fontSize: 14,
+		fontFamily: "Inter-Regular",
+		color: colors.text,
+	},
+
+	// Confirm
+	confirmContainer: {
+		gap: 10,
+	},
+	checkCard: {
+		flexDirection: "row",
+		alignItems: "flex-start",
+		gap: 12,
+		padding: 14,
+		borderRadius: 12,
+		borderWidth: 1,
+	},
+	checkbox: {
+		width: 22,
+		height: 22,
+		borderRadius: 6,
+		borderWidth: 1.5,
+		alignItems: "center",
+		justifyContent: "center",
+		marginTop: 1,
+	},
+	checkText: {
+		flex: 1,
+		fontSize: 13,
+		fontFamily: "Inter-Regular",
+		color: colors.textSecondary,
+		lineHeight: 20,
+	},
+
+	// Navigation
+	navRow: {
+		flexDirection: "row",
+		gap: 10,
+		marginTop: 24,
+	},
+	backStepBtn: {
+		flex: 1,
+		paddingVertical: 14,
+		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: colors.border,
+		alignItems: "center",
+	},
+	backStepBtnText: {
+		fontSize: 14,
+		fontFamily: "Inter-SemiBold",
+		color: colors.textSecondary,
+	},
+	nextBtn: {
+		paddingVertical: 14,
+		borderRadius: 12,
+		alignItems: "center",
+	},
+	nextBtnText: {
+		fontSize: 14,
+		fontFamily: "Inter-SemiBold",
+	},
+
+	// Step dots
+	dotsRow: {
+		flexDirection: "row",
+		justifyContent: "center",
+		gap: 6,
+		marginBottom: 16,
+	},
+	dot: {
+		height: 6,
+		borderRadius: 3,
+	},
+
+	// Success
+	successRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 14,
+		marginBottom: 20,
+	},
+	successIcon: {
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	successTitle: {
+		fontSize: 20,
+		fontFamily: "Inter-SemiBold",
+		color: colors.text,
+	},
+	successSub: {
+		fontSize: 13,
+		fontFamily: "Inter-Regular",
+		color: colors.textTertiary,
+		lineHeight: 20,
+		marginTop: 4,
+	},
+	summaryRow: {
+		flexDirection: "row",
+		gap: 8,
+		marginBottom: 20,
+	},
+	summaryCard: {
+		flex: 1,
+		backgroundColor: colors.bgCard,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 10,
+		padding: 10,
+		alignItems: "center",
+	},
+	summaryLabel: {
+		fontSize: 10,
+		fontFamily: "Inter-Regular",
+		color: colors.textTertiary,
+		textTransform: "uppercase",
+		letterSpacing: 0.4,
+		marginBottom: 2,
+	},
+	summaryValue: {
+		fontSize: 13,
+		fontFamily: "Inter-SemiBold",
+		color: colors.text,
+	},
+	successActions: {
+		flexDirection: "row",
+		gap: 10,
+	},
+	doneBtn: {
+		flex: 1,
+		paddingVertical: 14,
+		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: colors.border,
+		backgroundColor: colors.bgCard,
+		alignItems: "center",
+	},
+	doneBtnText: {
+		fontSize: 14,
+		fontFamily: "Inter-SemiBold",
+		color: colors.textSecondary,
+	},
+	viewAppsBtn: {
+		flex: 1,
+		paddingVertical: 14,
+		borderRadius: 12,
+		alignItems: "center",
+	},
+	viewAppsBtnText: {
+		fontSize: 14,
 		fontFamily: "Inter-SemiBold",
 		color: "#0a0a0c",
 	},

@@ -1,3 +1,4 @@
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -29,20 +30,22 @@ export default function RootLayout() {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<StatusBar style="light" />
-			<Stack
-				screenOptions={{
-					headerShown: false,
-					contentStyle: { backgroundColor: "#0a0a0c" },
-					animation: "fade",
-				}}
-			>
-				<Stack.Screen name="index" />
-				<Stack.Screen name="login" />
-				<Stack.Screen name="onboarding" />
-				<Stack.Screen name="(tabs)" />
-				<Stack.Screen name="campaign/[id]" />
-			</Stack>
+			<BottomSheetModalProvider>
+				<StatusBar style="light" />
+				<Stack
+					screenOptions={{
+						headerShown: false,
+						contentStyle: { backgroundColor: "#0a0a0c" },
+						animation: "fade",
+					}}
+				>
+					<Stack.Screen name="index" />
+					<Stack.Screen name="login" />
+					<Stack.Screen name="onboarding" />
+					<Stack.Screen name="(tabs)" />
+					<Stack.Screen name="campaign/[id]" />
+				</Stack>
+			</BottomSheetModalProvider>
 		</GestureHandlerRootView>
 	);
 }

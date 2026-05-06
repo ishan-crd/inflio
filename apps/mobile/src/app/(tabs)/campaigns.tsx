@@ -1,6 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import type React from "react";
 import { useState } from "react";
 import {
 	ScrollView,
@@ -13,8 +12,8 @@ import {
 	SafeAreaView,
 	useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import Svg, { Circle, Line, Path } from "react-native-svg";
-import { colors, ACCENT_MAP, BRAND_COLORS } from "~/utils/theme";
+import Svg, { Circle, Path } from "react-native-svg";
+import { ACCENT_MAP, BRAND_COLORS, colors } from "~/utils/theme";
 
 interface Campaign {
 	id: number;
@@ -44,7 +43,8 @@ const CAMPAIGNS: Campaign[] = [
 		brand: "Lumen Audio",
 		brandHandle: "@lumenaudio",
 		title: "Launch reels for the new Lumen Pro 2 earbuds",
-		brief: "Authentic 30\u201360s reel showcasing Lumen Pro 2 in a daily-life moment. Highlight ANC and 12-hour battery.",
+		brief:
+			"Authentic 30\u201360s reel showcasing Lumen Pro 2 in a daily-life moment. Highlight ANC and 12-hour battery.",
 		platform: "Instagram",
 		category: "Tech",
 		rate: 240,
@@ -65,7 +65,8 @@ const CAMPAIGNS: Campaign[] = [
 		brand: "Kavi Coffee Co.",
 		brandHandle: "@kavicoffee",
 		title: "Morning ritual UGC for cold brew launch",
-		brief: "Short-form video starring our cold brew bottle. Bonus payout for >50k views in first 72 hours.",
+		brief:
+			"Short-form video starring our cold brew bottle. Bonus payout for >50k views in first 72 hours.",
 		platform: "Instagram",
 		category: "Food & Bev",
 		rate: 180,
@@ -86,7 +87,8 @@ const CAMPAIGNS: Campaign[] = [
 		brand: "Northform",
 		brandHandle: "@northform.studio",
 		title: "Studio-tour shorts for the SS26 collection",
-		brief: "Behind-the-scenes shorts from our Mumbai studio. Quiet, cinematic tone preferred.",
+		brief:
+			"Behind-the-scenes shorts from our Mumbai studio. Quiet, cinematic tone preferred.",
 		platform: "YouTube",
 		category: "Fashion",
 		rate: 420,
@@ -107,7 +109,8 @@ const CAMPAIGNS: Campaign[] = [
 		brand: "Glide Mobility",
 		brandHandle: "@rideglide",
 		title: "First-ride POV for the Glide G3 e-scooter",
-		brief: "POV ride through your city. Hooks under 2s. Strong CTA to test-ride event.",
+		brief:
+			"POV ride through your city. Hooks under 2s. Strong CTA to test-ride event.",
 		platform: "TikTok",
 		category: "Auto",
 		rate: 310,
@@ -128,7 +131,8 @@ const CAMPAIGNS: Campaign[] = [
 		brand: "Petal & Press",
 		brandHandle: "@petalandpress",
 		title: "GRWM with our new clean-skin serum",
-		brief: "Get-ready-with-me clip featuring the Hydra Veil serum. No filters, no over-editing.",
+		brief:
+			"Get-ready-with-me clip featuring the Hydra Veil serum. No filters, no over-editing.",
 		platform: "Instagram",
 		category: "Beauty",
 		rate: 200,
@@ -149,7 +153,8 @@ const CAMPAIGNS: Campaign[] = [
 		brand: "Forge Finance",
 		brandHandle: "@forgefin",
 		title: "60-second explainer: why your SIP isn\u2019t working",
-		brief: "Educational short. Calm voiceover, on-screen captions. We\u2019ll provide the script outline.",
+		brief:
+			"Educational short. Calm voiceover, on-screen captions. We\u2019ll provide the script outline.",
 		platform: "YouTube",
 		category: "Finance",
 		rate: 520,
@@ -191,7 +196,8 @@ const CAMPAIGNS: Campaign[] = [
 		brand: "Atlas Outdoors",
 		brandHandle: "@atlas.outdoors",
 		title: "Trail-test the Atlas X1 jacket in the Himalayas",
-		brief: "Field-test footage with weather details. Bonus payout for snow conditions.",
+		brief:
+			"Field-test footage with weather details. Bonus payout for snow conditions.",
 		platform: "YouTube",
 		category: "Outdoor",
 		rate: 480,
@@ -212,7 +218,8 @@ const CAMPAIGNS: Campaign[] = [
 		brand: "Soko Stationery",
 		brandHandle: "@sokostationery",
 		title: "Desk-setup ASMR with our new notebook line",
-		brief: "Cozy, ambient desk-setup video. Highlight the textured cover of the Soko Daily.",
+		brief:
+			"Cozy, ambient desk-setup video. Highlight the textured cover of the Soko Daily.",
 		platform: "TikTok",
 		category: "Lifestyle",
 		rate: 140,
@@ -253,27 +260,6 @@ function BellIcon() {
 	);
 }
 
-function TrendingIcon() {
-	return (
-		<Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
-			<Path
-				d="M23 6l-9.5 9.5-5-5L1 18"
-				stroke={colors.accentStrong}
-				strokeWidth={2}
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<Path
-				d="M17 6h6v6"
-				stroke={colors.accentStrong}
-				strokeWidth={2}
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-		</Svg>
-	);
-}
-
 function PlatformIcon({ platform }: { platform: string }) {
 	if (platform === "Instagram") {
 		return (
@@ -295,7 +281,11 @@ function PlatformIcon({ platform }: { platform: string }) {
 					stroke="currentColor"
 					strokeWidth={1.5}
 				/>
-				<Path d="M9.75 15.02l5.75-3.27-5.75-3.27v6.54z" stroke="currentColor" strokeWidth={1.5} />
+				<Path
+					d="M9.75 15.02l5.75-3.27-5.75-3.27v6.54z"
+					stroke="currentColor"
+					strokeWidth={1.5}
+				/>
 			</Svg>
 		);
 	}
@@ -314,7 +304,13 @@ function PlatformIcon({ platform }: { platform: string }) {
 const CREATOR_DOT_COLORS: string[] = ["#f472b6", "#60a5fa", "#fb923c"];
 
 const initials = (s: string) =>
-	s.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+	s
+		.split(/\s+/)
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((w) => w[0])
+		.join("")
+		.toUpperCase();
 
 function VerifiedIcon() {
 	return (
@@ -344,7 +340,8 @@ function CampaignCard({
 }) {
 	const accent = ACCENT_MAP[campaign.color] || ACCENT_MAP.lime;
 	const brandColor = BRAND_COLORS[campaign.brand] || ["#d9f99d", "#1a2e05"];
-	const spotsPercent = ((campaign.totalSpots - campaign.spotsLeft) / campaign.totalSpots) * 100;
+	const spotsPercent =
+		((campaign.totalSpots - campaign.spotsLeft) / campaign.totalSpots) * 100;
 
 	return (
 		<TouchableOpacity activeOpacity={0.85} onPress={onPress}>
@@ -353,7 +350,9 @@ function CampaignCard({
 				<View style={styles.cardTop}>
 					{/* Brand cluster */}
 					<View style={styles.brandCluster}>
-						<View style={[styles.brandAvatar, { backgroundColor: brandColor[0] }]}>
+						<View
+							style={[styles.brandAvatar, { backgroundColor: brandColor[0] }]}
+						>
 							<Text style={[styles.brandAvatarText, { color: brandColor[1] }]}>
 								{initials(campaign.brand)}
 							</Text>
@@ -374,12 +373,8 @@ function CampaignCard({
 					</View>
 
 					{/* Title & brief */}
-					<Text style={styles.cardTitle}>
-						{campaign.title}
-					</Text>
-					<Text style={styles.cardBrief}>
-						{campaign.brief}
-					</Text>
+					<Text style={styles.cardTitle}>{campaign.title}</Text>
+					<Text style={styles.cardBrief}>{campaign.brief}</Text>
 
 					{/* Tags */}
 					<View style={styles.tagsRow}>
@@ -402,7 +397,9 @@ function CampaignCard({
 						<Text style={styles.rateLabel}>CPM RATE</Text>
 						<View style={styles.rateRow}>
 							<Text style={[styles.rateAmount, { color: accent.text }]}>
-								<Text style={[styles.rateCurrency, { color: accent.chip }]}>{campaign.currency} </Text>
+								<Text style={[styles.rateCurrency, { color: accent.chip }]}>
+									{campaign.currency}{" "}
+								</Text>
 								{campaign.rate}
 							</Text>
 							<Text style={styles.ratePer}>per {campaign.perViews} views</Text>
@@ -410,13 +407,20 @@ function CampaignCard({
 
 						<View style={styles.rateMeta}>
 							<Text style={styles.rateMetaText}>
-								Min. <Text style={styles.rateMetaMono}>{campaign.minViews}</Text> views
+								Min.{" "}
+								<Text style={styles.rateMetaMono}>{campaign.minViews}</Text>{" "}
+								views
 							</Text>
 							<Text style={styles.rateMetaText}>
-								Budget <Text style={styles.rateMetaMono}>{campaign.currency}{campaign.budget}</Text>
+								Budget{" "}
+								<Text style={styles.rateMetaMono}>
+									{campaign.currency}
+									{campaign.budget}
+								</Text>
 							</Text>
 							<Text style={styles.rateMetaText}>
-								Ends <Text style={styles.rateMetaMono}>{campaign.deadline}</Text>
+								Ends{" "}
+								<Text style={styles.rateMetaMono}>{campaign.deadline}</Text>
 							</Text>
 						</View>
 					</LinearGradient>
@@ -426,25 +430,42 @@ function CampaignCard({
 				<View style={styles.cardFoot}>
 					<View style={styles.spotsCluster}>
 						<View style={styles.spotsBarBg}>
-							<View style={[styles.spotsBarFill, { width: `${spotsPercent}%`, backgroundColor: accent.chip }]} />
+							<View
+								style={[
+									styles.spotsBarFill,
+									{ width: `${spotsPercent}%`, backgroundColor: accent.chip },
+								]}
+							/>
 						</View>
 						<Text style={styles.spotsText}>
-							<Text style={{ color: colors.text, fontFamily: "Inter-SemiBold" }}>{campaign.spotsLeft}</Text> spots left
+							<Text
+								style={{ color: colors.text, fontFamily: "Inter-SemiBold" }}
+							>
+								{campaign.spotsLeft}
+							</Text>{" "}
+							spots left
 						</Text>
 					</View>
 
 					<View style={styles.creatorsStack}>
 						<View style={styles.creatorDots}>
 							{CREATOR_DOT_COLORS.map((c, i) => (
-								<View key={i} style={[styles.creatorDot, { backgroundColor: c }]} />
+								<View
+									key={i}
+									style={[styles.creatorDot, { backgroundColor: c }]}
+								/>
 							))}
 							{campaign.creatorsJoined > 3 && (
 								<View style={[styles.creatorDot, styles.creatorDotMore]}>
-									<Text style={styles.creatorDotMoreText}>+{campaign.creatorsJoined - 3}</Text>
+									<Text style={styles.creatorDotMoreText}>
+										+{campaign.creatorsJoined - 3}
+									</Text>
 								</View>
 							)}
 						</View>
-						<Text style={styles.creatorsText}>{campaign.creatorsJoined} joined</Text>
+						<Text style={styles.creatorsText}>
+							{campaign.creatorsJoined} joined
+						</Text>
 					</View>
 				</View>
 			</View>
@@ -457,9 +478,10 @@ export default function CampaignsScreen() {
 	const router = useRouter();
 	const [activePlatform, setActivePlatform] = useState("All");
 
-	const filtered = activePlatform === "All"
-		? CAMPAIGNS
-		: CAMPAIGNS.filter((c) => c.platform === activePlatform);
+	const filtered =
+		activePlatform === "All"
+			? CAMPAIGNS
+			: CAMPAIGNS.filter((c) => c.platform === activePlatform);
 
 	return (
 		<View style={styles.container}>
@@ -468,7 +490,9 @@ export default function CampaignsScreen() {
 				<View style={styles.header}>
 					<View>
 						<Text style={styles.heading}>Campaigns</Text>
-						<Text style={styles.subheading}>{CAMPAIGNS.length} active campaigns</Text>
+						<Text style={styles.subheading}>
+							{CAMPAIGNS.length} active campaigns
+						</Text>
 					</View>
 					<TouchableOpacity style={styles.bellBtn}>
 						<BellIcon />

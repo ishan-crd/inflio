@@ -18,7 +18,6 @@ const INDICATOR_SIZE = 44;
 const INDICATOR_RADIUS = 12;
 const INACTIVE_COLOR = "rgba(245,245,244,0.4)";
 const ACTIVE_COLOR = "#0a0a0c";
-const CENTER_ACTIVE_COLOR = "#bef264";
 
 const TAB_KEYS = ["campaigns", "videos", "index", "wallet", "profile"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
@@ -40,7 +39,15 @@ function CampaignsIcon({ color, size }: { color: string; size: number }) {
 function VideosIcon({ color, size }: { color: string; size: number }) {
 	return (
 		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-			<Rect x={2} y={4} width={20} height={16} rx={3} stroke={color} strokeWidth={1.8} />
+			<Rect
+				x={2}
+				y={4}
+				width={20}
+				height={16}
+				rx={3}
+				stroke={color}
+				strokeWidth={1.8}
+			/>
 			<Path
 				d="M10 9l5 3-5 3V9z"
 				stroke={color}
@@ -62,11 +69,7 @@ function WalletIcon({ color, size }: { color: string; size: number }) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			<Path
-				d="M16 12h5v4h-5a2 2 0 010-4z"
-				stroke={color}
-				strokeWidth={1.8}
-			/>
+			<Path d="M16 12h5v4h-5a2 2 0 010-4z" stroke={color} strokeWidth={1.8} />
 		</Svg>
 	);
 }
@@ -85,7 +88,10 @@ function ProfileIcon({ color, size }: { color: string; size: number }) {
 	);
 }
 
-const TAB_ICONS: Record<TabKey, React.ComponentType<{ size: number; color: string }> | null> = {
+const TAB_ICONS: Record<
+	TabKey,
+	React.ComponentType<{ size: number; color: string }> | null
+> = {
 	campaigns: CampaignsIcon,
 	videos: VideosIcon,
 	index: null,
@@ -119,7 +125,7 @@ function CustomTabBar({
 			friction: 12,
 			useNativeDriver: true,
 		}).start();
-	}, [state.index, tabWidth]);
+	}, [state.index, tabWidth, translateX]);
 
 	return (
 		<View style={[styles.tabBarWrapper, { paddingBottom: insets.bottom }]}>
@@ -166,7 +172,7 @@ function CustomTabBar({
 								<Text
 									style={[
 										styles.centerLetter,
-										{ color: isFocused ? CENTER_ACTIVE_COLOR : INACTIVE_COLOR },
+										{ color: isFocused ? ACTIVE_COLOR : INACTIVE_COLOR },
 									]}
 								>
 									f

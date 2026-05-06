@@ -1,5 +1,4 @@
 import { Image } from "expo-image";
-import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import {
 	SafeAreaView,

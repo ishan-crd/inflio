@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
 	SafeAreaView,
@@ -93,7 +93,7 @@ function SubmissionCard({ item }: { item: SubmissionItem }) {
 	);
 }
 
-function SubmissionsGrid({ bottomPadding }: { bottomPadding: number }) {
+function SubmissionsGrid() {
 	const rows: SubmissionItem[][] = [];
 	for (let i = 0; i < MOCK_SUBMISSIONS.length; i += 2) {
 		rows.push(MOCK_SUBMISSIONS.slice(i, i + 2));
@@ -155,7 +155,7 @@ export default function ProfileScreen() {
 				</View>
 
 				{activeTab === "Submissions" ? (
-					<SubmissionsGrid bottomPadding={insets.bottom + 100} />
+					<SubmissionsGrid />
 				) : (
 					<View style={styles.emptyState}>
 						<Text style={styles.emptyText}>No accounts connected</Text>

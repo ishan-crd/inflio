@@ -79,6 +79,41 @@ const ACTIVE_CAMPAIGNS = [
 	},
 ];
 
+const MY_APPLICATIONS = [
+	{
+		id: "1",
+		campaignTitle: "Launch reels for Lumen Pro 2",
+		brand: "Lumen Audio",
+		status: "pending" as const,
+		appliedDate: "May 2",
+		platform: "Instagram",
+	},
+	{
+		id: "2",
+		campaignTitle: "Morning ritual UGC for cold brew",
+		brand: "Kavi Coffee Co.",
+		status: "accepted" as const,
+		appliedDate: "Apr 28",
+		platform: "Instagram",
+	},
+	{
+		id: "3",
+		campaignTitle: "Studio-tour shorts for SS26",
+		brand: "Northform",
+		status: "rejected" as const,
+		appliedDate: "Apr 25",
+		platform: "YouTube",
+	},
+	{
+		id: "4",
+		campaignTitle: "First-ride POV for Glide G3",
+		brand: "Glide Mobility",
+		status: "pending" as const,
+		appliedDate: "May 4",
+		platform: "TikTok",
+	},
+];
+
 const WEEKLY_EARNINGS = [
 	{ day: "Mon", amount: 45 },
 	{ day: "Tue", amount: 72 },
@@ -231,6 +266,40 @@ function CalendarIcon() {
 			/>
 			<Line x1={3} y1={10} x2={21} y2={10} stroke="#6B7280" strokeWidth={2} />
 		</Svg>
+	);
+}
+
+// ── Application Card ─────────────────────────────────────────────────
+
+const STATUS_CONFIG = {
+	pending: { label: "Pending", color: "#FBBF24", bg: "rgba(251,191,36,0.12)" },
+	accepted: { label: "Accepted", color: "#22C55E", bg: "rgba(34,197,94,0.12)" },
+	rejected: { label: "Rejected", color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
+} as const;
+
+function ApplicationCard({ app }: { app: (typeof MY_APPLICATIONS)[number] }) {
+	const status = STATUS_CONFIG[app.status];
+	return (
+		<View style={styles.appCard}>
+			<View style={styles.appCardTop}>
+				<View style={{ flex: 1 }}>
+					<Text style={styles.appBrand}>{app.brand}</Text>
+					<Text style={styles.appTitle} numberOfLines={1}>
+						{app.campaignTitle}
+					</Text>
+				</View>
+				<View style={[styles.appStatusBadge, { backgroundColor: status.bg }]}>
+					<Text style={[styles.appStatusText, { color: status.color }]}>
+						{status.label}
+					</Text>
+				</View>
+			</View>
+			<View style={styles.appCardBottom}>
+				<Text style={styles.appMeta}>{app.platform}</Text>
+				<View style={styles.appDotSep} />
+				<Text style={styles.appMeta}>Applied {app.appliedDate}</Text>
+			</View>
+		</View>
 	);
 }
 
@@ -440,6 +509,16 @@ export default function DashboardScreen() {
 							<VideoCard key={video.id} video={video} />
 						))}
 					</ScrollView>
+				</View>
+
+				{/* My Applications */}
+				<View style={styles.sectionContainer}>
+					<SectionHeader title="My Applications" onSeeAll={() => {}} />
+					<View style={styles.appList}>
+						{MY_APPLICATIONS.map((app) => (
+							<ApplicationCard key={app.id} app={app} />
+						))}
+					</View>
 				</View>
 
 				{/* Active Campaigns */}
@@ -698,6 +777,62 @@ const styles = StyleSheet.create({
 		fontSize: 11,
 		color: "#6B7280",
 		marginLeft: 2,
+	},
+
+	// Applications
+	appList: {
+		paddingHorizontal: 20,
+		gap: 10,
+	},
+	appCard: {
+		backgroundColor: "#1A1A1A",
+		borderRadius: 14,
+		padding: 14,
+		borderWidth: 1,
+		borderColor: "#2A2A2A",
+		gap: 10,
+	},
+	appCardTop: {
+		flexDirection: "row",
+		alignItems: "flex-start",
+		justifyContent: "space-between",
+		gap: 12,
+	},
+	appBrand: {
+		fontFamily: "Inter-Regular",
+		fontSize: 11,
+		color: "#6B7280",
+	},
+	appTitle: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 14,
+		color: "#FFFFFF",
+		marginTop: 2,
+	},
+	appStatusBadge: {
+		borderRadius: 8,
+		paddingHorizontal: 10,
+		paddingVertical: 4,
+	},
+	appStatusText: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 11,
+	},
+	appCardBottom: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 6,
+	},
+	appMeta: {
+		fontFamily: "Inter-Regular",
+		fontSize: 11,
+		color: "#6B7280",
+	},
+	appDotSep: {
+		width: 3,
+		height: 3,
+		borderRadius: 1.5,
+		backgroundColor: "#4B5563",
 	},
 
 	// Campaign cards (horizontal scroll)
