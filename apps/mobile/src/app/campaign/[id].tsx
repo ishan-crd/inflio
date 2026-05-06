@@ -295,6 +295,13 @@ const CAMPAIGNS_DATA: Record<string, Campaign> = {
 	},
 };
 
+const CREATOR_DOTS = [
+	{ from: "#f472b6", to: "#a855f7", initials: "RA" },
+	{ from: "#60a5fa", to: "#22d3ee", initials: "MK" },
+	{ from: "#fb923c", to: "#facc15", initials: "SV" },
+	{ from: "#a7f3d0", to: "#34d399", initials: "DH" },
+];
+
 const TABS = ["Brief", "Requirements", "Details"] as const;
 type Tab = (typeof TABS)[number];
 
@@ -811,7 +818,7 @@ export default function CampaignDetailScreen() {
 		<View style={styles.container}>
 			<ScrollView
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+				contentContainerStyle={{ paddingBottom: insets.bottom + 140 }}
 			>
 				{/* Header */}
 				<LinearGradient
@@ -828,6 +835,17 @@ export default function CampaignDetailScreen() {
 						</View>
 					</View>
 
+					{/* Trending badge */}
+					{campaign.trending && (
+						<View
+							style={[styles.trendingBadge, { backgroundColor: accent.from }]}
+						>
+							<Text style={[styles.trendingText, { color: accent.chip }]}>
+								Trending
+							</Text>
+						</View>
+					)}
+
 					{/* Brand */}
 					<View style={styles.brandSection}>
 						<View
@@ -837,7 +855,7 @@ export default function CampaignDetailScreen() {
 								{campaign.brand[0]}
 							</Text>
 						</View>
-						<View>
+						<View style={{ flex: 1 }}>
 							<Text style={styles.brandName}>{campaign.brand}</Text>
 							<Text style={styles.brandHandle}>{campaign.brandHandle}</Text>
 						</View>
@@ -846,11 +864,14 @@ export default function CampaignDetailScreen() {
 					{/* Title */}
 					<Text style={styles.title}>{campaign.title}</Text>
 
+					{/* Brief summary */}
+					<Text style={styles.briefSummary}>{campaign.brief}</Text>
+
 					{/* Tags */}
 					<View style={styles.tagsRow}>
 						{campaign.tags.map((tag) => (
 							<View key={tag} style={styles.tag}>
-								<Text style={styles.tagText}>{tag}</Text>
+								<Text style={styles.tagText}>#{tag}</Text>
 							</View>
 						))}
 						<View style={styles.tag}>
@@ -881,32 +902,6 @@ export default function CampaignDetailScreen() {
 						<Text style={styles.statLabel}>Deadline</Text>
 						<Text style={styles.statValue}>{campaign.deadline}</Text>
 						<Text style={styles.statSub}>min {campaign.minViews} views</Text>
-					</View>
-				</View>
-
-				{/* Spots progress */}
-				<View style={styles.spotsCard}>
-					<View style={styles.spotsHeader}>
-						<Text style={styles.spotsLabel}>Creator Spots</Text>
-						<Text style={[styles.spotsCount, { color: accent.chip }]}>
-							{campaign.spotsLeft}/{campaign.totalSpots}
-						</Text>
-					</View>
-					<View style={styles.spotsBarBg}>
-						<View
-							style={[
-								styles.spotsBarFill,
-								{ width: `${spotsPercent}%`, backgroundColor: accent.chip },
-							]}
-						/>
-					</View>
-					<View style={styles.spotsFooter}>
-						<Text style={styles.spotsFooterText}>
-							{campaign.creatorsJoined} creators joined
-						</Text>
-						<Text style={styles.spotsFooterText}>
-							{campaign.spotsLeft} spots remaining
-						</Text>
 					</View>
 				</View>
 
@@ -1067,29 +1062,80 @@ export default function CampaignDetailScreen() {
 						</>
 					)}
 				</View>
-			</ScrollView>
+				</ScrollView>
 
-			{/* Bottom CTA */}
-			<View style={[styles.bottomBar, { paddingBottom: insets.bottom + 12 }]}>
-				<View style={styles.bottomBarInner}>
+			{/* Fixed Footer */}
+			<View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
+				{/* Top row: creators joined + progress */}
+				<View style={styles.footerTop}>
+					<View style={styles.footerCreators}>
+						<View style={styles.dotStack}>
+							{CREATOR_DOTS.map((d, i) => (
+								<View
+									key={d.initials}
+									style={[
+										styles.creatorDot,
+										{
+											backgroundColor: d.from,
+											marginLeft: i > 0 ? -8 : 0,
+											zIndex: CREATOR_DOTS.length - i,
+										},
+									]}
+								>
+									<Text style={styles.creatorDotText}>{d.initials}</Text>
+								</View>
+							))}
+						</View>
+						<Text style={styles.footerJoinedText}>
+							{campaign.creatorsJoined} joined
+						</Text>
+					</View>
+					<View style={styles.footerProgress}>
+						<Text style={styles.footerSpotsText}>
+							<Text style={{ color: accent.chip }}>
+								{campaign.spotsLeft}
+							</Text>
+							/{campaign.totalSpots} spots
+						</Text>
+						<View style={styles.footerBarBg}>
+							<View
+								style={[
+									styles.footerBarFill,
+									{
+										width: `${spotsPercent}%`,
+										backgroundColor: accent.chip,
+									},
+								]}
+							/>
+						</View>
+					</View>
+				</View>
+
+				{/* Bottom row: rate + apply */}
+				<View style={styles.footerBottom}>
 					<View>
-						<Text style={[styles.bottomRate, { color: accent.chip }]}>
-							{campaign.currency}
-							{campaign.rate}
+						<Text style={[styles.footerLabel, { color: accent.chip }]}>
+							LIVE CPM RATE
 						</Text>
-						<Text style={styles.bottomRateSub}>
-							per {campaign.perViews} views
-						</Text>
+						<View style={styles.footerRateRow}>
+							<Text style={styles.footerCurrency}>
+								{campaign.currency}
+							</Text>
+							<Text style={styles.footerAmount}>{campaign.rate}</Text>
+							<Text style={styles.footerPer}>
+								/{campaign.perViews}
+							</Text>
+						</View>
 					</View>
 					<Pressable
 						onPress={() => applySheetRef.current?.present()}
 						style={({ pressed }) => [
-							styles.applyBtn,
+							styles.footerApplyBtn,
 							{ backgroundColor: accent.chip },
 							pressed && { opacity: 0.85 },
 						]}
 					>
-						<Text style={styles.applyBtnText}>Apply Now</Text>
+						<Text style={styles.footerApplyText}>Apply →</Text>
 					</Pressable>
 				</View>
 			</View>
@@ -1155,6 +1201,19 @@ const styles = StyleSheet.create({
 		fontFamily: "Inter-Regular",
 		color: colors.textSecondary,
 	},
+	trendingBadge: {
+		alignSelf: "flex-start",
+		borderRadius: 6,
+		paddingHorizontal: 10,
+		paddingVertical: 5,
+		marginBottom: 14,
+	},
+	trendingText: {
+		fontSize: 11,
+		fontFamily: "Inter-SemiBold",
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
+	},
 	brandSection: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -1183,11 +1242,19 @@ const styles = StyleSheet.create({
 		color: colors.textTertiary,
 	},
 	title: {
-		fontSize: 22,
-		fontFamily: "Inter-SemiBold",
+		fontSize: 24,
+		fontFamily: "StackSansHeadline-Medium",
 		color: colors.text,
 		letterSpacing: -0.4,
-		lineHeight: 30,
+		lineHeight: 32,
+	},
+	briefSummary: {
+		fontSize: 14,
+		fontFamily: "Inter-Regular",
+		color: colors.textSecondary,
+		lineHeight: 21,
+		marginTop: 10,
+		marginBottom: 4,
 	},
 	tagsRow: {
 		flexDirection: "row",
@@ -1214,7 +1281,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		paddingHorizontal: 16,
 		gap: 10,
-		marginTop: 4,
+		marginTop: 16,
 	},
 	statCard: {
 		flex: 1,
@@ -1244,57 +1311,11 @@ const styles = StyleSheet.create({
 		color: colors.textTertiary,
 	},
 
-	// Spots
-	spotsCard: {
-		marginHorizontal: 16,
-		marginTop: 14,
-		backgroundColor: colors.bgCard,
-		borderRadius: 14,
-		padding: 16,
-		borderWidth: 1,
-		borderColor: colors.border,
-	},
-	spotsHeader: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		marginBottom: 10,
-	},
-	spotsLabel: {
-		fontSize: 13,
-		fontFamily: "Inter-SemiBold",
-		color: colors.textSecondary,
-	},
-	spotsCount: {
-		fontSize: 14,
-		fontFamily: "Inter-SemiBold",
-	},
-	spotsBarBg: {
-		height: 4,
-		borderRadius: 2,
-		backgroundColor: "rgba(255,255,255,0.06)",
-		overflow: "hidden",
-	},
-	spotsBarFill: {
-		height: 4,
-		borderRadius: 2,
-	},
-	spotsFooter: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		marginTop: 10,
-	},
-	spotsFooterText: {
-		fontSize: 11,
-		fontFamily: "Inter-Regular",
-		color: colors.textTertiary,
-	},
-
 	// Tabs
 	tabRow: {
 		flexDirection: "row",
 		marginHorizontal: 16,
-		marginTop: 24,
+		marginTop: 20,
 		borderBottomWidth: 1,
 		borderBottomColor: colors.border,
 	},
@@ -1307,7 +1328,7 @@ const styles = StyleSheet.create({
 	},
 	tabText: {
 		fontSize: 14,
-		fontFamily: "Inter-Regular",
+		fontFamily: "Inter-SemiBold",
 		color: colors.textTertiary,
 	},
 
@@ -1317,10 +1338,10 @@ const styles = StyleSheet.create({
 		paddingTop: 20,
 	},
 	sectionTitle: {
-		fontSize: 15,
-		fontFamily: "Inter-SemiBold",
+		fontSize: 16,
+		fontFamily: "StackSans-SemiBold",
 		color: colors.text,
-		marginBottom: 12,
+		marginBottom: 14,
 	},
 	briefText: {
 		fontSize: 14,
@@ -1463,8 +1484,8 @@ const styles = StyleSheet.create({
 		color: "#22C55E",
 	},
 
-	// Bottom bar
-	bottomBar: {
+	// Fixed Footer
+	footer: {
 		position: "absolute",
 		bottom: 0,
 		left: 0,
@@ -1472,33 +1493,108 @@ const styles = StyleSheet.create({
 		backgroundColor: colors.bg,
 		borderTopWidth: 1,
 		borderTopColor: colors.border,
-		paddingTop: 14,
 		paddingHorizontal: 20,
+		paddingTop: 14,
 	},
-	bottomBarInner: {
+	footerTop: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
+		marginBottom: 14,
 	},
-	bottomRate: {
-		fontSize: 20,
-		fontFamily: "Inter-SemiBold",
-		letterSpacing: -0.5,
+	footerCreators: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
 	},
-	bottomRateSub: {
+	footerJoinedText: {
 		fontSize: 12,
 		fontFamily: "Inter-Regular",
 		color: colors.textTertiary,
 	},
-	applyBtn: {
-		borderRadius: 12,
-		paddingHorizontal: 28,
-		paddingVertical: 14,
+	footerProgress: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
 	},
-	applyBtnText: {
-		fontSize: 15,
+	footerSpotsText: {
+		fontSize: 12,
+		fontFamily: "Inter-Regular",
+		color: colors.textTertiary,
+	},
+	footerBarBg: {
+		width: 60,
+		height: 5,
+		borderRadius: 3,
+		backgroundColor: "rgba(255,255,255,0.08)",
+		overflow: "hidden",
+	},
+	footerBarFill: {
+		height: 5,
+		borderRadius: 3,
+	},
+	footerBottom: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+	},
+	footerLabel: {
+		fontSize: 9,
+		fontFamily: "Inter-SemiBold",
+		textTransform: "uppercase",
+		letterSpacing: 1,
+		marginBottom: 2,
+	},
+	footerRateRow: {
+		flexDirection: "row",
+		alignItems: "baseline",
+	},
+	footerCurrency: {
+		fontSize: 16,
+		fontFamily: "Inter-Regular",
+		color: colors.text,
+	},
+	footerAmount: {
+		fontSize: 28,
+		fontFamily: "StackSansHeadline-Medium",
+		color: colors.text,
+		letterSpacing: -1,
+		lineHeight: 32,
+	},
+	footerPer: {
+		fontSize: 13,
+		fontFamily: "Inter-Regular",
+		color: colors.textTertiary,
+	},
+	footerApplyBtn: {
+		borderRadius: 14,
+		paddingHorizontal: 28,
+		paddingVertical: 10,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	footerApplyText: {
+		fontSize: 16,
 		fontFamily: "Inter-SemiBold",
 		color: "#0a0a0c",
+	},
+	dotStack: {
+		flexDirection: "row",
+		alignItems: "center",
+	},
+	creatorDot: {
+		width: 26,
+		height: 26,
+		borderRadius: 13,
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 2,
+		borderColor: colors.bg,
+	},
+	creatorDotText: {
+		fontSize: 8,
+		fontFamily: "Inter-SemiBold",
+		color: "#fff",
 	},
 });
 
