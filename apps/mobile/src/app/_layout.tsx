@@ -56,6 +56,7 @@ export default function RootLayout() {
 							<Stack.Screen name="onboarding" />
 							<Stack.Screen name="(tabs)" />
 							<Stack.Screen name="campaign/[id]" />
+							<Stack.Screen name="settings" />
 						</Stack>
 						{showSplash && <AnimatedSplash onFinish={handleSplashFinish} />}
 					</BottomSheetModalProvider>

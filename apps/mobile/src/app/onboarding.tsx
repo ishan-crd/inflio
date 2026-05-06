@@ -159,6 +159,20 @@ function BackArrow() {
 	);
 }
 
+function LogOutIcon() {
+	return (
+		<Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"
+				stroke="#9CA3AF"
+				strokeWidth={2}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
 function SuccessIcon() {
 	return (
 		<Svg width={48} height={48} viewBox="0 0 24 24" fill="none">
@@ -849,7 +863,7 @@ export default function OnboardingScreen() {
 				? "creator"
 				: null;
 
-	const { user } = useAuth();
+	const { user, signOut } = useAuth();
 	const onboardCreator = useMutation(api.creators.onboard);
 	const onboardBrand = useMutation(api.brands.onboard);
 
@@ -955,6 +969,11 @@ export default function OnboardingScreen() {
 		if (step > 0) setStep((s) => s - 1);
 	}
 
+	async function handleLogout() {
+		await signOut();
+		router.replace("/login");
+	}
+
 	const progress = step >= TOTAL_STEPS ? 100 : (step / TOTAL_STEPS) * 100;
 	const isSuccess = step >= TOTAL_STEPS;
 
@@ -1018,7 +1037,9 @@ export default function OnboardingScreen() {
 					</Text>
 				)}
 
-				<View style={{ width: 40 }} />
+				<Pressable onPress={handleLogout} style={styles.logoutBtn}>
+					<LogOutIcon />
+				</Pressable>
 			</View>
 
 			{/* Progress bar */}
@@ -1084,6 +1105,14 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 	stepCount: { fontFamily: "Inter-SemiBold", fontSize: 14, color: "#9CA3AF" },
+	logoutBtn: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: "#1A1A1E",
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	progressBar: {
 		height: 3,
 		backgroundColor: "#1A1A1E",

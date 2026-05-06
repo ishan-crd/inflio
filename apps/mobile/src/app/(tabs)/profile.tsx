@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
@@ -16,6 +17,21 @@ const MOCK_SUBMISSIONS = [
 	{ id: "3", random: 12 },
 	{ id: "4", random: 13 },
 ];
+
+function SettingsIcon() {
+	return (
+		<Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"
+				stroke="#9CA3AF"
+				strokeWidth={1.8}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<Circle cx={12} cy={12} r={3} stroke="#9CA3AF" strokeWidth={1.8} />
+		</Svg>
+	);
+}
 
 function PlayButton() {
 	return (
@@ -122,6 +138,14 @@ export default function ProfileScreen() {
 				showsVerticalScrollIndicator={false}
 				contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
 			>
+				<View style={styles.settingsRow}>
+					<Pressable
+						onPress={() => router.push("/settings")}
+						style={styles.settingsBtn}
+					>
+						<SettingsIcon />
+					</Pressable>
+				</View>
 				<View style={styles.profileHeader}>
 					<View style={styles.avatar} />
 					<View>
@@ -170,6 +194,20 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: "#000000",
+	},
+	settingsRow: {
+		flexDirection: "row",
+		justifyContent: "flex-end",
+		paddingHorizontal: 20,
+		paddingTop: 12,
+	},
+	settingsBtn: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: "#1A1A1E",
+		alignItems: "center",
+		justifyContent: "center",
 	},
 	profileHeader: {
 		flexDirection: "row",
