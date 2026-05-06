@@ -121,7 +121,6 @@ interface CreatorData {
 	niches: string[];
 	connected: string[];
 	upi: string;
-	pan: string;
 }
 
 interface BrandData {
@@ -451,16 +450,6 @@ function CreatorStep4({
 				/>
 			</div>
 
-			<div className="field">
-				<label className="field-label">PAN number</label>
-				<input
-					className="field-input"
-					placeholder="ABCDE1234F"
-					value={data.pan}
-					onChange={(e) => onChange({ pan: e.target.value.toUpperCase() })}
-					maxLength={10}
-				/>
-			</div>
 		</div>
 	);
 }
@@ -744,7 +733,6 @@ function OnboardingInner() {
 		niches: [],
 		connected: [],
 		upi: "",
-		pan: "",
 	});
 
 	const [brandData, setBrandData] = useState<BrandData>({
@@ -770,8 +758,7 @@ function OnboardingInner() {
 				);
 			if (step === 1) return creatorData.niches.length > 0;
 			if (step === 2) return true; // connecting platforms is optional to proceed
-			if (step === 3)
-				return !!creatorData.upi.trim() && !!creatorData.pan.trim();
+			if (step === 3) return !!creatorData.upi.trim();
 		} else {
 			if (step === 0)
 				return (
@@ -811,7 +798,6 @@ function OnboardingInner() {
 					niches: creatorData.niches,
 					connected: creatorData.connected,
 					upi: creatorData.upi,
-					pan: creatorData.pan,
 				});
 			} else {
 				await onboardBrand({
@@ -932,9 +918,7 @@ function OnboardingInner() {
 					</span>
 				)}
 
-				<Link href="/" className="skip">
-					Skip &rarr;
-				</Link>
+				<span />
 			</nav>
 
 			{/* Progress bar */}

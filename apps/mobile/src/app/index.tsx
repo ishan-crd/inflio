@@ -1,86 +1,32 @@
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { InflioLogo } from "~/components/inflio-logo";
+import { useEffect } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useAuth } from "~/providers/auth";
 
-export default function LandingScreen() {
+export default function IndexScreen() {
+	const { user, loading } = useAuth();
+
+	useEffect(() => {
+		if (loading) return;
+		if (user) {
+			router.replace("/(tabs)");
+		} else {
+			router.replace("/login");
+		}
+	}, [user, loading]);
+
 	return (
-		<SafeAreaView style={styles.container}>
-			<View style={styles.content}>
-				<View style={styles.logoContainer}>
-					<InflioLogo height={36} />
-					<Text style={styles.tagline}>Create. Share. Earn.</Text>
-				</View>
-			</View>
-
-			<View style={styles.footer}>
-				<Pressable
-					style={({ pressed }) => [
-						styles.button,
-						pressed && styles.buttonPressed,
-					]}
-					onPress={() => router.push("/login")}
-				>
-					<Text style={styles.buttonText}>Get Started</Text>
-				</Pressable>
-
-				<Text style={styles.loginPrompt}>
-					Already have an account?{" "}
-					<Text style={styles.loginLink} onPress={() => router.push("/login")}>
-						Log in
-					</Text>
-				</Text>
-			</View>
-		</SafeAreaView>
+		<View style={styles.container}>
+			<ActivityIndicator color="#d9f99d" size="large" />
+		</View>
 	);
 }
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#000000",
-		paddingHorizontal: 24,
-	},
-	content: {
-		flex: 1,
+		backgroundColor: "#0a0a0c",
 		justifyContent: "center",
 		alignItems: "center",
-	},
-	logoContainer: {
-		alignItems: "center",
-		gap: 12,
-	},
-	tagline: {
-		fontSize: 16,
-		fontFamily: "Inter-Regular",
-		color: "#9CA3AF",
-	},
-	footer: {
-		paddingBottom: 16,
-		gap: 20,
-	},
-	button: {
-		backgroundColor: "#EC4899",
-		borderRadius: 14,
-		paddingVertical: 16,
-		alignItems: "center",
-	},
-	buttonPressed: {
-		opacity: 0.85,
-	},
-	buttonText: {
-		color: "#FFFFFF",
-		fontSize: 16,
-		fontFamily: "Inter-SemiBold",
-	},
-	loginPrompt: {
-		textAlign: "center",
-		fontSize: 14,
-		fontFamily: "Inter-Regular",
-		color: "#9CA3AF",
-	},
-	loginLink: {
-		color: "#EC4899",
-		fontFamily: "Inter-SemiBold",
 	},
 });

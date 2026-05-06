@@ -45,7 +45,7 @@ export const onboard = mutation({
 		niches: v.array(v.string()),
 		connected: v.array(v.string()),
 		upi: v.string(),
-		pan: v.string(),
+		pan: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
 		const colors = ["#bef264", "#a3e635"];

@@ -3,8 +3,11 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { AnimatedSplash } from "~/components/animated-splash";
+import { AuthProvider } from "~/providers/auth";
+import { ConvexClientProvider } from "~/providers/convex";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,11 +21,17 @@ export default function RootLayout() {
 		"StackSansHeadline-Medium": require("../../assets/fonts/StackSansHeadline-Medium.ttf"),
 	});
 
+	const [showSplash, setShowSplash] = useState(true);
+
 	useEffect(() => {
 		if (fontsLoaded) {
 			SplashScreen.hideAsync();
 		}
 	}, [fontsLoaded]);
+
+	const handleSplashFinish = useCallback(() => {
+		setShowSplash(false);
+	}, []);
 
 	if (!fontsLoaded) {
 		return null;
@@ -30,22 +39,28 @@ export default function RootLayout() {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<BottomSheetModalProvider>
-				<StatusBar style="light" />
-				<Stack
-					screenOptions={{
-						headerShown: false,
-						contentStyle: { backgroundColor: "#0a0a0c" },
-						animation: "fade",
-					}}
-				>
-					<Stack.Screen name="index" />
-					<Stack.Screen name="login" />
-					<Stack.Screen name="onboarding" />
-					<Stack.Screen name="(tabs)" />
-					<Stack.Screen name="campaign/[id]" />
-				</Stack>
-			</BottomSheetModalProvider>
+			<ConvexClientProvider>
+				<AuthProvider>
+					<BottomSheetModalProvider>
+						<StatusBar style="light" />
+						<Stack
+							screenOptions={{
+								headerShown: false,
+								contentStyle: { backgroundColor: "#0a0a0c" },
+								animation: "fade",
+							}}
+						>
+							<Stack.Screen name="index" />
+							<Stack.Screen name="login" />
+							<Stack.Screen name="verify-otp" />
+							<Stack.Screen name="onboarding" />
+							<Stack.Screen name="(tabs)" />
+							<Stack.Screen name="campaign/[id]" />
+						</Stack>
+						{showSplash && <AnimatedSplash onFinish={handleSplashFinish} />}
+					</BottomSheetModalProvider>
+				</AuthProvider>
+			</ConvexClientProvider>
 		</GestureHandlerRootView>
 	);
 }
