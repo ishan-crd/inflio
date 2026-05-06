@@ -528,7 +528,7 @@ export default function CampaignsScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: colors.bg,
+		backgroundColor: "#000000",
 	},
 	safeArea: {
 		flex: 1,
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 	filterScroll: {
-		maxHeight: 44,
+		flexGrow: 0,
 		marginBottom: 12,
 	},
 	filterContent: {
@@ -573,7 +573,9 @@ const styles = StyleSheet.create({
 	},
 	filterPill: {
 		paddingHorizontal: 16,
-		paddingVertical: 8,
+		height: 36,
+		alignItems: "center" as const,
+		justifyContent: "center" as const,
 		borderRadius: 20,
 		backgroundColor: colors.bgCard,
 		borderWidth: 1,
