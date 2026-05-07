@@ -9,17 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "better-auth": "^1.6.9",
-    "better-sqlite3": "^12.9.0",
     "convex": "^1.36.1",
     "next": "^15.3.2",
+    "pg": "^8.16.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.5",
     "@types/node": "^22.15.3",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "tailwindcss": "^4.1.5",

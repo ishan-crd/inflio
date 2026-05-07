@@ -28,6 +28,11 @@ interface AuthContextValue {
 		name: string,
 	) => Promise<{ error?: string }>;
 	signInWithGoogle: () => Promise<{ error?: string }>;
+	sendOtp: (email: string) => Promise<{ error?: string }>;
+	verifyOtp: (
+		email: string,
+		otp: string,
+	) => Promise<{ error?: string; user?: User }>;
 	signOut: () => Promise<void>;
 }
 
@@ -37,6 +42,8 @@ const AuthContext = createContext<AuthContextValue>({
 	signIn: async () => ({ error: "Not initialized" }),
 	signUp: async () => ({ error: "Not initialized" }),
 	signInWithGoogle: async () => ({ error: "Not initialized" }),
+	sendOtp: async () => ({ error: "Not initialized" }),
+	verifyOtp: async () => ({ error: "Not initialized" }),
 	signOut: async () => {},
 });
 
@@ -219,6 +226,74 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 	}, [fetchSession]);
 
+	const sendOtp = useCallback(async (email: string) => {
+		try {
+			const res = await fetch(
+				`${AUTH_BASE_URL}/api/auth/email-otp/send-verification-otp`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ email, type: "sign-in" }),
+				},
+			);
+
+			if (!res.ok) {
+				const data = await res.json().catch(() => ({}));
+				return {
+					error: data?.message || "Failed to send OTP. Please try again.",
+				};
+			}
+
+			return {};
+		} catch {
+			return { error: "Network error. Please try again." };
+		}
+	}, []);
+
+	const verifyOtp = useCallback(
+		async (email: string, otp: string) => {
+			try {
+				const res = await fetch(
+					`${AUTH_BASE_URL}/api/auth/email-otp/verify-email`,
+					{
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ email, otp }),
+					},
+				);
+
+				const data = await res.json();
+
+				if (!res.ok || data.error) {
+					const msg =
+						data.error?.message ||
+						data.message ||
+						"Invalid OTP. Please try again.";
+					return { error: msg };
+				}
+
+				if (data.token) {
+					await storeToken(data.token);
+				} else if (data.session?.token) {
+					await storeToken(data.session.token);
+				}
+
+				let resolvedUser: User | undefined;
+				if (data.user) {
+					setUser(data.user);
+					resolvedUser = data.user;
+				} else {
+					await fetchSession();
+				}
+
+				return { user: resolvedUser };
+			} catch {
+				return { error: "Network error. Please try again." };
+			}
+		},
+		[fetchSession],
+	);
+
 	const signOut = useCallback(async () => {
 		try {
 			const token = await getToken();
@@ -240,8 +315,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	const value = useMemo(
-		() => ({ user, loading, signIn, signUp, signInWithGoogle, signOut }),
-		[user, loading, signIn, signUp, signInWithGoogle, signOut],
+		() => ({
+			user,
+			loading,
+			signIn,
+			signUp,
+			signInWithGoogle,
+			sendOtp,
+			verifyOtp,
+			signOut,
+		}),
+		[user, loading, signIn, signUp, signInWithGoogle, sendOtp, verifyOtp, signOut],
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

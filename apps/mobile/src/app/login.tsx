@@ -61,7 +61,7 @@ function GoogleIcon() {
 // ---------------------------------------------------------------------------
 
 export default function LoginScreen() {
-	const { signInWithGoogle } = useAuth();
+	const { signInWithGoogle, sendOtp } = useAuth();
 	const insets = useSafeAreaInsets();
 
 	const [email, setEmail] = useState("");
@@ -90,9 +90,11 @@ export default function LoginScreen() {
 		setLoading(true);
 
 		try {
-			// For now, use email sign-in flow (OTP backend can be added later)
-			// Check if user exists by attempting sign-in with a temporary approach
-			// Navigate to OTP verification screen
+			const result = await sendOtp(email.trim());
+			if (result?.error) {
+				setError(result.error);
+				return;
+			}
 			router.push({ pathname: "/verify-otp", params: { email: email.trim() } });
 		} catch {
 			setError("Something went wrong. Please try again.");

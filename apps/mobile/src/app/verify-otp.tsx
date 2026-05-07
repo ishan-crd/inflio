@@ -1,3 +1,4 @@
+import { useConvex } from "convex/react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -12,8 +13,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
-
-// import { useAuth } from "~/providers/auth";
+import { useAuth } from "~/providers/auth";
+import { api } from "../../convex/_generated/api";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 60;
@@ -35,6 +36,8 @@ function BackArrow() {
 export default function VerifyOtpScreen() {
 	const params = useLocalSearchParams<{ email?: string }>();
 	const email = params.email || "";
+	const { verifyOtp, sendOtp } = useAuth();
+	const convex = useConvex();
 	const [otp, setOtp] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -54,15 +57,40 @@ export default function VerifyOtpScreen() {
 		setError("");
 		setLoading(true);
 
-		// TODO: Wire to real OTP verification. For now, accept any 6-digit code.
-		// Route to onboarding for new users (always for now).
-		router.replace("/onboarding");
+		try {
+			const result = await verifyOtp(email, code);
+			if (result?.error) {
+				setError(result.error);
+				setLoading(false);
+				return;
+			}
+
+			// Check if user is already onboarded (has creator or brand profile)
+			const userId = result?.user?.id;
+			if (userId) {
+				const [creator, brand] = await Promise.all([
+					convex.query(api.creators.getByUserId, { userId }),
+					convex.query(api.brands.getByUserId, { userId }),
+				]);
+
+				if (creator || brand) {
+					router.replace("/(tabs)");
+				} else {
+					router.replace("/onboarding");
+				}
+			} else {
+				router.replace("/onboarding");
+			}
+		} catch {
+			setError("Verification failed. Please try again.");
+			setLoading(false);
+		}
 	}
 
-	function handleResend() {
+	async function handleResend() {
 		if (resendTimer > 0) return;
 		setResendTimer(RESEND_COOLDOWN);
-		// TODO: Call actual OTP resend API
+		await sendOtp(email);
 	}
 
 	return (

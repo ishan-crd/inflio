@@ -474,10 +474,7 @@ export default function DashboardScreen() {
 		<SafeAreaView style={styles.container} edges={["top"]}>
 			{/* Header */}
 			<View style={styles.header}>
-				<View>
-					<InflioLogo height={20} />
-					<Text style={styles.greeting}>Welcome back, Creator</Text>
-				</View>
+				<InflioLogo height={45} />
 				<Pressable style={styles.bellButton}>
 					<BellIcon />
 					<View style={styles.notifDot} />
@@ -589,16 +586,10 @@ const styles = StyleSheet.create({
 	header: {
 		flexDirection: "row",
 		justifyContent: "space-between",
-		alignItems: "flex-start",
+		alignItems: "center",
 		paddingHorizontal: 20,
 		paddingTop: 12,
 		paddingBottom: 8,
-	},
-	greeting: {
-		fontFamily: "Inter-Regular",
-		fontSize: 13,
-		color: "#6B7280",
-		marginTop: 6,
 	},
 	bellButton: {
 		width: 44,
