@@ -95,9 +95,7 @@ export const auth = betterAuth({
 		oAuthProxy({
 			productionURL: "https://www.inflio.in",
 		}),
-		expo({
-			overrideOrigin: true,
-		}),
+		expo(),
 		emailOTP({
 			async sendVerificationOTP({ email, otp, type }) {
 				await resend.emails.send({
