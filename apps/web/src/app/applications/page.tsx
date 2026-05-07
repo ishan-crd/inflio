@@ -1,25 +1,45 @@
 "use client";
 
+import { useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { ArrowIcon, BackIcon, PlatformIcon } from "@/components/icons";
 import { Nav as SharedNav } from "@/components/nav";
-import { useSession } from "@/lib/auth-client";
 import { ACCENT_MAP } from "@/data/campaigns";
-import { BackIcon, ArrowIcon, PlatformIcon } from "@/components/icons";
+import { useSession } from "@/lib/auth-client";
+import { api } from "../../../convex/_generated/api";
 
 // ─── Status badge ───────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: string }) {
 	const map: Record<string, { bg: string; color: string; label: string }> = {
-		pending: { bg: "rgba(251,191,36,0.12)", color: "#fbbf24", label: "Pending" },
-		approved: { bg: "rgba(74,222,128,0.12)", color: "#4ade80", label: "Approved" },
-		rejected: { bg: "rgba(248,113,113,0.12)", color: "#f87171", label: "Rejected" },
-		submitted: { bg: "rgba(96,165,250,0.12)", color: "#60a5fa", label: "Submitted" },
+		pending: {
+			bg: "rgba(251,191,36,0.12)",
+			color: "#fbbf24",
+			label: "Pending",
+		},
+		approved: {
+			bg: "rgba(74,222,128,0.12)",
+			color: "#4ade80",
+			label: "Approved",
+		},
+		rejected: {
+			bg: "rgba(248,113,113,0.12)",
+			color: "#f87171",
+			label: "Rejected",
+		},
+		submitted: {
+			bg: "rgba(96,165,250,0.12)",
+			color: "#60a5fa",
+			label: "Submitted",
+		},
 		live: { bg: "rgba(74,222,128,0.12)", color: "#4ade80", label: "Live" },
-		revision: { bg: "rgba(251,191,36,0.12)", color: "#fbbf24", label: "Revision" },
+		revision: {
+			bg: "rgba(251,191,36,0.12)",
+			color: "#fbbf24",
+			label: "Revision",
+		},
 	};
 	const s = map[status] ?? map.pending;
 	return (
@@ -36,7 +56,14 @@ function StatusBadge({ status }: { status: string }) {
 				color: s.color,
 			}}
 		>
-			<span style={{ width: 6, height: 6, borderRadius: "50%", background: s.color }} />
+			<span
+				style={{
+					width: 6,
+					height: 6,
+					borderRadius: "50%",
+					background: s.color,
+				}}
+			/>
 			{s.label}
 		</span>
 	);
@@ -51,12 +78,17 @@ function ApplicationCard({ app }: { app: any }) {
 		<div className="app-card">
 			<div
 				className="app-card-accent"
-				style={{ background: `linear-gradient(135deg, ${accent.chip}, ${accent.text})` }}
+				style={{
+					background: `linear-gradient(135deg, ${accent.chip}, ${accent.text})`,
+				}}
 			/>
 			<div className="app-card-body">
 				<div className="app-card-header">
 					<div style={{ flex: 1, minWidth: 0 }}>
-						<Link href={`/campaign/${app.campaignId}`} className="app-card-title">
+						<Link
+							href={`/campaign/${app.campaignId}`}
+							className="app-card-title"
+						>
 							{app.campaignTitle}
 						</Link>
 						<div className="app-card-brand">{app.campaignBrand}</div>
@@ -66,7 +98,10 @@ function ApplicationCard({ app }: { app: any }) {
 
 				<div className="app-card-chips">
 					<div className="app-chip">
-						<PlatformIcon name={app.platform} style={{ width: 14, height: 14 }} />
+						<PlatformIcon
+							name={app.platform}
+							style={{ width: 14, height: 14 }}
+						/>
 						<span>{app.platform}</span>
 					</div>
 					<div className="app-chip">
@@ -81,7 +116,8 @@ function ApplicationCard({ app }: { app: any }) {
 						<div className="app-chip">
 							<span style={{ color: "var(--color-ink-3)" }}>CPM</span>
 							<span style={{ fontWeight: 500 }}>
-								{app.campaignCurrency}{app.campaignRate}/{app.campaignPerViews}
+								{app.campaignCurrency}
+								{app.campaignRate}/{app.campaignPerViews}
 							</span>
 						</div>
 					)}
@@ -107,7 +143,12 @@ function ApplicationCard({ app }: { app: any }) {
 				{app.exampleUrl && (
 					<div className="app-card-section">
 						<div className="app-card-section-label">Example Post</div>
-						<a href={app.exampleUrl} target="_blank" rel="noopener noreferrer" className="app-card-link">
+						<a
+							href={app.exampleUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="app-card-link"
+						>
 							{app.exampleUrl}
 						</a>
 					</div>
@@ -115,7 +156,12 @@ function ApplicationCard({ app }: { app: any }) {
 
 				<div className="app-card-footer">
 					<span style={{ fontSize: 11.5, color: "var(--color-ink-3)" }}>
-						Applied {new Date(app._creationTime).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+						Applied{" "}
+						{new Date(app._creationTime).toLocaleDateString("en-IN", {
+							day: "numeric",
+							month: "short",
+							year: "numeric",
+						})}
 					</span>
 					<Link href={`/campaign/${app.campaignId}`} className="app-card-view">
 						View Campaign
@@ -136,12 +182,17 @@ function SubmissionCard({ app }: { app: any }) {
 		<div className="app-card">
 			<div
 				className="app-card-accent"
-				style={{ background: `linear-gradient(135deg, ${accent.chip}, ${accent.text})` }}
+				style={{
+					background: `linear-gradient(135deg, ${accent.chip}, ${accent.text})`,
+				}}
 			/>
 			<div className="app-card-body">
 				<div className="app-card-header">
 					<div style={{ flex: 1, minWidth: 0 }}>
-						<Link href={`/campaign/${app.campaignId}`} className="app-card-title">
+						<Link
+							href={`/campaign/${app.campaignId}`}
+							className="app-card-title"
+						>
 							{app.campaignTitle}
 						</Link>
 						<div className="app-card-brand">{app.campaignBrand}</div>
@@ -151,7 +202,10 @@ function SubmissionCard({ app }: { app: any }) {
 
 				<div className="app-card-chips">
 					<div className="app-chip">
-						<PlatformIcon name={app.platform} style={{ width: 14, height: 14 }} />
+						<PlatformIcon
+							name={app.platform}
+							style={{ width: 14, height: 14 }}
+						/>
 						<span>{app.platform}</span>
 					</div>
 					<div className="app-chip">
@@ -162,7 +216,8 @@ function SubmissionCard({ app }: { app: any }) {
 						<div className="app-chip">
 							<span style={{ color: "var(--color-ink-3)" }}>CPM</span>
 							<span style={{ fontWeight: 500 }}>
-								{app.campaignCurrency}{app.campaignRate}/{app.campaignPerViews}
+								{app.campaignCurrency}
+								{app.campaignRate}/{app.campaignPerViews}
 							</span>
 						</div>
 					)}
@@ -176,14 +231,23 @@ function SubmissionCard({ app }: { app: any }) {
 
 				<div className="app-card-section">
 					<div className="app-card-section-label">Submission Status</div>
-					<p className="app-card-pitch" style={{ fontSize: 13, color: "var(--color-ink-2)" }}>
-						Your application has been approved. Submit your content before the deadline.
+					<p
+						className="app-card-pitch"
+						style={{ fontSize: 13, color: "var(--color-ink-2)" }}
+					>
+						Your application has been approved. Submit your content before the
+						deadline.
 					</p>
 				</div>
 
 				<div className="app-card-footer">
 					<span style={{ fontSize: 11.5, color: "var(--color-ink-3)" }}>
-						Approved {new Date(app._creationTime).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+						Approved{" "}
+						{new Date(app._creationTime).toLocaleDateString("en-IN", {
+							day: "numeric",
+							month: "short",
+							year: "numeric",
+						})}
 					</span>
 					<Link href={`/campaign/${app.campaignId}`} className="app-card-view">
 						View Campaign
@@ -201,18 +265,42 @@ function EmptyApplications() {
 	return (
 		<div className="app-empty">
 			<div className="app-empty-icon">
-				<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+				<svg
+					width="40"
+					height="40"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
 					<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 					<polyline points="14 2 14 8 20 8" />
 					<line x1="12" y1="18" x2="12" y2="12" />
 					<line x1="9" y1="15" x2="15" y2="15" />
 				</svg>
 			</div>
-			<h3 style={{ fontFamily: "'Geist', sans-serif", fontSize: 18, fontWeight: 600, margin: "0 0 8px" }}>
+			<h3
+				style={{
+					fontFamily: "'Geist', sans-serif",
+					fontSize: 18,
+					fontWeight: 600,
+					margin: "0 0 8px",
+				}}
+			>
 				No applications yet
 			</h3>
-			<p style={{ fontSize: 13.5, color: "var(--color-ink-2)", margin: "0 0 24px", maxWidth: 360 }}>
-				Browse campaigns and apply to start earning. Your applications will show up here.
+			<p
+				style={{
+					fontSize: 13.5,
+					color: "var(--color-ink-2)",
+					margin: "0 0 24px",
+					maxWidth: 360,
+				}}
+			>
+				Browse campaigns and apply to start earning. Your applications will show
+				up here.
 			</p>
 			<Link
 				href="/marketplace"
@@ -240,16 +328,39 @@ function EmptySubmissions() {
 	return (
 		<div className="app-empty">
 			<div className="app-empty-icon">
-				<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+				<svg
+					width="40"
+					height="40"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
 					<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
 					<polyline points="17 8 12 3 7 8" />
 					<line x1="12" y1="3" x2="12" y2="15" />
 				</svg>
 			</div>
-			<h3 style={{ fontFamily: "'Geist', sans-serif", fontSize: 18, fontWeight: 600, margin: "0 0 8px" }}>
+			<h3
+				style={{
+					fontFamily: "'Geist', sans-serif",
+					fontSize: 18,
+					fontWeight: 600,
+					margin: "0 0 8px",
+				}}
+			>
 				No submissions yet
 			</h3>
-			<p style={{ fontSize: 13.5, color: "var(--color-ink-2)", margin: "0 0 24px", maxWidth: 360 }}>
+			<p
+				style={{
+					fontSize: 13.5,
+					color: "var(--color-ink-2)",
+					margin: "0 0 24px",
+					maxWidth: 360,
+				}}
+			>
 				Once your applications are approved, you can submit your content here.
 			</p>
 		</div>
@@ -261,8 +372,11 @@ function EmptySubmissions() {
 function ApplicationsInner() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const initialTab = searchParams.get("tab") === "applications" ? "applications" : "submissions";
-	const [activeTab, setActiveTab] = useState<"applications" | "submissions">(initialTab);
+	const initialTab =
+		searchParams.get("tab") === "applications" ? "applications" : "submissions";
+	const [activeTab, setActiveTab] = useState<"applications" | "submissions">(
+		initialTab,
+	);
 
 	const { data: session, isPending } = useSession();
 	const applications = useQuery(
@@ -295,7 +409,9 @@ function ApplicationsInner() {
 							Back to campaigns
 						</Link>
 						<h1 className="app-page-title">
-							{activeTab === "applications" ? "My Applications" : "My Submissions"}
+							{activeTab === "applications"
+								? "My Applications"
+								: "My Submissions"}
 						</h1>
 						<p className="app-page-sub">
 							{activeTab === "applications"
@@ -310,15 +426,21 @@ function ApplicationsInner() {
 								<div className="app-stat-label">Total</div>
 							</div>
 							<div className="app-stat">
-								<div className="app-stat-num" style={{ color: "#fbbf24" }}>{pending.length}</div>
+								<div className="app-stat-num" style={{ color: "#fbbf24" }}>
+									{pending.length}
+								</div>
 								<div className="app-stat-label">Pending</div>
 							</div>
 							<div className="app-stat">
-								<div className="app-stat-num" style={{ color: "#4ade80" }}>{approved.length}</div>
+								<div className="app-stat-num" style={{ color: "#4ade80" }}>
+									{approved.length}
+								</div>
 								<div className="app-stat-label">Approved</div>
 							</div>
 							<div className="app-stat">
-								<div className="app-stat-num" style={{ color: "#f87171" }}>{rejected.length}</div>
+								<div className="app-stat-num" style={{ color: "#f87171" }}>
+									{rejected.length}
+								</div>
 								<div className="app-stat-label">Rejected</div>
 							</div>
 						</div>
@@ -331,7 +453,16 @@ function ApplicationsInner() {
 						className={`app-tab${activeTab === "applications" ? " active" : ""}`}
 						onClick={() => setActiveTab("applications")}
 					>
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.8"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
 							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 							<polyline points="14 2 14 8 20 8" />
 						</svg>
@@ -344,7 +475,16 @@ function ApplicationsInner() {
 						className={`app-tab${activeTab === "submissions" ? " active" : ""}`}
 						onClick={() => setActiveTab("submissions")}
 					>
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.8"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
 							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
 							<polyline points="17 8 12 3 7 8" />
 							<line x1="12" y1="3" x2="12" y2="15" />

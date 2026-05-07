@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,11 +9,10 @@ import {
 	BackIcon,
 	CheckIcon,
 	IGIcon,
-	YTIcon,
 	TTIcon,
+	YTIcon,
 } from "@/components/icons";
 import { useSession } from "@/lib/auth-client";
-import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
 // ---------------------------------------------------------------------------
@@ -58,20 +58,48 @@ const PLATFORMS = [
 const COLORS = ["lime", "cyan", "violet", "amber", "rose"] as const;
 type ColorKey = (typeof COLORS)[number];
 
-const ACCENT_MAP: Record<ColorKey, { from: string; to: string; chip: string; glow: string }> = {
-	lime:   { from: "#bef264", to: "#22c55e", chip: "rgba(190,242,100,0.12)", glow: "rgba(190,242,100,0.15)" },
-	cyan:   { from: "#22d3ee", to: "#0ea5e9", chip: "rgba(34,211,238,0.12)", glow: "rgba(34,211,238,0.15)" },
-	violet: { from: "#a78bfa", to: "#8b5cf6", chip: "rgba(167,139,250,0.12)", glow: "rgba(167,139,250,0.15)" },
-	amber:  { from: "#fbbf24", to: "#f59e0b", chip: "rgba(251,191,36,0.12)", glow: "rgba(251,191,36,0.15)" },
-	rose:   { from: "#fb7185", to: "#e11d48", chip: "rgba(251,113,133,0.12)", glow: "rgba(251,113,133,0.15)" },
+const ACCENT_MAP: Record<
+	ColorKey,
+	{ from: string; to: string; chip: string; glow: string }
+> = {
+	lime: {
+		from: "#bef264",
+		to: "#22c55e",
+		chip: "rgba(190,242,100,0.12)",
+		glow: "rgba(190,242,100,0.15)",
+	},
+	cyan: {
+		from: "#22d3ee",
+		to: "#0ea5e9",
+		chip: "rgba(34,211,238,0.12)",
+		glow: "rgba(34,211,238,0.15)",
+	},
+	violet: {
+		from: "#a78bfa",
+		to: "#8b5cf6",
+		chip: "rgba(167,139,250,0.12)",
+		glow: "rgba(167,139,250,0.15)",
+	},
+	amber: {
+		from: "#fbbf24",
+		to: "#f59e0b",
+		chip: "rgba(251,191,36,0.12)",
+		glow: "rgba(251,191,36,0.15)",
+	},
+	rose: {
+		from: "#fb7185",
+		to: "#e11d48",
+		chip: "rgba(251,113,133,0.12)",
+		glow: "rgba(251,113,133,0.15)",
+	},
 };
 
 const COLOR_DOT_BG: Record<ColorKey, string> = {
-	lime:   "linear-gradient(135deg, #bef264, #22c55e)",
-	cyan:   "linear-gradient(135deg, #22d3ee, #0ea5e9)",
+	lime: "linear-gradient(135deg, #bef264, #22c55e)",
+	cyan: "linear-gradient(135deg, #22d3ee, #0ea5e9)",
 	violet: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
-	amber:  "linear-gradient(135deg, #fbbf24, #f59e0b)",
-	rose:   "linear-gradient(135deg, #fb7185, #e11d48)",
+	amber: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+	rose: "linear-gradient(135deg, #fb7185, #e11d48)",
 };
 
 const CURRENCIES = ["₹", "$", "€"];
@@ -147,13 +175,23 @@ function StepNav({
 		<div className="onboard-actions" style={{ marginTop: 32 }}>
 			{step > 0 ? (
 				<button className="btn-back" onClick={onBack}>
-					<BackIcon style={{ display: "inline", marginRight: 6, verticalAlign: "middle" }} />
+					<BackIcon
+						style={{
+							display: "inline",
+							marginRight: 6,
+							verticalAlign: "middle",
+						}}
+					/>
 					Back
 				</button>
 			) : (
 				<span />
 			)}
-			<button className="btn-next" onClick={onNext} disabled={!canContinue || saving}>
+			<button
+				className="btn-next"
+				onClick={onNext}
+				disabled={!canContinue || saving}
+			>
 				{saving ? "Publishing..." : nextLabel}
 				{!saving && <ArrowIcon />}
 			</button>
@@ -165,27 +203,33 @@ function StepNav({
 // Live Preview Card
 // ---------------------------------------------------------------------------
 
-function PreviewCard({ data, brandName }: { data: CampaignFormData; brandName: string }) {
+function PreviewCard({
+	data,
+	brandName,
+}: {
+	data: CampaignFormData;
+	brandName: string;
+}) {
 	const accent = ACCENT_MAP[data.color];
 	const spotsTotal = parseInt(data.totalSpots) || 10;
 	const spotsLeft = spotsTotal;
 	const fillPct = 0; // new campaign, 0 filled
 
-	const initials = brandName
-		? brandName.slice(0, 2).toUpperCase()
-		: "BR";
+	const initials = brandName ? brandName.slice(0, 2).toUpperCase() : "BR";
 
 	return (
 		<div
 			className="card"
-			style={{
-				height: "auto",
-				cursor: "default",
-				"--rate-from": accent.from,
-				"--rate-to": accent.to,
-				"--rate-glow": accent.glow,
-				"--card-glow": `radial-gradient(ellipse at top left, ${accent.glow}, transparent 60%)`,
-			} as React.CSSProperties}
+			style={
+				{
+					height: "auto",
+					cursor: "default",
+					"--rate-from": accent.from,
+					"--rate-to": accent.to,
+					"--rate-glow": accent.glow,
+					"--card-glow": `radial-gradient(ellipse at top left, ${accent.glow}, transparent 60%)`,
+				} as React.CSSProperties
+			}
 		>
 			<div className="card-top">
 				<div className="card-head">
@@ -201,12 +245,18 @@ function PreviewCard({ data, brandName }: { data: CampaignFormData; brandName: s
 						</div>
 						<div>
 							<div className="brand-name">{brandName || "Your Brand"}</div>
-							<div className="brand-handle">{data.platform ? `@${data.platform.toLowerCase()}` : "@platform"}</div>
+							<div className="brand-handle">
+								{data.platform
+									? `@${data.platform.toLowerCase()}`
+									: "@platform"}
+							</div>
 						</div>
 					</div>
 					{data.platform && (
 						<div className="platform-pill">
-							{data.platform === "Instagram" && <IGIcon width={11} height={11} />}
+							{data.platform === "Instagram" && (
+								<IGIcon width={11} height={11} />
+							)}
 							{data.platform === "YouTube" && <YTIcon width={13} height={13} />}
 							{data.platform === "TikTok" && <TTIcon width={11} height={11} />}
 							{data.platform}
@@ -224,7 +274,9 @@ function PreviewCard({ data, brandName }: { data: CampaignFormData; brandName: s
 				{data.tags.length > 0 && (
 					<div className="tag-row" style={{ marginBottom: 16 }}>
 						{data.tags.slice(0, 4).map((tag) => (
-							<span key={tag} className="tag">{tag}</span>
+							<span key={tag} className="tag">
+								{tag}
+							</span>
 						))}
 					</div>
 				)}
@@ -240,7 +292,10 @@ function PreviewCard({ data, brandName }: { data: CampaignFormData; brandName: s
 					</div>
 					<div className="rate-meta">
 						<span>Min. {data.minViews || "—"} views</span>
-						<span className="mono">Budget {data.currency}{data.budget ? formatMoney(data.budget, data.currency) : "—"}</span>
+						<span className="mono">
+							Budget {data.currency}
+							{data.budget ? formatMoney(data.budget, data.currency) : "—"}
+						</span>
 					</div>
 				</div>
 
@@ -254,7 +309,12 @@ function PreviewCard({ data, brandName }: { data: CampaignFormData; brandName: s
 					{data.deadline && (
 						<span>
 							{(() => {
-								const days = Math.max(0, Math.ceil((new Date(data.deadline).getTime() - Date.now()) / 86400000));
+								const days = Math.max(
+									0,
+									Math.ceil(
+										(new Date(data.deadline).getTime() - Date.now()) / 86400000,
+									),
+								);
 								return `${days}d left`;
 							})()}
 						</span>
@@ -279,7 +339,11 @@ function Step1({
 	const [showCatInput, setShowCatInput] = useState(false);
 	const [catValue, setCatValue] = useState("");
 
-	const customCat = data.category && !CATEGORIES.filter(c => c !== "Other").includes(data.category) ? data.category : null;
+	const customCat =
+		data.category &&
+		!CATEGORIES.filter((c) => c !== "Other").includes(data.category)
+			? data.category
+			: null;
 
 	function handleOtherCatClick() {
 		if (customCat) {
@@ -302,7 +366,9 @@ function Step1({
 		<div className="onboard-step">
 			<div className="onboard-eyebrow">Step 1 of 5 &mdash; Basics</div>
 			<h2>Campaign basics</h2>
-			<p className="lead">Give your campaign a title, tagline, and detailed guidelines.</p>
+			<p className="lead">
+				Give your campaign a title, tagline, and detailed guidelines.
+			</p>
 
 			<div className="field">
 				<label className="field-label">Campaign title</label>
@@ -328,24 +394,33 @@ function Step1({
 				<label className="field-label">Detailed guidelines</label>
 				<textarea
 					className="cc-textarea"
-					placeholder={"Line 1: mention the product name\nLine 2: include a discount code\nLine 3: show unboxing in first 10 seconds"}
+					placeholder={
+						"Line 1: mention the product name\nLine 2: include a discount code\nLine 3: show unboxing in first 10 seconds"
+					}
 					value={data.longBriefRaw}
 					onChange={(e) => onChange({ longBriefRaw: e.target.value })}
 					rows={5}
 				/>
-				<div style={{ fontSize: 11.5, color: "var(--color-ink-3)", marginTop: 6 }}>
+				<div
+					style={{ fontSize: 11.5, color: "var(--color-ink-3)", marginTop: 6 }}
+				>
 					Each line becomes a separate guideline bullet.
 				</div>
 			</div>
 
 			<div className="field" style={{ marginBottom: 0 }}>
-				<label className="field-label" style={{ marginBottom: 10 }}>Category</label>
+				<label className="field-label" style={{ marginBottom: 10 }}>
+					Category
+				</label>
 				<div className="chip-multi">
-					{CATEGORIES.filter(c => c !== "Other").map((cat) => (
+					{CATEGORIES.filter((c) => c !== "Other").map((cat) => (
 						<button
 							key={cat}
 							className={data.category === cat ? "active" : ""}
-							onClick={() => { onChange({ category: cat }); setShowCatInput(false); }}
+							onClick={() => {
+								onChange({ category: cat });
+								setShowCatInput(false);
+							}}
 						>
 							{cat}
 						</button>
@@ -363,7 +438,12 @@ function Step1({
 							type="text"
 							value={catValue}
 							onChange={(e) => setCatValue(e.target.value)}
-							onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomCat(); } }}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									e.preventDefault();
+									addCustomCat();
+								}
+							}}
 							placeholder="Type your category..."
 							autoFocus
 							style={{
@@ -384,7 +464,9 @@ function Step1({
 								padding: "10px 16px",
 								borderRadius: 10,
 								border: "none",
-								background: catValue.trim() ? "var(--color-accent)" : "var(--color-glass)",
+								background: catValue.trim()
+									? "var(--color-accent)"
+									: "var(--color-glass)",
 								color: catValue.trim() ? "#0a0a0c" : "var(--color-ink-3)",
 								fontSize: 13,
 								fontWeight: 600,
@@ -410,7 +492,7 @@ function Step2({
 	const [showTagInput, setShowTagInput] = useState(false);
 	const [tagValue, setTagValue] = useState("");
 
-	const builtinTags = CONTENT_TAGS.filter(t => t !== "Other");
+	const builtinTags = CONTENT_TAGS.filter((t) => t !== "Other");
 	const customTag = data.tags.find((t) => !builtinTags.includes(t));
 
 	function toggleTag(tag: string) {
@@ -444,9 +526,13 @@ function Step2({
 		<div className="onboard-step">
 			<div className="onboard-eyebrow">Step 2 of 5 &mdash; Platform</div>
 			<h2>Platform &amp; content</h2>
-			<p className="lead">Choose where your campaign runs and what kind of content you want.</p>
+			<p className="lead">
+				Choose where your campaign runs and what kind of content you want.
+			</p>
 
-			<div className="field-label" style={{ marginBottom: 10 }}>Platform</div>
+			<div className="field-label" style={{ marginBottom: 10 }}>
+				Platform
+			</div>
 			<div className="option-grid three" style={{ marginBottom: 24 }}>
 				{PLATFORMS.map(({ id, label, Icon }) => (
 					<button
@@ -465,8 +551,13 @@ function Step2({
 				))}
 			</div>
 
-			<div className="field-label" style={{ marginBottom: 10 }}>Content tags</div>
-			<div className="chip-multi" style={{ marginBottom: showTagInput ? 0 : 24 }}>
+			<div className="field-label" style={{ marginBottom: 10 }}>
+				Content tags
+			</div>
+			<div
+				className="chip-multi"
+				style={{ marginBottom: showTagInput ? 0 : 24 }}
+			>
 				{builtinTags.map((tag) => (
 					<button
 						key={tag}
@@ -484,12 +575,19 @@ function Step2({
 				</button>
 			</div>
 			{showTagInput && (
-				<div style={{ display: "flex", gap: 8, marginTop: 12, marginBottom: 24 }}>
+				<div
+					style={{ display: "flex", gap: 8, marginTop: 12, marginBottom: 24 }}
+				>
 					<input
 						type="text"
 						value={tagValue}
 						onChange={(e) => setTagValue(e.target.value)}
-						onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomTag(); } }}
+						onKeyDown={(e) => {
+							if (e.key === "Enter") {
+								e.preventDefault();
+								addCustomTag();
+							}
+						}}
 						placeholder="Type your tag..."
 						autoFocus
 						style={{
@@ -510,7 +608,9 @@ function Step2({
 							padding: "10px 16px",
 							borderRadius: 10,
 							border: "none",
-							background: tagValue.trim() ? "var(--color-accent)" : "var(--color-glass)",
+							background: tagValue.trim()
+								? "var(--color-accent)"
+								: "var(--color-glass)",
 							color: tagValue.trim() ? "#0a0a0c" : "var(--color-ink-3)",
 							fontSize: 13,
 							fontWeight: 600,
@@ -522,7 +622,9 @@ function Step2({
 				</div>
 			)}
 
-			<div className="field-label" style={{ marginBottom: 10 }}>Color theme</div>
+			<div className="field-label" style={{ marginBottom: 10 }}>
+				Color theme
+			</div>
 			<div className="cc-colors">
 				{COLORS.map((c) => (
 					<button
@@ -589,7 +691,9 @@ function Step3({
 		<div className="onboard-step">
 			<div className="onboard-eyebrow">Step 3 of 5 &mdash; Budget</div>
 			<h2>Budget &amp; rates</h2>
-			<p className="lead">Define how much you&apos;re paying and what you expect in return.</p>
+			<p className="lead">
+				Define how much you&apos;re paying and what you expect in return.
+			</p>
 
 			<div className="field">
 				<label className="field-label">Total campaign budget</label>
@@ -600,7 +704,9 @@ function Step3({
 						inputMode="numeric"
 						placeholder="5,00,000"
 						value={formatMoney(data.budget, data.currency)}
-						onChange={(e) => handleMoneyInput(e, "budget", data.currency, onChange)}
+						onChange={(e) =>
+							handleMoneyInput(e, "budget", data.currency, onChange)
+						}
 					/>
 				</div>
 			</div>
@@ -614,7 +720,9 @@ function Step3({
 						inputMode="numeric"
 						placeholder="150"
 						value={formatMoney(data.rate, data.currency)}
-						onChange={(e) => handleMoneyInput(e, "rate", data.currency, onChange)}
+						onChange={(e) =>
+							handleMoneyInput(e, "rate", data.currency, onChange)
+						}
 					/>
 				</div>
 			</div>
@@ -635,14 +743,21 @@ function Step3({
 			</div>
 
 			<div className="field">
-				<label className="field-label">Minimum views required <span style={{ color: "var(--color-ink-3)", fontWeight: 400 }}>(Optional)</span></label>
+				<label className="field-label">
+					Minimum views required{" "}
+					<span style={{ color: "var(--color-ink-3)", fontWeight: 400 }}>
+						(Optional)
+					</span>
+				</label>
 				<input
 					className="field-input"
 					type="text"
 					inputMode="numeric"
 					placeholder="10,000"
 					value={formatNumber(data.minViews)}
-					onChange={(e) => onChange({ minViews: e.target.value.replace(/[^0-9]/g, "") })}
+					onChange={(e) =>
+						onChange({ minViews: e.target.value.replace(/[^0-9]/g, "") })
+					}
 				/>
 			</div>
 		</div>
@@ -660,7 +775,9 @@ function Step4({
 		<div className="onboard-step">
 			<div className="onboard-eyebrow">Step 4 of 5 &mdash; Timeline</div>
 			<h2>Spots &amp; timeline</h2>
-			<p className="lead">Set how many creators you want and when the campaign ends.</p>
+			<p className="lead">
+				Set how many creators you want and when the campaign ends.
+			</p>
 
 			<div className="field">
 				<label className="field-label">Total creator spots</label>
@@ -703,7 +820,9 @@ function Step4({
 				>
 					Bonus (optional)
 				</div>
-				<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+				<div
+					style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
+				>
 					<div className="field" style={{ marginBottom: 0 }}>
 						<label className="field-label">Bonus threshold</label>
 						<input
@@ -742,8 +861,18 @@ function Step5({
 		{ label: "Platform", value: data.platform || "—" },
 		{ label: "Tags", value: data.tags.length ? data.tags.join(", ") : "—" },
 		{ label: "Color theme", value: data.color },
-		{ label: "Budget", value: data.budget ? `${data.currency}${formatMoney(data.budget, data.currency)}` : "—" },
-		{ label: "CPM rate", value: data.rate ? `${data.currency}${formatMoney(data.rate, data.currency)} / ${data.perViews} views` : "—" },
+		{
+			label: "Budget",
+			value: data.budget
+				? `${data.currency}${formatMoney(data.budget, data.currency)}`
+				: "—",
+		},
+		{
+			label: "CPM rate",
+			value: data.rate
+				? `${data.currency}${formatMoney(data.rate, data.currency)} / ${data.perViews} views`
+				: "—",
+		},
 		{ label: "Min. views", value: data.minViews || "—" },
 		{ label: "Spots", value: data.totalSpots || "—" },
 		{ label: "Deadline", value: data.deadline || "—" },
@@ -761,14 +890,22 @@ function Step5({
 			<div className="onboard-eyebrow">Step 5 of 5 &mdash; Review</div>
 			<h2>Review &amp; publish</h2>
 			<p className="lead">
-				Check your campaign details below. Once published it will go live in the marketplace.
+				Check your campaign details below. Once published it will go live in the
+				marketplace.
 			</p>
 
 			<div className="summary-card">
 				{rows.map(({ label, value }) => (
 					<div key={label} className="summary-row">
 						<span className="label">{label}</span>
-						<span className="value" style={{ maxWidth: 260, textAlign: "right", wordBreak: "break-word" }}>
+						<span
+							className="value"
+							style={{
+								maxWidth: 260,
+								textAlign: "right",
+								wordBreak: "break-word",
+							}}
+						>
 							{value}
 						</span>
 					</div>
@@ -788,7 +925,7 @@ function CreateCampaignInner() {
 
 	const brandProfile = useQuery(
 		api.brands.getByUserId,
-		session?.user?.id ? { userId: session.user.id } : "skip"
+		session?.user?.id ? { userId: session.user.id } : "skip",
 	);
 
 	const createCampaign = useMutation(api.campaigns.create);
@@ -807,7 +944,8 @@ function CreateCampaignInner() {
 
 	function canContinue(): boolean {
 		if (saving) return false;
-		if (step === 0) return !!data.title.trim() && !!data.brief.trim() && !!data.category;
+		if (step === 0)
+			return !!data.title.trim() && !!data.brief.trim() && !!data.category;
 		if (step === 1) return !!data.platform;
 		if (step === 2) return !!data.budget.trim() && !!data.rate.trim();
 		if (step === 3) return !!data.totalSpots.trim() && !!data.deadline;
@@ -828,7 +966,7 @@ function CreateCampaignInner() {
 		try {
 			const daysLeft = Math.max(
 				0,
-				Math.ceil((new Date(data.deadline).getTime() - Date.now()) / 86400000)
+				Math.ceil((new Date(data.deadline).getTime() - Date.now()) / 86400000),
 			);
 			const spots = parseInt(data.totalSpots) || 0;
 
@@ -890,8 +1028,17 @@ function CreateCampaignInner() {
 				<div className="onboard-progress">
 					<div className="onboard-progress-fill" style={{ width: "0%" }} />
 				</div>
-				<div style={{ display: "grid", placeItems: "center", flex: 1, minHeight: "60vh" }}>
-					<div style={{ color: "var(--color-ink-2)", fontSize: 14 }}>Loading...</div>
+				<div
+					style={{
+						display: "grid",
+						placeItems: "center",
+						flex: 1,
+						minHeight: "60vh",
+					}}
+				>
+					<div style={{ color: "var(--color-ink-2)", fontSize: 14 }}>
+						Loading...
+					</div>
 				</div>
 			</div>
 		);
@@ -911,7 +1058,15 @@ function CreateCampaignInner() {
 						Back
 					</Link>
 				</nav>
-				<div style={{ display: "grid", placeItems: "center", flex: 1, minHeight: "60vh", padding: 32 }}>
+				<div
+					style={{
+						display: "grid",
+						placeItems: "center",
+						flex: 1,
+						minHeight: "60vh",
+						padding: 32,
+					}}
+				>
 					<div style={{ textAlign: "center", maxWidth: 440 }}>
 						<div
 							style={{
@@ -939,8 +1094,16 @@ function CreateCampaignInner() {
 						>
 							Complete brand onboarding first
 						</h2>
-						<p style={{ color: "var(--color-ink-1)", fontSize: 14, lineHeight: 1.6, margin: "0 0 28px" }}>
-							You need a brand profile before creating a campaign. It only takes a minute.
+						<p
+							style={{
+								color: "var(--color-ink-1)",
+								fontSize: 14,
+								lineHeight: 1.6,
+								margin: "0 0 28px",
+							}}
+						>
+							You need a brand profile before creating a campaign. It only takes
+							a minute.
 						</p>
 						<Link
 							href="/onboarding?role=brand"
@@ -992,7 +1155,8 @@ function CreateCampaignInner() {
 
 					<h2 className="cc-success-title">Campaign published!</h2>
 					<p className="cc-success-desc">
-						Your campaign is now live in the marketplace. Creators can start applying immediately.
+						Your campaign is now live in the marketplace. Creators can start
+						applying immediately.
 					</p>
 
 					{/* Preview card */}
@@ -1047,7 +1211,14 @@ function CreateCampaignInner() {
 					<div className="logo-dot" />
 					Inflio
 				</div>
-				<span className="step-count" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "var(--color-ink-2)" }}>
+				<span
+					className="step-count"
+					style={{
+						fontFamily: "'JetBrains Mono', monospace",
+						fontSize: 12,
+						color: "var(--color-ink-2)",
+					}}
+				>
 					{step + 1} / {TOTAL_STEPS}
 				</span>
 				<Link href="/campaigns" className="skip">
@@ -1057,7 +1228,10 @@ function CreateCampaignInner() {
 
 			{/* Progress */}
 			<div className="onboard-progress">
-				<div className="onboard-progress-fill" style={{ width: `${progress}%` }} />
+				<div
+					className="onboard-progress-fill"
+					style={{ width: `${progress}%` }}
+				/>
 			</div>
 
 			{/* Body */}
@@ -1071,7 +1245,9 @@ function CreateCampaignInner() {
 						onBack={handleBack}
 						onNext={handleNext}
 						canContinue={canContinue()}
-						nextLabel={step === TOTAL_STEPS - 1 ? "Publish Campaign" : "Continue"}
+						nextLabel={
+							step === TOTAL_STEPS - 1 ? "Publish Campaign" : "Continue"
+						}
 						saving={saving}
 					/>
 				</div>
@@ -1094,7 +1270,8 @@ function CreateCampaignInner() {
 							lineHeight: 1.6,
 						}}
 					>
-						This preview updates live as you fill in the form. The card will appear exactly like this in the marketplace.
+						This preview updates live as you fill in the form. The card will
+						appear exactly like this in the marketplace.
 					</div>
 				</div>
 			</div>

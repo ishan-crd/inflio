@@ -1,11 +1,11 @@
 "use client";
 
+import { useQuery } from "convex/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useSession, signOut } from "@/lib/auth-client";
 import { ArrowIcon, BellIcon } from "@/components/icons";
-import { useQuery } from "convex/react";
+import { signOut, useSession } from "@/lib/auth-client";
 import { api } from "../../convex/_generated/api";
 
 function initials(s: string) {
@@ -36,7 +36,15 @@ export function Nav() {
 	const role: "creator" | "brand" = brandProfile ? "brand" : "creator";
 
 	if (loggedIn) {
-		return <LoggedInNav pathname={pathname} name={session.user.name ?? ""} image={session.user.image} role={role} brandName={brandProfile?.name} />;
+		return (
+			<LoggedInNav
+				pathname={pathname}
+				name={session.user.name ?? ""}
+				image={session.user.image}
+				role={role}
+				brandName={brandProfile?.name}
+			/>
+		);
 	}
 
 	return <PublicNav pathname={pathname} />;
@@ -64,10 +72,16 @@ function PublicNav({ pathname }: { pathname: string }) {
 						display: "flex",
 					}}
 				>
-					<Link href="/marketplace" className={pathname === "/marketplace" ? "active" : ""}>
+					<Link
+						href="/marketplace"
+						className={pathname === "/marketplace" ? "active" : ""}
+					>
 						Campaigns
 					</Link>
-					<Link href="/creators" className={pathname === "/creators" ? "active" : ""}>
+					<Link
+						href="/creators"
+						className={pathname === "/creators" ? "active" : ""}
+					>
 						Creators
 					</Link>
 				</div>
@@ -85,7 +99,13 @@ function PublicNav({ pathname }: { pathname: string }) {
 	);
 }
 
-function ProfileDropdown({ name, image }: { name: string; image?: string | null }) {
+function ProfileDropdown({
+	name,
+	image,
+}: {
+	name: string;
+	image?: string | null;
+}) {
 	const [open, setOpen] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
 	const router = useRouter();
@@ -165,10 +185,21 @@ function ProfileDropdown({ name, image }: { name: string; image?: string | null 
 							cursor: "pointer",
 							transition: "background 0.15s",
 						}}
-						onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+						onMouseEnter={(e) =>
+							(e.currentTarget.style.background = "rgba(255,255,255,0.06)")
+						}
 						onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
 					>
-						<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+						<svg
+							width="15"
+							height="15"
+							viewBox="0 0 16 16"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
 							<circle cx="8" cy="5.5" r="2.5" />
 							<path d="M3 14c0-2.5 2.2-4 5-4s5 1.5 5 4" />
 						</svg>
@@ -197,10 +228,21 @@ function ProfileDropdown({ name, image }: { name: string; image?: string | null 
 							cursor: "pointer",
 							transition: "background 0.15s",
 						}}
-						onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(251,113,133,0.08)")}
+						onMouseEnter={(e) =>
+							(e.currentTarget.style.background = "rgba(251,113,133,0.08)")
+						}
 						onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
 					>
-						<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+						<svg
+							width="15"
+							height="15"
+							viewBox="0 0 16 16"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
 							<path d="M6 2H4a2 2 0 00-2 2v8a2 2 0 002 2h2M10.5 12L14 8l-3.5-4M14 8H6" />
 						</svg>
 						Log out
@@ -263,7 +305,15 @@ function LoggedInNav({
 
 					<div className="nav-cta">
 						{role === "brand" && (
-							<Link href="/campaigns/create" className="btn btn-primary" style={{ fontSize: 13, padding: "8px 16px", textDecoration: "none" }}>
+							<Link
+								href="/campaigns/create"
+								className="btn btn-primary"
+								style={{
+									fontSize: 13,
+									padding: "8px 16px",
+									textDecoration: "none",
+								}}
+							>
 								+ Create Campaign
 							</Link>
 						)}

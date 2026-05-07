@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation } from "convex/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -15,7 +16,6 @@ import {
 	YTIcon,
 } from "@/components/icons";
 import { useSession } from "@/lib/auth-client";
-import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
 // ---------------------------------------------------------------------------
@@ -210,7 +210,9 @@ function CreatorStep1({
 					className="field-input"
 					placeholder="yourhandle"
 					value={data.handle}
-					onChange={(e) => onChange({ handle: e.target.value })}
+					onChange={(e) =>
+						onChange({ handle: e.target.value.replace(/\s/g, "") })
+					}
 				/>
 			</div>
 
@@ -351,7 +353,9 @@ function CreatorStep2({
 							padding: "10px 16px",
 							borderRadius: 10,
 							border: "none",
-							background: otherValue.trim() ? "var(--color-accent)" : "var(--color-glass)",
+							background: otherValue.trim()
+								? "var(--color-accent)"
+								: "var(--color-glass)",
 							color: otherValue.trim() ? "#0a0a0c" : "var(--color-ink-3)",
 							fontSize: 13,
 							fontWeight: 600,
@@ -363,7 +367,13 @@ function CreatorStep2({
 				</div>
 			)}
 
-			<div style={{ fontSize: 12, color: "var(--color-ink-2)", marginTop: showOtherInput ? 8 : 0 }}>
+			<div
+				style={{
+					fontSize: 12,
+					color: "var(--color-ink-2)",
+					marginTop: showOtherInput ? 8 : 0,
+				}}
+			>
 				{data.niches.length} / 4 selected
 			</div>
 		</div>
@@ -449,7 +459,6 @@ function CreatorStep4({
 					onChange={(e) => onChange({ upi: e.target.value })}
 				/>
 			</div>
-
 		</div>
 	);
 }
@@ -941,7 +950,13 @@ function OnboardingInner() {
 							onBack={handleBack}
 							onNext={handleNext}
 							canContinue={canContinue()}
-							nextLabel={saving ? "Saving..." : step === TOTAL_STEPS - 1 ? "Finish" : "Continue"}
+							nextLabel={
+								saving
+									? "Saving..."
+									: step === TOTAL_STEPS - 1
+										? "Finish"
+										: "Continue"
+							}
 						/>
 					</div>
 				)}

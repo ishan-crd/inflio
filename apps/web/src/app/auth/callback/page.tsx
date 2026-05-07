@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { useSession } from "@/lib/auth-client";
 import { useQuery } from "convex/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useSession } from "@/lib/auth-client";
 import { api } from "../../../../convex/_generated/api";
 
 function CallbackInner() {
@@ -61,26 +60,38 @@ function CallbackInner() {
 			setRedirected(true);
 			router.replace("/onboarding?role=creator");
 		}
-	}, [authPending, userId, creatorProfile, brandProfile, role, router, redirected]);
+	}, [
+		authPending,
+		userId,
+		creatorProfile,
+		brandProfile,
+		role,
+		router,
+		redirected,
+	]);
 
 	return (
-		<div style={{
-			minHeight: "100vh",
-			display: "flex",
-			alignItems: "center",
-			justifyContent: "center",
-			color: "var(--color-ink-2)",
-			fontSize: 14,
-			gap: 12,
-		}}>
-			<div style={{
-				width: 20,
-				height: 20,
-				border: "2px solid var(--color-line)",
-				borderTopColor: "var(--color-accent-strong)",
-				borderRadius: "50%",
-				animation: "spin 0.8s linear infinite",
-			}} />
+		<div
+			style={{
+				minHeight: "100vh",
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center",
+				color: "var(--color-ink-2)",
+				fontSize: 14,
+				gap: 12,
+			}}
+		>
+			<div
+				style={{
+					width: 20,
+					height: 20,
+					border: "2px solid var(--color-line)",
+					borderTopColor: "var(--color-accent-strong)",
+					borderRadius: "50%",
+					animation: "spin 0.8s linear infinite",
+				}}
+			/>
 			Setting up your account...
 		</div>
 	);

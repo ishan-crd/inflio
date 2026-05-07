@@ -1062,7 +1062,7 @@ export default function CampaignDetailScreen() {
 						</>
 					)}
 				</View>
-				</ScrollView>
+			</ScrollView>
 
 			{/* Fixed Footer */}
 			<View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
@@ -1092,10 +1092,8 @@ export default function CampaignDetailScreen() {
 					</View>
 					<View style={styles.footerProgress}>
 						<Text style={styles.footerSpotsText}>
-							<Text style={{ color: accent.chip }}>
-								{campaign.spotsLeft}
-							</Text>
-							/{campaign.totalSpots} spots
+							<Text style={{ color: accent.chip }}>{campaign.spotsLeft}</Text>/
+							{campaign.totalSpots} spots
 						</Text>
 						<View style={styles.footerBarBg}>
 							<View
@@ -1118,13 +1116,9 @@ export default function CampaignDetailScreen() {
 							LIVE CPM RATE
 						</Text>
 						<View style={styles.footerRateRow}>
-							<Text style={styles.footerCurrency}>
-								{campaign.currency}
-							</Text>
+							<Text style={styles.footerCurrency}>{campaign.currency}</Text>
 							<Text style={styles.footerAmount}>{campaign.rate}</Text>
-							<Text style={styles.footerPer}>
-								/{campaign.perViews}
-							</Text>
+							<Text style={styles.footerPer}>/{campaign.perViews}</Text>
 						</View>
 					</View>
 					<Pressable

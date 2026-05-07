@@ -21,15 +21,17 @@ export default function IndexScreen() {
 		Promise.all([
 			convex.query(api.creators.getByUserId, { userId: user.id }),
 			convex.query(api.brands.getByUserId, { userId: user.id }),
-		]).then(([creator, brand]) => {
-			if (creator || brand) {
+		])
+			.then(([creator, brand]) => {
+				if (creator || brand) {
+					router.replace("/(tabs)");
+				} else {
+					router.replace("/onboarding");
+				}
+			})
+			.catch(() => {
 				router.replace("/(tabs)");
-			} else {
-				router.replace("/onboarding");
-			}
-		}).catch(() => {
-			router.replace("/(tabs)");
-		});
+			});
 	}, [user, loading, convex]);
 
 	return (

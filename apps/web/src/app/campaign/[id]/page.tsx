@@ -1,9 +1,17 @@
 "use client";
 
+import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { SVGProps } from "react";
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import {
 	ArrowIcon,
 	BackIcon,
@@ -18,10 +26,9 @@ import {
 	VerifiedIcon,
 	YTIcon,
 } from "@/components/icons";
-import { CAMPAIGNS, ACCENT_MAP, BRAND_COLORS } from "@/data/campaigns";
 import { Nav as SharedNav } from "@/components/nav";
-import { useSession, signIn } from "@/lib/auth-client";
-import { useMutation, useQuery } from "convex/react";
+import { ACCENT_MAP, BRAND_COLORS, CAMPAIGNS } from "@/data/campaigns";
+import { signIn, useSession } from "@/lib/auth-client";
 import { api } from "../../../../convex/_generated/api";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -568,7 +575,15 @@ function Crumb() {
 				padding: "20px 0 12px",
 			}}
 		>
-			<div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--color-ink-2)" }}>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					gap: 8,
+					fontSize: 13,
+					color: "var(--color-ink-2)",
+				}}
+			>
 				<Link
 					href="/marketplace"
 					style={{
@@ -605,7 +620,9 @@ function Crumb() {
 					}}
 					aria-label="Save"
 				>
-					<HeartIcon style={saved ? { fill: "#fb7185", stroke: "#fb7185" } : undefined} />
+					<HeartIcon
+						style={saved ? { fill: "#fb7185", stroke: "#fb7185" } : undefined}
+					/>
 				</button>
 				<button
 					style={{
@@ -649,7 +666,8 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 	const brandColors = BRAND_COLORS[CAMPAIGN.brand] ?? ["#d4d4d4", "#1a1a1a"];
-	const spotsUsedPct = ((CAMPAIGN.totalSpots - CAMPAIGN.spotsLeft) / CAMPAIGN.totalSpots) * 100;
+	const spotsUsedPct =
+		((CAMPAIGN.totalSpots - CAMPAIGN.spotsLeft) / CAMPAIGN.totalSpots) * 100;
 
 	return (
 		<div
@@ -685,7 +703,14 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 				)}
 
 				{/* Brand cluster */}
-				<div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						gap: 12,
+						marginBottom: 16,
+					}}
+				>
 					<div
 						style={{
 							width: 40,
@@ -705,12 +730,20 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 					</div>
 					<div>
 						<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-							<span style={{ fontSize: 14, fontWeight: 600, color: "var(--color-ink-0)" }}>
+							<span
+								style={{
+									fontSize: 14,
+									fontWeight: 600,
+									color: "var(--color-ink-0)",
+								}}
+							>
 								{CAMPAIGN.brand}
 							</span>
 							<VerifiedIcon style={{ color: accent.chip }} />
 						</div>
-						<div style={{ fontSize: 12, color: "var(--color-ink-2)" }}>{CAMPAIGN.brandHandle}</div>
+						<div style={{ fontSize: 12, color: "var(--color-ink-2)" }}>
+							{CAMPAIGN.brandHandle}
+						</div>
 					</div>
 					<div
 						style={{
@@ -756,12 +789,27 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 				</h1>
 
 				{/* Subtitle / brief */}
-				<p style={{ fontSize: 14.5, lineHeight: 1.6, color: "var(--color-ink-1)", margin: "0 0 18px", maxWidth: 560 }}>
+				<p
+					style={{
+						fontSize: 14.5,
+						lineHeight: 1.6,
+						color: "var(--color-ink-1)",
+						margin: "0 0 18px",
+						maxWidth: 560,
+					}}
+				>
 					{CAMPAIGN.brief}
 				</p>
 
 				{/* Tags */}
-				<div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 22 }}>
+				<div
+					style={{
+						display: "flex",
+						flexWrap: "wrap",
+						gap: 6,
+						marginBottom: 22,
+					}}
+				>
 					{CAMPAIGN.tags.map((tag) => (
 						<span
 							key={tag}
@@ -802,10 +850,25 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 								padding: "12px 14px",
 							}}
 						>
-							<div style={{ fontSize: 11, color: "var(--color-ink-3)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+							<div
+								style={{
+									fontSize: 11,
+									color: "var(--color-ink-3)",
+									marginBottom: 4,
+									textTransform: "uppercase",
+									letterSpacing: "0.04em",
+								}}
+							>
 								{f.label}
 							</div>
-							<div style={{ fontSize: 15, fontWeight: 600, color: "var(--color-ink-0)" }} className="mono">
+							<div
+								style={{
+									fontSize: 15,
+									fontWeight: 600,
+									color: "var(--color-ink-0)",
+								}}
+								className="mono"
+							>
 								{f.value}
 							</div>
 						</div>
@@ -854,10 +917,14 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 							color: "var(--color-ink-0)",
 						}}
 					>
-						<span style={{ fontSize: 28, fontWeight: 600, opacity: 0.7 }}>{CAMPAIGN.currency}</span>
+						<span style={{ fontSize: 28, fontWeight: 600, opacity: 0.7 }}>
+							{CAMPAIGN.currency}
+						</span>
 						{CAMPAIGN.rate}
 					</div>
-					<div style={{ fontSize: 13, color: "var(--color-ink-2)", marginTop: 4 }}>
+					<div
+						style={{ fontSize: 13, color: "var(--color-ink-2)", marginTop: 4 }}
+					>
 						per {CAMPAIGN.perViews} views
 					</div>
 				</div>
@@ -879,7 +946,9 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 					<TrendIcon style={{ color: accent.chip, flexShrink: 0 }} />
 					<span>
 						Bonus above {CAMPAIGN.bonus.threshold}:{" "}
-						<strong style={{ color: accent.chip }}>{CAMPAIGN.bonus.amount}</strong>
+						<strong style={{ color: accent.chip }}>
+							{CAMPAIGN.bonus.amount}
+						</strong>
 					</span>
 				</div>
 
@@ -935,9 +1004,19 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 
 				{/* Spots progress */}
 				<div>
-					<div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 6 }}>
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "space-between",
+							fontSize: 12,
+							marginBottom: 6,
+						}}
+					>
 						<span style={{ color: "var(--color-ink-2)" }}>
-							<strong style={{ color: "var(--color-ink-0)", fontWeight: 500 }}>{CAMPAIGN.spotsLeft}</strong> spots left
+							<strong style={{ color: "var(--color-ink-0)", fontWeight: 500 }}>
+								{CAMPAIGN.spotsLeft}
+							</strong>{" "}
+							spots left
 						</span>
 						<span style={{ color: "var(--color-ink-3)" }}>
 							{CAMPAIGN.totalSpots - CAMPAIGN.spotsLeft}/{CAMPAIGN.totalSpots}
@@ -988,8 +1067,17 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 				</button>
 
 				{/* Fine print */}
-				<p style={{ fontSize: 11, color: "var(--color-ink-3)", textAlign: "center", margin: 0, lineHeight: 1.5 }}>
-					{CAMPAIGN.daysLeft} days left &middot; Free to apply &middot; No exclusivity
+				<p
+					style={{
+						fontSize: 11,
+						color: "var(--color-ink-3)",
+						textAlign: "center",
+						margin: 0,
+						lineHeight: 1.5,
+					}}
+				>
+					{CAMPAIGN.daysLeft} days left &middot; Free to apply &middot; No
+					exclusivity
 				</p>
 			</div>
 		</div>
@@ -1030,7 +1118,10 @@ function Tabs({
 							color: active === i ? "var(--color-ink-0)" : "var(--color-ink-2)",
 							background: "none",
 							border: "none",
-							borderBottom: active === i ? `2px solid ${accent.chip}` : "2px solid transparent",
+							borderBottom:
+								active === i
+									? `2px solid ${accent.chip}`
+									: "2px solid transparent",
 							cursor: "pointer",
 							whiteSpace: "nowrap",
 							transition: "color 0.15s",
@@ -1110,7 +1201,10 @@ function BriefBlock() {
 				<TrendIcon style={{ color: accent.chip, flexShrink: 0 }} />
 				<span style={{ fontSize: 13, color: "var(--color-ink-0)" }}>
 					<strong>Bonus:</strong> Cross {CAMPAIGN.bonus.threshold} and earn{" "}
-					<strong style={{ color: accent.chip }}>{CAMPAIGN.bonus.amount}</strong> on every additional thousand.
+					<strong style={{ color: accent.chip }}>
+						{CAMPAIGN.bonus.amount}
+					</strong>{" "}
+					on every additional thousand.
 				</span>
 			</div>
 		</div>
@@ -1151,7 +1245,9 @@ function DeliverablesBlock() {
 								width: 22,
 								height: 22,
 								borderRadius: 6,
-								background: d.ok ? "rgba(190,242,100,0.15)" : "rgba(251,113,133,0.12)",
+								background: d.ok
+									? "rgba(190,242,100,0.15)"
+									: "rgba(251,113,133,0.12)",
 								color: d.ok ? "#bef264" : "#fb7185",
 								display: "flex",
 								alignItems: "center",
@@ -1160,13 +1256,32 @@ function DeliverablesBlock() {
 								marginTop: 1,
 							}}
 						>
-							{d.ok ? <CheckIcon style={{ width: 11, height: 11 }} /> : <CloseIcon style={{ width: 10, height: 10 }} />}
+							{d.ok ? (
+								<CheckIcon style={{ width: 11, height: 11 }} />
+							) : (
+								<CloseIcon style={{ width: 10, height: 10 }} />
+							)}
 						</div>
 						<div>
-							<div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-ink-0)", marginBottom: 2 }}>
+							<div
+								style={{
+									fontSize: 13.5,
+									fontWeight: 600,
+									color: "var(--color-ink-0)",
+									marginBottom: 2,
+								}}
+							>
 								{d.title}
 							</div>
-							<div style={{ fontSize: 12.5, color: "var(--color-ink-2)", lineHeight: 1.5 }}>{d.desc}</div>
+							<div
+								style={{
+									fontSize: 12.5,
+									color: "var(--color-ink-2)",
+									lineHeight: 1.5,
+								}}
+							>
+								{d.desc}
+							</div>
 						</div>
 					</div>
 				))}
@@ -1193,7 +1308,13 @@ function TimelineBlock() {
 			>
 				How it works
 			</h2>
-			<div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+			<div
+				style={{
+					display: "grid",
+					gridTemplateColumns: "repeat(4, 1fr)",
+					gap: 12,
+				}}
+			>
 				{TIMELINE_STEPS.map((s) => (
 					<div
 						key={s.step}
@@ -1221,10 +1342,25 @@ function TimelineBlock() {
 						>
 							{s.step}
 						</div>
-						<div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-ink-0)", marginBottom: 4 }}>
+						<div
+							style={{
+								fontSize: 14,
+								fontWeight: 600,
+								color: "var(--color-ink-0)",
+								marginBottom: 4,
+							}}
+						>
 							{s.title}
 						</div>
-						<div style={{ fontSize: 12.5, color: "var(--color-ink-2)", lineHeight: 1.5 }}>{s.desc}</div>
+						<div
+							style={{
+								fontSize: 12.5,
+								color: "var(--color-ink-2)",
+								lineHeight: 1.5,
+							}}
+						>
+							{s.desc}
+						</div>
 					</div>
 				))}
 			</div>
@@ -1245,16 +1381,15 @@ function EarningsCalc() {
 
 	const pct = ((views - MIN_VIEWS) / (MAX_VIEWS - MIN_VIEWS)) * 100;
 
-	const posToVal = useCallback(
-		(clientX: number) => {
-			const rect = trackRef.current?.getBoundingClientRect();
-			if (!rect) return MIN_VIEWS;
-			const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-			const step = 1000;
-			return Math.round((MIN_VIEWS + ratio * (MAX_VIEWS - MIN_VIEWS)) / step) * step;
-		},
-		[],
-	);
+	const posToVal = useCallback((clientX: number) => {
+		const rect = trackRef.current?.getBoundingClientRect();
+		if (!rect) return MIN_VIEWS;
+		const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+		const step = 1000;
+		return (
+			Math.round((MIN_VIEWS + ratio * (MAX_VIEWS - MIN_VIEWS)) / step) * step
+		);
+	}, []);
 
 	useEffect(() => {
 		function onMove(e: MouseEvent) {
@@ -1299,9 +1434,25 @@ function EarningsCalc() {
 				}}
 			>
 				{/* Views label */}
-				<div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-					<span style={{ fontSize: 13, color: "var(--color-ink-2)" }}>Projected views</span>
-					<span style={{ fontSize: 22, fontWeight: 700, color: "var(--color-ink-0)" }} className="mono">
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						alignItems: "baseline",
+						marginBottom: 16,
+					}}
+				>
+					<span style={{ fontSize: 13, color: "var(--color-ink-2)" }}>
+						Projected views
+					</span>
+					<span
+						style={{
+							fontSize: 22,
+							fontWeight: 700,
+							color: "var(--color-ink-0)",
+						}}
+						className="mono"
+					>
 						{fmt(views)}
 					</span>
 				</div>
@@ -1353,7 +1504,14 @@ function EarningsCalc() {
 						}}
 					/>
 				</div>
-				<div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--color-ink-3)" }}>
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						fontSize: 11,
+						color: "var(--color-ink-3)",
+					}}
+				>
 					<span>10k</span>
 					<span>500k</span>
 				</div>
@@ -1369,21 +1527,42 @@ function EarningsCalc() {
 						gap: 8,
 					}}
 				>
-					<div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "space-between",
+							fontSize: 13,
+						}}
+					>
 						<span style={{ color: "var(--color-ink-2)" }}>
-							Base CPM ({fmt(views)} views x {CAMPAIGN.currency}{CAMPAIGN.rate})
+							Base CPM ({fmt(views)} views x {CAMPAIGN.currency}
+							{CAMPAIGN.rate})
 						</span>
-						<span style={{ color: "var(--color-ink-0)", fontWeight: 500 }} className="mono">
-							{CAMPAIGN.currency}{fmt(Math.round(basePay))}
+						<span
+							style={{ color: "var(--color-ink-0)", fontWeight: 500 }}
+							className="mono"
+						>
+							{CAMPAIGN.currency}
+							{fmt(Math.round(basePay))}
 						</span>
 					</div>
 					{bonusPay > 0 && (
-						<div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								fontSize: 13,
+							}}
+						>
 							<span style={{ color: "var(--color-ink-2)" }}>
 								Bonus ({fmt(bonusViews)} views above 100k)
 							</span>
-							<span style={{ color: accent.chip, fontWeight: 500 }} className="mono">
-								+{CAMPAIGN.currency}{fmt(Math.round(bonusPay))}
+							<span
+								style={{ color: accent.chip, fontWeight: 500 }}
+								className="mono"
+							>
+								+{CAMPAIGN.currency}
+								{fmt(Math.round(bonusPay))}
 							</span>
 						</div>
 					)}
@@ -1399,7 +1578,8 @@ function EarningsCalc() {
 					>
 						<span style={{ color: "var(--color-ink-0)" }}>Total earnings</span>
 						<span style={{ color: accent.chip }} className="mono">
-							{CAMPAIGN.currency}{fmt(Math.round(total))}
+							{CAMPAIGN.currency}
+							{fmt(Math.round(total))}
 						</span>
 					</div>
 				</div>
@@ -1423,7 +1603,13 @@ function ExamplesBlock() {
 			>
 				Past winners
 			</h2>
-			<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+			<div
+				style={{
+					display: "grid",
+					gridTemplateColumns: "repeat(3, 1fr)",
+					gap: 12,
+				}}
+			>
 				{EXAMPLES.map((ex, i) => (
 					<div
 						key={i}
@@ -1460,11 +1646,25 @@ function ExamplesBlock() {
 						>
 							<PlayIcon />
 						</div>
-						<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-							<span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-ink-0)" }}>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "flex-end",
+							}}
+						>
+							<span
+								style={{
+									fontSize: 12.5,
+									fontWeight: 600,
+									color: "var(--color-ink-0)",
+								}}
+							>
 								{ex.handle}
 							</span>
-							<span style={{ fontSize: 11, color: "var(--color-ink-2)" }}>{ex.views}</span>
+							<span style={{ fontSize: 11, color: "var(--color-ink-2)" }}>
+								{ex.views}
+							</span>
 						</div>
 					</div>
 				))}
@@ -1592,7 +1792,9 @@ function MatchCard() {
 			</div>
 
 			{/* Donut */}
-			<div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+			<div
+				style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}
+			>
 				<div style={{ position: "relative", width: 96, height: 96 }}>
 					<svg width="96" height="96" viewBox="0 0 96 96">
 						<circle
@@ -1645,13 +1847,24 @@ function MatchCard() {
 			{/* Bullets */}
 			<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
 				{bullets.map((b, i) => (
-					<div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12.5, lineHeight: 1.5 }}>
+					<div
+						key={i}
+						style={{
+							display: "flex",
+							alignItems: "flex-start",
+							gap: 8,
+							fontSize: 12.5,
+							lineHeight: 1.5,
+						}}
+					>
 						<div
 							style={{
 								width: 18,
 								height: 18,
 								borderRadius: 5,
-								background: b.ok ? "rgba(190,242,100,0.12)" : "rgba(251,113,133,0.1)",
+								background: b.ok
+									? "rgba(190,242,100,0.12)"
+									: "rgba(251,113,133,0.1)",
 								color: b.ok ? "#bef264" : "#fb7185",
 								display: "flex",
 								alignItems: "center",
@@ -1700,7 +1913,10 @@ function ActivityCard() {
 			</div>
 			<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 				{ACTIVITY.map((a, i) => (
-					<div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+					<div
+						key={i}
+						style={{ display: "flex", alignItems: "center", gap: 10 }}
+					>
 						<div
 							style={{
 								width: 26,
@@ -1719,12 +1935,26 @@ function ActivityCard() {
 							{a.initials}
 						</div>
 						<div style={{ flex: 1, minWidth: 0 }}>
-							<span style={{ fontSize: 12.5, color: "var(--color-ink-0)", fontWeight: 500 }}>
+							<span
+								style={{
+									fontSize: 12.5,
+									color: "var(--color-ink-0)",
+									fontWeight: 500,
+								}}
+							>
 								{a.who}
 							</span>{" "}
-							<span style={{ fontSize: 12.5, color: "var(--color-ink-2)" }}>{a.what}</span>
+							<span style={{ fontSize: 12.5, color: "var(--color-ink-2)" }}>
+								{a.what}
+							</span>
 						</div>
-						<span style={{ fontSize: 11, color: "var(--color-ink-3)", flexShrink: 0 }}>
+						<span
+							style={{
+								fontSize: 11,
+								color: "var(--color-ink-3)",
+								flexShrink: 0,
+							}}
+						>
 							{a.time}
 						</span>
 					</div>
@@ -1770,7 +2000,14 @@ function AboutBrandCard() {
 			</div>
 
 			{/* Brand mark + name */}
-			<div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					gap: 10,
+					marginBottom: 14,
+				}}
+			>
 				<div
 					style={{
 						width: 36,
@@ -1789,10 +2026,18 @@ function AboutBrandCard() {
 					{initials(CAMPAIGN.brand)}
 				</div>
 				<div>
-					<div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-ink-0)" }}>
+					<div
+						style={{
+							fontSize: 13.5,
+							fontWeight: 600,
+							color: "var(--color-ink-0)",
+						}}
+					>
 						{CAMPAIGN.brand}
 					</div>
-					<div style={{ fontSize: 11.5, color: "var(--color-ink-2)" }}>{CAMPAIGN.brandHandle}</div>
+					<div style={{ fontSize: 11.5, color: "var(--color-ink-2)" }}>
+						{CAMPAIGN.brandHandle}
+					</div>
 				</div>
 			</div>
 
@@ -1815,10 +2060,25 @@ function AboutBrandCard() {
 							padding: "8px 10px",
 						}}
 					>
-						<div style={{ fontSize: 10, color: "var(--color-ink-3)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 2 }}>
+						<div
+							style={{
+								fontSize: 10,
+								color: "var(--color-ink-3)",
+								textTransform: "uppercase",
+								letterSpacing: "0.04em",
+								marginBottom: 2,
+							}}
+						>
 							{s.label}
 						</div>
-						<div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-ink-0)" }} className="mono">
+						<div
+							style={{
+								fontSize: 13,
+								fontWeight: 600,
+								color: "var(--color-ink-0)",
+							}}
+							className="mono"
+						>
 							{s.value}
 						</div>
 					</div>
@@ -1826,7 +2086,14 @@ function AboutBrandCard() {
 			</div>
 
 			{/* Bio */}
-			<p style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--color-ink-2)", margin: 0 }}>
+			<p
+				style={{
+					fontSize: 12.5,
+					lineHeight: 1.6,
+					color: "var(--color-ink-2)",
+					margin: 0,
+				}}
+			>
 				{CAMPAIGN.brandBio}
 			</p>
 		</div>
@@ -1848,7 +2115,13 @@ function SimilarSection() {
 			>
 				Similar campaigns
 			</h2>
-			<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+			<div
+				style={{
+					display: "grid",
+					gridTemplateColumns: "repeat(3, 1fr)",
+					gap: 16,
+				}}
+			>
 				{SIMILAR.map((s) => {
 					const ac = ACCENT_MAP[s.color] ?? ACCENT_MAP["lime"];
 					const bc = BRAND_COLORS[s.brand] ?? ["#d4d4d4", "#1a1a1a"];
@@ -1869,7 +2142,14 @@ function SimilarSection() {
 								}}
 							>
 								{/* Brand row */}
-								<div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+								<div
+									style={{
+										display: "flex",
+										alignItems: "center",
+										gap: 10,
+										marginBottom: 12,
+									}}
+								>
 									<div
 										style={{
 											width: 32,
@@ -1888,10 +2168,18 @@ function SimilarSection() {
 										{initials(s.brand)}
 									</div>
 									<div>
-										<div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-ink-0)" }}>
+										<div
+											style={{
+												fontSize: 13,
+												fontWeight: 600,
+												color: "var(--color-ink-0)",
+											}}
+										>
 											{s.brand}
 										</div>
-										<div style={{ fontSize: 11, color: "var(--color-ink-2)" }}>{s.brandHandle}</div>
+										<div style={{ fontSize: 11, color: "var(--color-ink-2)" }}>
+											{s.brandHandle}
+										</div>
 									</div>
 									<div
 										style={{
@@ -1913,19 +2201,41 @@ function SimilarSection() {
 								</div>
 
 								{/* Title */}
-								<div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-ink-0)", marginBottom: 14, lineHeight: 1.4 }}>
+								<div
+									style={{
+										fontSize: 14,
+										fontWeight: 600,
+										color: "var(--color-ink-0)",
+										marginBottom: 14,
+										lineHeight: 1.4,
+									}}
+								>
 									{s.title}
 								</div>
 
 								{/* Meta row */}
-								<div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--color-ink-2)" }}>
+								<div
+									style={{
+										display: "flex",
+										justifyContent: "space-between",
+										fontSize: 12,
+										color: "var(--color-ink-2)",
+									}}
+								>
 									<span>
 										<strong style={{ color: ac.chip }} className="mono">
-											{s.currency}{s.rate}
+											{s.currency}
+											{s.rate}
 										</strong>{" "}
 										/ {s.perViews} views
 									</span>
-									<span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+									<span
+										style={{
+											display: "inline-flex",
+											alignItems: "center",
+											gap: 4,
+										}}
+									>
 										<ClockIcon />
 										{s.deadline}
 									</span>
@@ -1960,13 +2270,22 @@ function Footer() {
 				>
 					<span>&copy; 2026 inflio. All rights reserved.</span>
 					<div style={{ display: "flex", gap: 20 }}>
-						<Link href="/terms" style={{ color: "inherit", textDecoration: "none" }}>
+						<Link
+							href="/terms"
+							style={{ color: "inherit", textDecoration: "none" }}
+						>
 							Terms
 						</Link>
-						<Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>
+						<Link
+							href="/privacy"
+							style={{ color: "inherit", textDecoration: "none" }}
+						>
 							Privacy
 						</Link>
-						<Link href="/help" style={{ color: "inherit", textDecoration: "none" }}>
+						<Link
+							href="/help"
+							style={{ color: "inherit", textDecoration: "none" }}
+						>
 							Help
 						</Link>
 					</div>
@@ -2075,7 +2394,11 @@ function SignInModal({ onClose }: { onClose: () => void }) {
 						lineHeight: 1.6,
 					}}
 				>
-					You need an account to apply to <strong style={{ color: "var(--color-ink-1)" }}>{CAMPAIGN.brand}</strong>&apos;s campaign. It only takes a few seconds.
+					You need an account to apply to{" "}
+					<strong style={{ color: "var(--color-ink-1)" }}>
+						{CAMPAIGN.brand}
+					</strong>
+					&apos;s campaign. It only takes a few seconds.
 				</p>
 
 				<button
@@ -2102,23 +2425,50 @@ function SignInModal({ onClose }: { onClose: () => void }) {
 						marginBottom: 12,
 						transition: "background 0.15s",
 					}}
-					onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
-					onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+					onMouseEnter={(e) =>
+						(e.currentTarget.style.background = "rgba(255,255,255,0.08)")
+					}
+					onMouseLeave={(e) =>
+						(e.currentTarget.style.background = "rgba(255,255,255,0.04)")
+					}
 				>
 					<svg width="18" height="18" viewBox="0 0 18 18">
-						<path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-						<path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-						<path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-						<path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 2.58 9 2.58z" fill="#EA4335"/>
+						<path
+							d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+							fill="#4285F4"
+						/>
+						<path
+							d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"
+							fill="#34A853"
+						/>
+						<path
+							d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+							fill="#FBBC05"
+						/>
+						<path
+							d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 2.58 9 2.58z"
+							fill="#EA4335"
+						/>
 					</svg>
 					Continue with Google
 				</button>
 
-				<p style={{ fontSize: 12.5, color: "var(--color-ink-2)", margin: "16px 0 0", lineHeight: 1.5 }}>
+				<p
+					style={{
+						fontSize: 12.5,
+						color: "var(--color-ink-2)",
+						margin: "16px 0 0",
+						lineHeight: 1.5,
+					}}
+				>
 					Don&apos;t have an account?{" "}
 					<Link
 						href="/login?mode=signup&role=creator"
-						style={{ color: "var(--color-accent-strong)", textDecoration: "none", fontWeight: 500 }}
+						style={{
+							color: "var(--color-accent-strong)",
+							textDecoration: "none",
+							fontWeight: 500,
+						}}
 					>
 						Sign up now
 					</Link>
@@ -2164,17 +2514,28 @@ function BrandBlockedModal({ onClose }: { onClose: () => void }) {
 					textAlign: "center",
 				}}
 			>
-				<div style={{
-					width: 56,
-					height: 56,
-					borderRadius: "50%",
-					background: "rgba(251,146,60,0.12)",
-					border: "1px solid rgba(251,146,60,0.25)",
-					display: "grid",
-					placeItems: "center",
-					margin: "0 auto 20px",
-				}}>
-					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fb923c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+				<div
+					style={{
+						width: 56,
+						height: 56,
+						borderRadius: "50%",
+						background: "rgba(251,146,60,0.12)",
+						border: "1px solid rgba(251,146,60,0.25)",
+						display: "grid",
+						placeItems: "center",
+						margin: "0 auto 20px",
+					}}
+				>
+					<svg
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="#fb923c"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
 						<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
 						<line x1="12" y1="9" x2="12" y2="13" />
 						<line x1="12" y1="17" x2="12.01" y2="17" />
@@ -2184,8 +2545,16 @@ function BrandBlockedModal({ onClose }: { onClose: () => void }) {
 				<h3 style={{ fontSize: 18, fontWeight: 600, margin: "0 0 8px" }}>
 					You&apos;re signed in as a Brand
 				</h3>
-				<p style={{ fontSize: 13.5, color: "var(--color-ink-2)", lineHeight: 1.6, margin: "0 0 24px" }}>
-					Brand accounts can&apos;t apply to campaigns. To apply as a creator, sign up with a different email as a creator account.
+				<p
+					style={{
+						fontSize: 13.5,
+						color: "var(--color-ink-2)",
+						lineHeight: 1.6,
+						margin: "0 0 24px",
+					}}
+				>
+					Brand accounts can&apos;t apply to campaigns. To apply as a creator,
+					sign up with a different email as a creator account.
 				</p>
 
 				<div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
@@ -2228,7 +2597,15 @@ function BrandBlockedModal({ onClose }: { onClose: () => void }) {
 }
 
 // ─── ApplyModal ─────────────────────────────────────────────────────────────
-function ApplyModal({ onClose, session }: { onClose: () => void; session: { user: { id: string; name: string; email: string; image?: string | null } } }) {
+function ApplyModal({
+	onClose,
+	session,
+}: {
+	onClose: () => void;
+	session: {
+		user: { id: string; name: string; email: string; image?: string | null };
+	};
+}) {
 	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 	const [step, setStep] = useState(0);
@@ -2372,8 +2749,16 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 						>
 							Application sent!
 						</h3>
-						<p style={{ fontSize: 13.5, color: "var(--color-ink-2)", margin: "0 0 20px", lineHeight: 1.6 }}>
-							You&apos;re #{CAMPAIGN.creatorsJoined + 1} in the queue. Avg. review time is {CAMPAIGN.brandResponseTime}.
+						<p
+							style={{
+								fontSize: 13.5,
+								color: "var(--color-ink-2)",
+								margin: "0 0 20px",
+								lineHeight: 1.6,
+							}}
+						>
+							You&apos;re #{CAMPAIGN.creatorsJoined + 1} in the queue. Avg.
+							review time is {CAMPAIGN.brandResponseTime}.
 						</p>
 						<div
 							style={{
@@ -2392,10 +2777,24 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 									textAlign: "center",
 								}}
 							>
-								<div style={{ fontSize: 10, color: "var(--color-ink-3)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 2 }}>
+								<div
+									style={{
+										fontSize: 10,
+										color: "var(--color-ink-3)",
+										textTransform: "uppercase",
+										letterSpacing: "0.04em",
+										marginBottom: 2,
+									}}
+								>
 									Platform
 								</div>
-								<div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-ink-0)" }}>
+								<div
+									style={{
+										fontSize: 12.5,
+										fontWeight: 600,
+										color: "var(--color-ink-0)",
+									}}
+								>
 									{PLATFORM_OPTS[selectedPlatform].name}
 								</div>
 							</div>
@@ -2408,11 +2807,26 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 									textAlign: "center",
 								}}
 							>
-								<div style={{ fontSize: 10, color: "var(--color-ink-3)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 2 }}>
+								<div
+									style={{
+										fontSize: 10,
+										color: "var(--color-ink-3)",
+										textTransform: "uppercase",
+										letterSpacing: "0.04em",
+										marginBottom: 2,
+									}}
+								>
 									CPM rate
 								</div>
-								<div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-ink-0)" }}>
-									{CAMPAIGN.currency}{CAMPAIGN.rate}/{CAMPAIGN.perViews}
+								<div
+									style={{
+										fontSize: 12.5,
+										fontWeight: 600,
+										color: "var(--color-ink-0)",
+									}}
+								>
+									{CAMPAIGN.currency}
+									{CAMPAIGN.rate}/{CAMPAIGN.perViews}
 								</div>
 							</div>
 							<div
@@ -2424,15 +2838,35 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 									textAlign: "center",
 								}}
 							>
-								<div style={{ fontSize: 10, color: "var(--color-ink-3)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 2 }}>
+								<div
+									style={{
+										fontSize: 10,
+										color: "var(--color-ink-3)",
+										textTransform: "uppercase",
+										letterSpacing: "0.04em",
+										marginBottom: 2,
+									}}
+								>
 									Deadline
 								</div>
-								<div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--color-ink-0)" }}>
+								<div
+									style={{
+										fontSize: 12.5,
+										fontWeight: 600,
+										color: "var(--color-ink-0)",
+									}}
+								>
 									{CAMPAIGN.deadline}
 								</div>
 							</div>
 						</div>
-						<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+						<div
+							style={{
+								display: "grid",
+								gridTemplateColumns: "1fr 1fr",
+								gap: 10,
+							}}
+						>
 							<button
 								onClick={onClose}
 								style={{
@@ -2473,7 +2907,15 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 					<>
 						{/* Header */}
 						<div style={{ marginBottom: 24 }}>
-							<div style={{ fontSize: 11, color: "var(--color-ink-3)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+							<div
+								style={{
+									fontSize: 11,
+									color: "var(--color-ink-3)",
+									marginBottom: 4,
+									textTransform: "uppercase",
+									letterSpacing: "0.06em",
+								}}
+							>
 								Step {step + 1} of 3
 							</div>
 							<h3
@@ -2497,7 +2939,12 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 							<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
 								{PLATFORM_OPTS.map((p, i) => {
 									const selected = selectedPlatform === i;
-									const Icon = p.name === "Instagram" ? IGIcon : p.name === "YouTube" ? YTIcon : TTIcon;
+									const Icon =
+										p.name === "Instagram"
+											? IGIcon
+											: p.name === "YouTube"
+												? YTIcon
+												: TTIcon;
 									return (
 										<button
 											key={p.name}
@@ -2509,7 +2956,9 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 												padding: "14px 16px",
 												borderRadius: 10,
 												border: `1.5px solid ${selected ? accent.chip : "var(--color-line)"}`,
-												background: selected ? accent.from : "var(--color-glass)",
+												background: selected
+													? accent.from
+													: "var(--color-glass)",
 												cursor: "pointer",
 												textAlign: "left",
 												transition: "all 0.15s",
@@ -2530,10 +2979,21 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 												<Icon />
 											</div>
 											<div style={{ flex: 1 }}>
-												<div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--color-ink-0)" }}>
+												<div
+													style={{
+														fontSize: 13.5,
+														fontWeight: 600,
+														color: "var(--color-ink-0)",
+													}}
+												>
 													{p.name}
 												</div>
-												<div style={{ fontSize: 11.5, color: "var(--color-ink-2)" }}>
+												<div
+													style={{
+														fontSize: 11.5,
+														color: "var(--color-ink-2)",
+													}}
+												>
 													{p.handle} &middot; {p.followers}
 												</div>
 											</div>
@@ -2550,7 +3010,9 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 												}}
 											>
 												{selected && (
-													<CheckIcon style={{ width: 10, height: 10, color: "#0a0a0c" }} />
+													<CheckIcon
+														style={{ width: 10, height: 10, color: "#0a0a0c" }}
+													/>
 												)}
 											</div>
 										</button>
@@ -2561,10 +3023,22 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 
 						{/* Step 1: Pitch */}
 						{step === 1 && (
-							<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+							<div
+								style={{ display: "flex", flexDirection: "column", gap: 14 }}
+							>
 								<div>
-									<label style={{ fontSize: 12.5, color: "var(--color-ink-1)", display: "block", marginBottom: 6 }}>
-										Your pitch <span style={{ color: "var(--color-ink-3)" }}>(min 20 characters)</span>
+									<label
+										style={{
+											fontSize: 12.5,
+											color: "var(--color-ink-1)",
+											display: "block",
+											marginBottom: 6,
+										}}
+									>
+										Your pitch{" "}
+										<span style={{ color: "var(--color-ink-3)" }}>
+											(min 20 characters)
+										</span>
 									</label>
 									<textarea
 										value={pitch}
@@ -2588,7 +3062,8 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 									<div
 										style={{
 											fontSize: 11,
-											color: pitch.length >= 20 ? accent.chip : "var(--color-ink-3)",
+											color:
+												pitch.length >= 20 ? accent.chip : "var(--color-ink-3)",
 											marginTop: 4,
 											textAlign: "right",
 										}}
@@ -2597,8 +3072,18 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 									</div>
 								</div>
 								<div>
-									<label style={{ fontSize: 12.5, color: "var(--color-ink-1)", display: "block", marginBottom: 6 }}>
-										Example post URL <span style={{ color: "var(--color-ink-3)" }}>(optional)</span>
+									<label
+										style={{
+											fontSize: 12.5,
+											color: "var(--color-ink-1)",
+											display: "block",
+											marginBottom: 6,
+										}}
+									>
+										Example post URL{" "}
+										<span style={{ color: "var(--color-ink-3)" }}>
+											(optional)
+										</span>
 									</label>
 									<input
 										type="url"
@@ -2623,7 +3108,9 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 
 						{/* Step 2: Confirm */}
 						{step === 2 && (
-							<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+							<div
+								style={{ display: "flex", flexDirection: "column", gap: 12 }}
+							>
 								<label
 									style={{
 										display: "flex",
@@ -2632,7 +3119,9 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 										padding: "12px 14px",
 										borderRadius: 10,
 										border: `1px solid ${checkGuidelines ? accent.chip + "44" : "var(--color-line)"}`,
-										background: checkGuidelines ? accent.from : "var(--color-glass)",
+										background: checkGuidelines
+											? accent.from
+											: "var(--color-glass)",
 										cursor: "pointer",
 										fontSize: 13,
 										lineHeight: 1.5,
@@ -2661,10 +3150,13 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 										}}
 									>
 										{checkGuidelines && (
-											<CheckIcon style={{ width: 11, height: 11, color: "#0a0a0c" }} />
+											<CheckIcon
+												style={{ width: 11, height: 11, color: "#0a0a0c" }}
+											/>
 										)}
 									</div>
-									I&apos;ve read the campaign guidelines and will include #ad and #lumenpro2 in my post.
+									I&apos;ve read the campaign guidelines and will include #ad
+									and #lumenpro2 in my post.
 								</label>
 								<label
 									style={{
@@ -2674,7 +3166,9 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 										padding: "12px 14px",
 										borderRadius: 10,
 										border: `1px solid ${checkDeadline ? accent.chip + "44" : "var(--color-line)"}`,
-										background: checkDeadline ? accent.from : "var(--color-glass)",
+										background: checkDeadline
+											? accent.from
+											: "var(--color-glass)",
 										cursor: "pointer",
 										fontSize: 13,
 										lineHeight: 1.5,
@@ -2703,10 +3197,13 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 										}}
 									>
 										{checkDeadline && (
-											<CheckIcon style={{ width: 11, height: 11, color: "#0a0a0c" }} />
+											<CheckIcon
+												style={{ width: 11, height: 11, color: "#0a0a0c" }}
+											/>
 										)}
 									</div>
-									I understand the deadline is {CAMPAIGN.deadline} and the post must stay live for 30 days.
+									I understand the deadline is {CAMPAIGN.deadline} and the post
+									must stay live for 30 days.
 								</label>
 							</div>
 						)}
@@ -2754,7 +3251,14 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 						</div>
 
 						{/* Step dots */}
-						<div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 16 }}>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "center",
+								gap: 6,
+								marginTop: 16,
+							}}
+						>
 							{[0, 1, 2].map((s) => (
 								<div
 									key={s}
@@ -2762,7 +3266,8 @@ function ApplyModal({ onClose, session }: { onClose: () => void; session: { user
 										width: s === step ? 20 : 6,
 										height: 6,
 										borderRadius: 3,
-										background: s === step ? accent.chip : "rgba(255,255,255,0.1)",
+										background:
+											s === step ? accent.chip : "rgba(255,255,255,0.1)",
 										transition: "all 0.2s",
 									}}
 								/>
@@ -2789,7 +3294,9 @@ export default function CampaignDetailPage() {
 	);
 
 	const [activeTab, setActiveTab] = useState(0);
-	const [showModal, setShowModal] = useState<"apply" | "signin" | "brand-blocked" | null>(null);
+	const [showModal, setShowModal] = useState<
+		"apply" | "signin" | "brand-blocked" | null
+	>(null);
 
 	function handleApplyClick() {
 		if (session?.user) {
@@ -2851,16 +3358,25 @@ export default function CampaignDetailPage() {
 
 				<Footer />
 
-				{showModal === "signin" && <SignInModal onClose={() => setShowModal(null)} />}
-			{showModal === "apply" && session?.user && (
-				<ApplyModal
-					onClose={() => setShowModal(null)}
-					session={{ user: { id: session.user.id, name: session.user.name ?? "", email: session.user.email ?? "", image: session.user.image } }}
-				/>
-			)}
-			{showModal === "brand-blocked" && (
-				<BrandBlockedModal onClose={() => setShowModal(null)} />
-			)}
+				{showModal === "signin" && (
+					<SignInModal onClose={() => setShowModal(null)} />
+				)}
+				{showModal === "apply" && session?.user && (
+					<ApplyModal
+						onClose={() => setShowModal(null)}
+						session={{
+							user: {
+								id: session.user.id,
+								name: session.user.name ?? "",
+								email: session.user.email ?? "",
+								image: session.user.image,
+							},
+						}}
+					/>
+				)}
+				{showModal === "brand-blocked" && (
+					<BrandBlockedModal onClose={() => setShowModal(null)} />
+				)}
 			</div>
 		</CampaignContext.Provider>
 	);

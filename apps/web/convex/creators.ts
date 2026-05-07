@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 export const list = query({
 	args: {},
@@ -65,9 +65,22 @@ export const onboard = mutation({
 			avatarColor: colors,
 			location: args.city,
 			bio: `${args.niches.slice(0, 2).join(" & ")} creator`,
-			longBio: [`${args.niches.join(", ")} content creator based in ${args.city}.`],
+			longBio: [
+				`${args.niches.join(", ")} content creator based in ${args.city}.`,
+			],
 			primaryPlatform,
-			platforms: platforms.length > 0 ? platforms : [{ name: "Instagram", handle: `@${args.handle}`, followers: "0", growth: "+0%", primary: true }],
+			platforms:
+				platforms.length > 0
+					? platforms
+					: [
+							{
+								name: "Instagram",
+								handle: `@${args.handle}`,
+								followers: "0",
+								growth: "+0%",
+								primary: true,
+							},
+						],
 			followers: 0,
 			monthlyViews: 0,
 			engagement: 0,
@@ -90,7 +103,11 @@ export const onboard = mutation({
 			audience: {
 				genderF: 50,
 				genderM: 50,
-				ageBuckets: [{ label: "18-24", pct: 40 }, { label: "25-34", pct: 35 }, { label: "35+", pct: 25 }],
+				ageBuckets: [
+					{ label: "18-24", pct: 40 },
+					{ label: "25-34", pct: 35 },
+					{ label: "35+", pct: 25 },
+				],
 				topGeo: [{ city: args.city || "India", pct: 60 }],
 				interests: args.niches,
 			},
@@ -116,7 +133,7 @@ export const create = mutation({
 				followers: v.string(),
 				growth: v.string(),
 				primary: v.boolean(),
-			})
+			}),
 		),
 		followers: v.number(),
 		monthlyViews: v.number(),
@@ -140,12 +157,8 @@ export const create = mutation({
 		audience: v.object({
 			genderF: v.number(),
 			genderM: v.number(),
-			ageBuckets: v.array(
-				v.object({ label: v.string(), pct: v.number() })
-			),
-			topGeo: v.array(
-				v.object({ city: v.string(), pct: v.number() })
-			),
+			ageBuckets: v.array(v.object({ label: v.string(), pct: v.number() })),
+			topGeo: v.array(v.object({ city: v.string(), pct: v.number() })),
 			interests: v.array(v.string()),
 		}),
 		rates: v.array(
@@ -154,7 +167,7 @@ export const create = mutation({
 				ig: v.string(),
 				yt: v.string(),
 				tt: v.string(),
-			})
+			}),
 		),
 	},
 	handler: async (ctx, args) => {
@@ -181,8 +194,8 @@ export const update = mutation({
 					followers: v.string(),
 					growth: v.string(),
 					primary: v.boolean(),
-				})
-			)
+				}),
+			),
 		),
 		followers: v.optional(v.number()),
 		monthlyViews: v.optional(v.number()),
@@ -207,14 +220,10 @@ export const update = mutation({
 			v.object({
 				genderF: v.number(),
 				genderM: v.number(),
-				ageBuckets: v.array(
-					v.object({ label: v.string(), pct: v.number() })
-				),
-				topGeo: v.array(
-					v.object({ city: v.string(), pct: v.number() })
-				),
+				ageBuckets: v.array(v.object({ label: v.string(), pct: v.number() })),
+				topGeo: v.array(v.object({ city: v.string(), pct: v.number() })),
 				interests: v.array(v.string()),
-			})
+			}),
 		),
 		rates: v.optional(
 			v.array(
@@ -223,8 +232,8 @@ export const update = mutation({
 					ig: v.string(),
 					yt: v.string(),
 					tt: v.string(),
-				})
-			)
+				}),
+			),
 		),
 	},
 	handler: async (ctx, args) => {

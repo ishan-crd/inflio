@@ -1,5 +1,5 @@
-import * as Clipboard from "expo-clipboard";
 import { useMutation, useQuery } from "convex/react";
+import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
 import {
@@ -450,7 +450,7 @@ function CreatorStep1({
 					placeholder="yourhandle"
 					placeholderTextColor="#6B7280"
 					value={data.handle}
-					onChangeText={(v) => onChange({ handle: v })}
+					onChangeText={(v) => onChange({ handle: v.replace(/\s/g, "") })}
 					autoCapitalize="none"
 				/>
 			</View>
@@ -538,7 +538,10 @@ function CreatorStep3({
 	userId: string;
 }) {
 	const createVerification = useMutation(api.verifications.create);
-	const verifications = useQuery(api.verifications.getByUserId, userId ? { userId } : "skip");
+	const verifications = useQuery(
+		api.verifications.getByUserId,
+		userId ? { userId } : "skip",
+	);
 	const [verifyModal, setVerifyModal] = useState<{
 		platform: string;
 		label: string;
@@ -547,8 +550,11 @@ function CreatorStep3({
 	const [copied, setCopied] = useState(false);
 	const [loading, setLoading] = useState<string | null>(null);
 
-	function getVerificationStatus(platformId: string): "none" | "pending" | "verified" {
-		if (!verifications) return data.connected.includes(platformId) ? "pending" : "none";
+	function getVerificationStatus(
+		platformId: string,
+	): "none" | "pending" | "verified" {
+		if (!verifications)
+			return data.connected.includes(platformId) ? "pending" : "none";
 		const record = verifications.find((v) => v.platform === platformId);
 		if (!record) return "none";
 		return record.status as "pending" | "verified";
@@ -638,7 +644,11 @@ function CreatorStep3({
 											isVerified && styles.connectedBtnText,
 										]}
 									>
-										{isVerified ? "Connected" : isPending ? "Pending" : "Connect"}
+										{isVerified
+											? "Connected"
+											: isPending
+												? "Pending"
+												: "Connect"}
 									</Text>
 								)}
 							</Pressable>
@@ -656,9 +666,7 @@ function CreatorStep3({
 			>
 				<View style={styles.modalOverlay}>
 					<View style={styles.modalCard}>
-						<Text style={styles.modalTitle}>
-							Verify {verifyModal?.label}
-						</Text>
+						<Text style={styles.modalTitle}>Verify {verifyModal?.label}</Text>
 						<Text style={styles.modalDesc}>
 							Send this code to{" "}
 							<Text style={styles.modalHighlight}>@getinflio</Text> on Instagram
@@ -677,7 +685,7 @@ function CreatorStep3({
 								"Copy the code above",
 								"Open Instagram and DM @getinflio",
 								"Send the code as a message",
-								"Come back and tap \"I've sent it\"",
+								'Come back and tap "I\'ve sent it"',
 							].map((s, i) => (
 								<View key={i} style={styles.verifyStepRow}>
 									<View style={styles.verifyStepDot}>
@@ -689,9 +697,7 @@ function CreatorStep3({
 						</View>
 
 						<Pressable
-							onPress={() =>
-								Linking.openURL("https://instagram.com/getinflio")
-							}
+							onPress={() => Linking.openURL("https://instagram.com/getinflio")}
 							style={styles.openIgBtn}
 						>
 							<Text style={styles.openIgBtnText}>Open Instagram</Text>
@@ -1134,7 +1140,13 @@ export default function OnboardingScreen() {
 			if (step === 2)
 				return <CreatorStep2 data={creatorData} onChange={onChange} />;
 			if (step === 3)
-				return <CreatorStep3 data={creatorData} onChange={onChange} userId={user?.id || ""} />;
+				return (
+					<CreatorStep3
+						data={creatorData}
+						onChange={onChange}
+						userId={user?.id || ""}
+					/>
+				);
 			if (step === 4)
 				return <CreatorStep4 data={creatorData} onChange={onChange} />;
 		} else if (role === "brand") {

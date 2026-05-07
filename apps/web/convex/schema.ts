@@ -65,7 +65,7 @@ export default defineSchema({
 				followers: v.string(),
 				growth: v.string(),
 				primary: v.boolean(),
-			})
+			}),
 		),
 		followers: v.number(),
 		monthlyViews: v.number(),
@@ -89,12 +89,8 @@ export default defineSchema({
 		audience: v.object({
 			genderF: v.number(),
 			genderM: v.number(),
-			ageBuckets: v.array(
-				v.object({ label: v.string(), pct: v.number() })
-			),
-			topGeo: v.array(
-				v.object({ city: v.string(), pct: v.number() })
-			),
+			ageBuckets: v.array(v.object({ label: v.string(), pct: v.number() })),
+			topGeo: v.array(v.object({ city: v.string(), pct: v.number() })),
 			interests: v.array(v.string()),
 		}),
 		rates: v.array(
@@ -103,7 +99,7 @@ export default defineSchema({
 				ig: v.string(),
 				yt: v.string(),
 				tt: v.string(),
-			})
+			}),
 		),
 	})
 		.index("by_handle", ["handle"])
@@ -118,8 +114,7 @@ export default defineSchema({
 		color: v.string(),
 		creatorIds: v.array(v.number()), // static creator IDs for now
 		createdAt: v.string(),
-	})
-		.index("by_userId", ["userId"]),
+	}).index("by_userId", ["userId"]),
 
 	submissions: defineTable({
 		userId: v.string(),

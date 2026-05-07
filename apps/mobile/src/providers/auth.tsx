@@ -325,7 +325,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			verifyOtp,
 			signOut,
 		}),
-		[user, loading, signIn, signUp, signInWithGoogle, sendOtp, verifyOtp, signOut],
+		[
+			user,
+			loading,
+			signIn,
+			signUp,
+			signInWithGoogle,
+			sendOtp,
+			verifyOtp,
+			signOut,
+		],
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

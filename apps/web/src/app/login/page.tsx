@@ -195,9 +195,7 @@ function AuthPanel() {
 	function handleGoogle() {
 		signIn.social({
 			provider: "google",
-			callbackURL: isSignup
-				? `/auth/callback?role=${role}`
-				: "/auth/callback",
+			callbackURL: isSignup ? `/auth/callback?role=${role}` : "/auth/callback",
 		});
 	}
 
@@ -221,9 +219,14 @@ function AuthPanel() {
 						result.error.message?.toLowerCase().includes("exists") ||
 						result.error.code === "USER_ALREADY_EXISTS"
 					) {
-						setError("An account with this email already exists. Please sign in instead.");
+						setError(
+							"An account with this email already exists. Please sign in instead.",
+						);
 					} else {
-						setError(result.error.message || "Failed to create account. Please try again.");
+						setError(
+							result.error.message ||
+								"Failed to create account. Please try again.",
+						);
 					}
 					setLoading(false);
 					return;
@@ -247,7 +250,9 @@ function AuthPanel() {
 					) {
 						setError("Invalid email or password. Please try again.");
 					} else {
-						setError(result.error.message || "Failed to sign in. Please try again.");
+						setError(
+							result.error.message || "Failed to sign in. Please try again.",
+						);
 					}
 					setLoading(false);
 					return;
@@ -453,9 +458,7 @@ function AuthPanel() {
 					{/* Submit */}
 					<button type="submit" className="btn-submit" disabled={loading}>
 						{loading ? (
-							<>
-								{isSignup ? "Creating account..." : "Signing in..."}
-							</>
+							<>{isSignup ? "Creating account..." : "Signing in..."}</>
 						) : isSignup ? (
 							<>
 								Create account

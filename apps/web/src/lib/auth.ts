@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
-import { Pool } from "pg";
 import { emailOTP } from "better-auth/plugins";
+import { Pool } from "pg";
 
 export const auth = betterAuth({
 	baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",

@@ -1,5 +1,5 @@
-import { Image } from "expo-image";
 import { useQuery } from "convex/react";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -157,7 +157,9 @@ export default function ProfileScreen() {
 				<View style={styles.profileHeader}>
 					<View style={styles.avatar} />
 					<View>
-						<Text style={styles.handle}>@{creatorProfile?.handle || "inflio"}</Text>
+						<Text style={styles.handle}>
+							@{creatorProfile?.handle || "inflio"}
+						</Text>
 						<Text style={styles.role}>UGC Creator</Text>
 					</View>
 				</View>

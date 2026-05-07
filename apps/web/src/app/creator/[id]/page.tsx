@@ -1,26 +1,32 @@
 "use client";
 
+import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { useState, useEffect, createContext, useContext, type SVGProps } from "react";
 import { useParams } from "next/navigation";
-import { CREATORS, fmtFollowers, fmtViews } from "@/data/creators";
-import { Nav as SharedNav } from "@/components/nav";
+import {
+	createContext,
+	type SVGProps,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
 import {
 	ArrowIcon,
 	BackIcon,
-	CheckIcon,
-	CheckBigIcon,
-	VerifiedIcon,
-	TrendIcon,
 	BellIcon,
-	PlusIcon,
+	CheckBigIcon,
+	CheckIcon,
 	IGIcon,
-	YTIcon,
-	TTIcon,
 	PlatformIcon,
+	PlusIcon,
+	TrendIcon,
+	TTIcon,
+	VerifiedIcon,
+	YTIcon,
 } from "@/components/icons";
+import { Nav as SharedNav } from "@/components/nav";
+import { CREATORS, fmtFollowers, fmtViews } from "@/data/creators";
 import { useSession } from "@/lib/auth-client";
-import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
 /* ─── Local icons ──────────────────────────────────────────────────────────── */
@@ -85,13 +91,7 @@ function FlagIcon(p: P) {
 
 function PlayIcon(p: P) {
 	return (
-		<svg
-			width="14"
-			height="14"
-			viewBox="0 0 14 14"
-			fill="currentColor"
-			{...p}
-		>
+		<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" {...p}>
 			<path d="M4 2.5l7.5 4.5L4 11.5V2.5z" />
 		</svg>
 	);
@@ -315,7 +315,13 @@ type CreatorData = {
 		interests: string[];
 	};
 	rates: { kind: string; ig: string; yt: string; tt: string }[];
-	platforms: { name: string; handle: string; followers: string; growth: string; primary: boolean }[];
+	platforms: {
+		name: string;
+		handle: string;
+		followers: string;
+		growth: string;
+		primary: boolean;
+	}[];
 };
 
 const CreatorCtx = createContext<CreatorData>(null as any);
@@ -341,7 +347,13 @@ interface CreatorDetail {
 		interests: string[];
 	};
 	rates: { kind: string; ig: string; yt: string; tt: string }[];
-	platformsDetailed: { name: string; handle: string; followers: string; growth: string; primary: boolean }[];
+	platformsDetailed: {
+		name: string;
+		handle: string;
+		followers: string;
+		growth: string;
+		primary: boolean;
+	}[];
 }
 
 const CREATOR_DETAILS: Record<number, CreatorDetail> = {
@@ -387,9 +399,27 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹280/1k", yt: "₹420/1k", tt: "₹160/1k" },
 		],
 		platformsDetailed: [
-			{ name: "Instagram", handle: "@aanya.shoots", followers: "412K", growth: "+4.2%", primary: true },
-			{ name: "YouTube", handle: "Aanya Verma", followers: "82K", growth: "+1.8%", primary: false },
-			{ name: "TikTok", handle: "@aanya.shoots", followers: "146K", growth: "+11.4%", primary: false },
+			{
+				name: "Instagram",
+				handle: "@aanya.shoots",
+				followers: "412K",
+				growth: "+4.2%",
+				primary: true,
+			},
+			{
+				name: "YouTube",
+				handle: "Aanya Verma",
+				followers: "82K",
+				growth: "+1.8%",
+				primary: false,
+			},
+			{
+				name: "TikTok",
+				handle: "@aanya.shoots",
+				followers: "146K",
+				growth: "+11.4%",
+				primary: false,
+			},
 		],
 	},
 	2: {
@@ -434,8 +464,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹320/1k", yt: "₹480/1k", tt: "—" },
 		],
 		platformsDetailed: [
-			{ name: "YouTube", handle: "Rohan Sethi", followers: "1.2M", growth: "+2.1%", primary: true },
-			{ name: "Instagram", handle: "@rohansetsbeats", followers: "180K", growth: "+3.4%", primary: false },
+			{
+				name: "YouTube",
+				handle: "Rohan Sethi",
+				followers: "1.2M",
+				growth: "+2.1%",
+				primary: true,
+			},
+			{
+				name: "Instagram",
+				handle: "@rohansetsbeats",
+				followers: "180K",
+				growth: "+3.4%",
+				primary: false,
+			},
 		],
 	},
 	3: {
@@ -470,7 +512,13 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 				{ city: "Other IN", pct: 28 },
 				{ city: "Outside IN", pct: 10 },
 			],
-			interests: ["Cooking", "Food", "Wellness", "Home", "South Indian culture"],
+			interests: [
+				"Cooking",
+				"Food",
+				"Wellness",
+				"Home",
+				"South Indian culture",
+			],
 		},
 		rates: [
 			{ kind: "Reel · 30–60s", ig: "₹32k", yt: "—", tt: "₹18k" },
@@ -480,8 +528,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹220/1k", yt: "—", tt: "₹140/1k" },
 		],
 		platformsDetailed: [
-			{ name: "Instagram", handle: "@tarainthekitchen", followers: "286K", growth: "+5.8%", primary: true },
-			{ name: "TikTok", handle: "@tarainthekitchen", followers: "94K", growth: "+9.2%", primary: false },
+			{
+				name: "Instagram",
+				handle: "@tarainthekitchen",
+				followers: "286K",
+				growth: "+5.8%",
+				primary: true,
+			},
+			{
+				name: "TikTok",
+				handle: "@tarainthekitchen",
+				followers: "94K",
+				growth: "+9.2%",
+				primary: false,
+			},
 		],
 	},
 	4: {
@@ -526,8 +586,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹280/1k", yt: "₹360/1k", tt: "—" },
 		],
 		platformsDetailed: [
-			{ name: "YouTube", handle: "Kabir Joshi", followers: "640K", growth: "+3.6%", primary: true },
-			{ name: "Instagram", handle: "@kabirrides", followers: "210K", growth: "+4.8%", primary: false },
+			{
+				name: "YouTube",
+				handle: "Kabir Joshi",
+				followers: "640K",
+				growth: "+3.6%",
+				primary: true,
+			},
+			{
+				name: "Instagram",
+				handle: "@kabirrides",
+				followers: "210K",
+				growth: "+4.8%",
+				primary: false,
+			},
 		],
 	},
 	5: {
@@ -562,7 +634,13 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 				{ city: "Other IN", pct: 28 },
 				{ city: "Outside IN", pct: 10 },
 			],
-			interests: ["Fitness", "Strength training", "Nutrition", "Wellness", "Sports science"],
+			interests: [
+				"Fitness",
+				"Strength training",
+				"Nutrition",
+				"Wellness",
+				"Sports science",
+			],
 		},
 		rates: [
 			{ kind: "Reel · 30–60s", ig: "₹18k", yt: "—", tt: "—" },
@@ -572,8 +650,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹140/1k", yt: "₹200/1k", tt: "—" },
 		],
 		platformsDetailed: [
-			{ name: "Instagram", handle: "@ishaan.lifts", followers: "94K", growth: "+8.2%", primary: true },
-			{ name: "YouTube", handle: "Ishaan Kapoor", followers: "22K", growth: "+5.4%", primary: false },
+			{
+				name: "Instagram",
+				handle: "@ishaan.lifts",
+				followers: "94K",
+				growth: "+8.2%",
+				primary: true,
+			},
+			{
+				name: "YouTube",
+				handle: "Ishaan Kapoor",
+				followers: "22K",
+				growth: "+5.4%",
+				primary: false,
+			},
 		],
 	},
 	6: {
@@ -608,7 +698,13 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 				{ city: "Other IN", pct: 26 },
 				{ city: "Outside IN", pct: 12 },
 			],
-			interests: ["Skincare", "Beauty", "Wellness", "Dermatology", "Clean beauty"],
+			interests: [
+				"Skincare",
+				"Beauty",
+				"Wellness",
+				"Dermatology",
+				"Clean beauty",
+			],
 		},
 		rates: [
 			{ kind: "Reel · 30–60s", ig: "₹42k", yt: "—", tt: "—" },
@@ -618,8 +714,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹320/1k", yt: "₹440/1k", tt: "—" },
 		],
 		platformsDetailed: [
-			{ name: "Instagram", handle: "@nainacleanskin", followers: "528K", growth: "+3.2%", primary: true },
-			{ name: "YouTube", handle: "Naina Bhatt", followers: "140K", growth: "+4.6%", primary: false },
+			{
+				name: "Instagram",
+				handle: "@nainacleanskin",
+				followers: "528K",
+				growth: "+3.2%",
+				primary: true,
+			},
+			{
+				name: "YouTube",
+				handle: "Naina Bhatt",
+				followers: "140K",
+				growth: "+4.6%",
+				primary: false,
+			},
 		],
 	},
 	7: {
@@ -664,8 +772,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹360/1k", yt: "₹540/1k", tt: "—" },
 		],
 		platformsDetailed: [
-			{ name: "YouTube", handle: "Devansh Mehra", followers: "318K", growth: "+6.8%", primary: true },
-			{ name: "Instagram", handle: "@devansh.codes", followers: "56K", growth: "+4.2%", primary: false },
+			{
+				name: "YouTube",
+				handle: "Devansh Mehra",
+				followers: "318K",
+				growth: "+6.8%",
+				primary: true,
+			},
+			{
+				name: "Instagram",
+				handle: "@devansh.codes",
+				followers: "56K",
+				growth: "+4.2%",
+				primary: false,
+			},
 		],
 	},
 	8: {
@@ -710,8 +830,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹420/1k", yt: "—", tt: "₹620/1k" },
 		],
 		platformsDetailed: [
-			{ name: "TikTok", handle: "@mehermoves", followers: "2.1M", growth: "+8.4%", primary: true },
-			{ name: "Instagram", handle: "@mehermoves", followers: "740K", growth: "+5.6%", primary: false },
+			{
+				name: "TikTok",
+				handle: "@mehermoves",
+				followers: "2.1M",
+				growth: "+8.4%",
+				primary: true,
+			},
+			{
+				name: "Instagram",
+				handle: "@mehermoves",
+				followers: "740K",
+				growth: "+5.6%",
+				primary: false,
+			},
 		],
 	},
 	9: {
@@ -746,7 +878,13 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 				{ city: "Other IN", pct: 30 },
 				{ city: "Outside IN", pct: 16 },
 			],
-			interests: ["Trekking", "Trail running", "Outdoor gear", "Mountains", "Photography"],
+			interests: [
+				"Trekking",
+				"Trail running",
+				"Outdoor gear",
+				"Mountains",
+				"Photography",
+			],
 		},
 		rates: [
 			{ kind: "Field-test vlog · 8–12m", ig: "—", yt: "₹58k", tt: "—" },
@@ -756,8 +894,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹180/1k", yt: "₹260/1k", tt: "—" },
 		],
 		platformsDetailed: [
-			{ name: "YouTube", handle: "Arjun Pillai", followers: "186K", growth: "+2.8%", primary: true },
-			{ name: "Instagram", handle: "@arjun.outsides", followers: "104K", growth: "+3.6%", primary: false },
+			{
+				name: "YouTube",
+				handle: "Arjun Pillai",
+				followers: "186K",
+				growth: "+2.8%",
+				primary: true,
+			},
+			{
+				name: "Instagram",
+				handle: "@arjun.outsides",
+				followers: "104K",
+				growth: "+3.6%",
+				primary: false,
+			},
 		],
 	},
 	10: {
@@ -768,7 +918,7 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 		],
 		timezone: "IST · GMT+5:30",
 		responseTime: "~4h",
-		rating: 4.90,
+		rating: 4.9,
 		ratingCount: 20,
 		available: true,
 		exclusive: false,
@@ -792,7 +942,13 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 				{ city: "Other IN", pct: 30 },
 				{ city: "Outside IN", pct: 12 },
 			],
-			interests: ["Books", "Literature", "Aesthetic", "Stationery", "Slow living"],
+			interests: [
+				"Books",
+				"Literature",
+				"Aesthetic",
+				"Stationery",
+				"Slow living",
+			],
 		},
 		rates: [
 			{ kind: "Reel · 30–60s", ig: "₹12k", yt: "—", tt: "—" },
@@ -802,8 +958,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹110/1k", yt: "₹160/1k", tt: "—" },
 		],
 		platformsDetailed: [
-			{ name: "Instagram", handle: "@sairareadsbooks", followers: "72K", growth: "+6.4%", primary: true },
-			{ name: "YouTube", handle: "Saira Reads", followers: "18K", growth: "+4.2%", primary: false },
+			{
+				name: "Instagram",
+				handle: "@sairareadsbooks",
+				followers: "72K",
+				growth: "+6.4%",
+				primary: true,
+			},
+			{
+				name: "YouTube",
+				handle: "Saira Reads",
+				followers: "18K",
+				growth: "+4.2%",
+				primary: false,
+			},
 		],
 	},
 	11: {
@@ -838,7 +1006,13 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 				{ city: "Other IN", pct: 22 },
 				{ city: "Outside IN", pct: 12 },
 			],
-			interests: ["Finance", "Investing", "Tax planning", "Startups", "Economics"],
+			interests: [
+				"Finance",
+				"Investing",
+				"Tax planning",
+				"Startups",
+				"Economics",
+			],
 		},
 		rates: [
 			{ kind: "Explainer · 8–12m", ig: "—", yt: "₹1.1L", tt: "—" },
@@ -848,8 +1022,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹340/1k", yt: "₹520/1k", tt: "—" },
 		],
 		platformsDetailed: [
-			{ name: "YouTube", handle: "Vivaan Rao", followers: "880K", growth: "+3.8%", primary: true },
-			{ name: "Instagram", handle: "@vivaaninvests", followers: "320K", growth: "+5.2%", primary: false },
+			{
+				name: "YouTube",
+				handle: "Vivaan Rao",
+				followers: "880K",
+				growth: "+3.8%",
+				primary: true,
+			},
+			{
+				name: "Instagram",
+				handle: "@vivaaninvests",
+				followers: "320K",
+				growth: "+5.2%",
+				primary: false,
+			},
 		],
 	},
 	12: {
@@ -894,8 +1080,20 @@ const CREATOR_DETAILS: Record<number, CreatorDetail> = {
 			{ kind: "CPM (organic)", ig: "₹200/1k", yt: "—", tt: "₹140/1k" },
 		],
 		platformsDetailed: [
-			{ name: "Instagram", handle: "@parithedaily", followers: "248K", growth: "+4.6%", primary: true },
-			{ name: "TikTok", handle: "@parithedaily", followers: "120K", growth: "+7.8%", primary: false },
+			{
+				name: "Instagram",
+				handle: "@parithedaily",
+				followers: "248K",
+				growth: "+4.6%",
+				primary: true,
+			},
+			{
+				name: "TikTok",
+				handle: "@parithedaily",
+				followers: "120K",
+				growth: "+7.8%",
+				primary: false,
+			},
 		],
 	},
 };
@@ -1013,7 +1211,6 @@ const REVIEWS = [
 		color: ["#fde68a", "#422006"] as [string, string],
 	},
 ];
-
 
 const CAMPAIGN_OPTS = [
 	{
@@ -2121,7 +2318,15 @@ function CrumbCr() {
 }
 
 /* ─── CreatorHero ──────────────────────────────────────────────────────────── */
-function CreatorHero({ onInvite, onAddToList, isInList }: { onInvite: () => void; onAddToList: () => void; isInList: boolean }) {
+function CreatorHero({
+	onInvite,
+	onAddToList,
+	isInList,
+}: {
+	onInvite: () => void;
+	onAddToList: () => void;
+	isInList: boolean;
+}) {
 	const CREATOR = useCreator();
 	const ac = ACCENT_MAP_C[CREATOR.color] ?? ACCENT_MAP_C.amber;
 
@@ -2223,15 +2428,11 @@ function CreatorHero({ onInvite, onAddToList, isInList }: { onInvite: () => void
 
 				<div style={S.statsGrid}>
 					<div style={S.statsCell}>
-						<div style={S.statsCellNum}>
-							{CREATOR.followersFmt}
-						</div>
+						<div style={S.statsCellNum}>{CREATOR.followersFmt}</div>
 						<div style={S.statsCellLabel}>Followers</div>
 					</div>
 					<div style={S.statsCell}>
-						<div style={S.statsCellNum}>
-							{CREATOR.monthlyViewsFmt}
-						</div>
+						<div style={S.statsCellNum}>{CREATOR.monthlyViewsFmt}</div>
 						<div style={S.statsCellLabel}>Monthly views</div>
 					</div>
 					<div style={S.statsCell}>
@@ -2242,9 +2443,7 @@ function CreatorHero({ onInvite, onAddToList, isInList }: { onInvite: () => void
 						<div style={S.statsCellLabel}>Engagement</div>
 					</div>
 					<div style={S.statsCell}>
-						<div style={S.statsCellNum}>
-							{CREATOR.rating}
-						</div>
+						<div style={S.statsCellNum}>{CREATOR.rating}</div>
 						<div style={S.starsRow}>
 							{Array.from({ length: 5 }).map((_, i) => (
 								<span
@@ -2276,7 +2475,11 @@ function CreatorHero({ onInvite, onAddToList, isInList }: { onInvite: () => void
 				<div style={S.ctaRow}>
 					<button
 						className="btn btn-primary"
-						style={{ width: "100%", justifyContent: "center", padding: "13px 20px" }}
+						style={{
+							width: "100%",
+							justifyContent: "center",
+							padding: "13px 20px",
+						}}
 						onClick={onInvite}
 					>
 						<ArrowIcon /> Invite to campaign
@@ -2293,7 +2496,15 @@ function CreatorHero({ onInvite, onAddToList, isInList }: { onInvite: () => void
 							style={{ flex: 1, justifyContent: "center" }}
 							onClick={onAddToList}
 						>
-							{isInList ? <><CheckIcon /> Added</> : <><PlusIcon /> Add to list</>}
+							{isInList ? (
+								<>
+									<CheckIcon /> Added
+								</>
+							) : (
+								<>
+									<PlusIcon /> Add to list
+								</>
+							)}
 						</button>
 					</div>
 					<p style={S.fineprint}>
@@ -2441,9 +2652,7 @@ function AudienceBlock() {
 								overflow: "hidden",
 							}}
 						>
-							<div
-								style={{ ...S.audBarFill, width: `${b.pct}%` }}
-							/>
+							<div style={{ ...S.audBarFill, width: `${b.pct}%` }} />
 						</div>
 						<span style={S.audBarPct}>{b.pct}%</span>
 					</div>
@@ -2465,9 +2674,7 @@ function AudienceBlock() {
 								overflow: "hidden",
 							}}
 						>
-							<div
-								style={{ ...S.audBarFill, width: `${g.pct * 2}%` }}
-							/>
+							<div style={{ ...S.audBarFill, width: `${g.pct * 2}%` }} />
 						</div>
 						<span style={S.audBarPct}>{g.pct}%</span>
 					</div>
@@ -2799,7 +3006,11 @@ type SimilarCreator = {
 	platform: string;
 };
 
-function SimilarCreators({ similarCreators }: { similarCreators: SimilarCreator[] }) {
+function SimilarCreators({
+	similarCreators,
+}: {
+	similarCreators: SimilarCreator[];
+}) {
 	const CREATOR = useCreator();
 	return (
 		<div style={S.similarSection}>
@@ -2872,7 +3083,7 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 
 	const toggleDeliv = (id: string) =>
 		setSelectedDelivs((prev) =>
-			prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]
+			prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id],
 		);
 
 	const campaignName =
@@ -3045,10 +3256,7 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 							<button className="btn btn-ghost" onClick={() => setStep(1)}>
 								<BackIcon /> Back
 							</button>
-							<button
-								className="btn btn-primary"
-								onClick={() => setStep(3)}
-							>
+							<button className="btn btn-primary" onClick={() => setStep(3)}>
 								Send invite <ArrowIcon />
 							</button>
 						</div>
@@ -3081,9 +3289,7 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 							.
 						</p>
 						<div style={S.successMeta}>
-							<span>
-								Deliverables: {selectedDelivs.length} selected
-							</span>
+							<span>Deliverables: {selectedDelivs.length} selected</span>
 							<span>Proposed rate: {rate}/1k</span>
 							{attachBrief && <span>Brief attached</span>}
 						</div>
@@ -3177,10 +3383,18 @@ function AddToListModal({
 		return (
 			<div style={S.overlay} onClick={onClose}>
 				<div style={S.modal} onClick={(e) => e.stopPropagation()}>
-					<button style={S.modalClose} onClick={onClose}><CloseIcon /></button>
+					<button style={S.modalClose} onClick={onClose}>
+						<CloseIcon />
+					</button>
 					<h3 style={S.modalH3}>Sign in required</h3>
-					<p style={S.modalSub}>Please sign in as a brand to create and manage lists.</p>
-					<Link href="/login" className="btn btn-primary" style={{ textDecoration: "none" }}>
+					<p style={S.modalSub}>
+						Please sign in as a brand to create and manage lists.
+					</p>
+					<Link
+						href="/login"
+						className="btn btn-primary"
+						style={{ textDecoration: "none" }}
+					>
 						Sign in
 					</Link>
 				</div>
@@ -3188,27 +3402,32 @@ function AddToListModal({
 		);
 	}
 
-	const selectedColor = LIST_COLORS.find((c) => c.name === newColor)?.hex ?? "#bef264";
+	const selectedColor =
+		LIST_COLORS.find((c) => c.name === newColor)?.hex ?? "#bef264";
 
 	return (
 		<div style={S.overlay} onClick={onClose}>
 			<div style={S.modal} onClick={(e) => e.stopPropagation()}>
-				<button style={S.modalClose} onClick={onClose}><CloseIcon /></button>
+				<button style={S.modalClose} onClick={onClose}>
+					<CloseIcon />
+				</button>
 
 				{/* ── Just added toast ── */}
 				{justAdded && (
-					<div style={{
-						padding: "10px 14px",
-						borderRadius: 10,
-						background: "rgba(190,242,100,0.08)",
-						border: "1px solid rgba(190,242,100,0.2)",
-						color: "var(--color-accent-strong)",
-						fontSize: 12.5,
-						marginBottom: 18,
-						display: "flex",
-						alignItems: "center",
-						gap: 8,
-					}}>
+					<div
+						style={{
+							padding: "10px 14px",
+							borderRadius: 10,
+							background: "rgba(190,242,100,0.08)",
+							border: "1px solid rgba(190,242,100,0.2)",
+							color: "var(--color-accent-strong)",
+							fontSize: 12.5,
+							marginBottom: 18,
+							display: "flex",
+							alignItems: "center",
+							gap: 8,
+						}}
+					>
 						<CheckIcon style={{ width: 14, height: 14 }} />
 						Added {creatorName.split(" ")[0]} to &ldquo;{justAdded}&rdquo;
 					</div>
@@ -3218,28 +3437,37 @@ function AddToListModal({
 				{mode === "select" && (
 					<>
 						<div style={S.modalStep}>Add to list</div>
-						<h3 style={S.modalH3}>
-							Save {creatorName.split(" ")[0]}
-						</h3>
+						<h3 style={S.modalH3}>Save {creatorName.split(" ")[0]}</h3>
 						<p style={S.modalSub}>
 							Add this creator to one of your lists, or create a new one.
 						</p>
 
 						{/* Existing lists */}
-						<div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 8 }}>
+						<div
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								gap: 8,
+								marginBottom: 8,
+							}}
+						>
 							{(lists ?? []).length === 0 && !justAdded && (
-								<div style={{
-									padding: "24px 0",
-									textAlign: "center",
-									fontSize: 13,
-									color: "var(--color-ink-3)",
-								}}>
+								<div
+									style={{
+										padding: "24px 0",
+										textAlign: "center",
+										fontSize: 13,
+										color: "var(--color-ink-3)",
+									}}
+								>
 									No lists yet. Create your first one below.
 								</div>
 							)}
 							{(lists ?? []).map((list) => {
 								const isInList = list.creatorIds.includes(creatorId);
-								const colorHex = LIST_COLORS.find((c) => c.name === list.color)?.hex ?? "#bef264";
+								const colorHex =
+									LIST_COLORS.find((c) => c.name === list.color)?.hex ??
+									"#bef264";
 								return (
 									<button
 										key={list._id}
@@ -3249,33 +3477,66 @@ function AddToListModal({
 										}}
 										onClick={() => handleToggle(list._id, isInList)}
 									>
-										<div style={{
-											width: 34,
-											height: 34,
-											borderRadius: 9,
-											background: `linear-gradient(135deg, ${colorHex}, ${colorHex}55)`,
-											display: "grid",
-											placeItems: "center",
-											fontSize: 14,
-											flexShrink: 0,
-										}}>
-											<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="1.5" strokeLinecap="round">
-												<line x1="3" y1="5" x2="13" y2="5" /><line x1="3" y1="8" x2="10" y2="8" /><line x1="3" y1="11" x2="7" y2="11" />
+										<div
+											style={{
+												width: 34,
+												height: 34,
+												borderRadius: 9,
+												background: `linear-gradient(135deg, ${colorHex}, ${colorHex}55)`,
+												display: "grid",
+												placeItems: "center",
+												fontSize: 14,
+												flexShrink: 0,
+											}}
+										>
+											<svg
+												width="16"
+												height="16"
+												viewBox="0 0 16 16"
+												fill="none"
+												stroke="rgba(0,0,0,0.6)"
+												strokeWidth="1.5"
+												strokeLinecap="round"
+											>
+												<line x1="3" y1="5" x2="13" y2="5" />
+												<line x1="3" y1="8" x2="10" y2="8" />
+												<line x1="3" y1="11" x2="7" y2="11" />
 											</svg>
 										</div>
 										<div style={{ flex: 1, textAlign: "left" as const }}>
-											<div style={{ fontSize: 13.5, fontWeight: 500, color: "var(--color-ink-0)" }}>
+											<div
+												style={{
+													fontSize: 13.5,
+													fontWeight: 500,
+													color: "var(--color-ink-0)",
+												}}
+											>
 												{list.name}
 											</div>
-											<div style={{ fontSize: 11.5, color: "var(--color-ink-2)", marginTop: 1 }}>
-												{list.creatorIds.length} creator{list.creatorIds.length !== 1 ? "s" : ""}
+											<div
+												style={{
+													fontSize: 11.5,
+													color: "var(--color-ink-2)",
+													marginTop: 1,
+												}}
+											>
+												{list.creatorIds.length} creator
+												{list.creatorIds.length !== 1 ? "s" : ""}
 												{list.description ? ` · ${list.description}` : ""}
 											</div>
 										</div>
 										{isInList ? (
-											<CheckIcon style={{ color: "var(--color-accent-strong)" }} />
+											<CheckIcon
+												style={{ color: "var(--color-accent-strong)" }}
+											/>
 										) : (
-											<PlusIcon style={{ color: "var(--color-ink-3)", width: 14, height: 14 }} />
+											<PlusIcon
+												style={{
+													color: "var(--color-ink-3)",
+													width: 14,
+													height: 14,
+												}}
+											/>
 										)}
 									</button>
 								);
@@ -3340,7 +3601,10 @@ function AddToListModal({
 
 						{/* Description input */}
 						<div style={{ marginBottom: 18 }}>
-							<label style={S.fieldLabel}>Description <span style={{ color: "var(--color-ink-3)" }}>(optional)</span></label>
+							<label style={S.fieldLabel}>
+								Description{" "}
+								<span style={{ color: "var(--color-ink-3)" }}>(optional)</span>
+							</label>
 							<input
 								type="text"
 								value={newDesc}
@@ -3363,26 +3627,28 @@ function AddToListModal({
 											height: 32,
 											borderRadius: 10,
 											background: c.hex,
-											border: newColor === c.name
-												? `2px solid ${c.hex}`
-												: "2px solid transparent",
-											outline: newColor === c.name
-												? `2px solid ${c.hex}44`
-												: "none",
+											border:
+												newColor === c.name
+													? `2px solid ${c.hex}`
+													: "2px solid transparent",
+											outline:
+												newColor === c.name ? `2px solid ${c.hex}44` : "none",
 											cursor: "pointer",
 											transition: "all 0.15s",
 											position: "relative",
 										}}
 									>
 										{newColor === c.name && (
-											<CheckIcon style={{
-												position: "absolute",
-												inset: 0,
-												margin: "auto",
-												width: 14,
-												height: 14,
-												color: "rgba(0,0,0,0.6)",
-											}} />
+											<CheckIcon
+												style={{
+													position: "absolute",
+													inset: 0,
+													margin: "auto",
+													width: 14,
+													height: 14,
+													color: "rgba(0,0,0,0.6)",
+												}}
+											/>
 										)}
 									</button>
 								))}
@@ -3390,41 +3656,64 @@ function AddToListModal({
 						</div>
 
 						{/* Preview */}
-						<div style={{
-							marginTop: 18,
-							padding: "14px 16px",
-							borderRadius: 14,
-							border: "1px solid var(--color-line)",
-							background: "rgba(255,255,255,0.02)",
-							display: "flex",
-							alignItems: "center",
-							gap: 12,
-						}}>
-							<div style={{
-								width: 34,
-								height: 34,
-								borderRadius: 9,
-								background: `linear-gradient(135deg, ${selectedColor}, ${selectedColor}55)`,
-								display: "grid",
-								placeItems: "center",
-								flexShrink: 0,
-							}}>
-								<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(0,0,0,0.6)" strokeWidth="1.5" strokeLinecap="round">
-									<line x1="3" y1="5" x2="13" y2="5" /><line x1="3" y1="8" x2="10" y2="8" /><line x1="3" y1="11" x2="7" y2="11" />
+						<div
+							style={{
+								marginTop: 18,
+								padding: "14px 16px",
+								borderRadius: 14,
+								border: "1px solid var(--color-line)",
+								background: "rgba(255,255,255,0.02)",
+								display: "flex",
+								alignItems: "center",
+								gap: 12,
+							}}
+						>
+							<div
+								style={{
+									width: 34,
+									height: 34,
+									borderRadius: 9,
+									background: `linear-gradient(135deg, ${selectedColor}, ${selectedColor}55)`,
+									display: "grid",
+									placeItems: "center",
+									flexShrink: 0,
+								}}
+							>
+								<svg
+									width="16"
+									height="16"
+									viewBox="0 0 16 16"
+									fill="none"
+									stroke="rgba(0,0,0,0.6)"
+									strokeWidth="1.5"
+									strokeLinecap="round"
+								>
+									<line x1="3" y1="5" x2="13" y2="5" />
+									<line x1="3" y1="8" x2="10" y2="8" />
+									<line x1="3" y1="11" x2="7" y2="11" />
 								</svg>
 							</div>
 							<div style={{ flex: 1 }}>
 								<div style={{ fontSize: 13.5, fontWeight: 500 }}>
 									{newName || "List name"}
 								</div>
-								<div style={{ fontSize: 11.5, color: "var(--color-ink-3)", marginTop: 1 }}>
+								<div
+									style={{
+										fontSize: 11.5,
+										color: "var(--color-ink-3)",
+										marginTop: 1,
+									}}
+								>
 									1 creator{newDesc ? ` · ${newDesc}` : ""}
 								</div>
 							</div>
 						</div>
 
 						<div style={S.modalFooter}>
-							<button className="btn btn-ghost" onClick={() => setMode("select")}>
+							<button
+								className="btn btn-ghost"
+								onClick={() => setMode("select")}
+							>
 								<BackIcon /> Back
 							</button>
 							<button
@@ -3436,7 +3725,13 @@ function AddToListModal({
 								onClick={handleCreateList}
 								disabled={creating}
 							>
-								{creating ? "Creating..." : <>Create list <ArrowIcon /></>}
+								{creating ? (
+									"Creating..."
+								) : (
+									<>
+										Create list <ArrowIcon />
+									</>
+								)}
 							</button>
 						</div>
 					</>
@@ -3527,7 +3822,10 @@ export default function CreatorDetailPage() {
 
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
-	const userLists = useQuery(api.lists.listByUser, userId ? { userId } : "skip");
+	const userLists = useQuery(
+		api.lists.listByUser,
+		userId ? { userId } : "skip",
+	);
 	const isInList = (userLists ?? []).some((l) => l.creatorIds.includes(id));
 
 	const [tab, setTab] = useState<TabName>("About");
@@ -3536,7 +3834,13 @@ export default function CreatorDetailPage() {
 
 	if (!base) {
 		return (
-			<div style={{ padding: 80, textAlign: "center", color: "var(--color-ink-2)" }}>
+			<div
+				style={{
+					padding: 80,
+					textAlign: "center",
+					color: "var(--color-ink-2)",
+				}}
+			>
 				Creator not found
 			</div>
 		);
@@ -3552,16 +3856,22 @@ export default function CreatorDetailPage() {
 	};
 
 	const similarCreators = (() => {
-		const matched = CREATORS
-			.filter((c) => c.id !== id)
-			.filter((c) => c.category === base.category || c.tags.some((t) => base.tags.includes(t)))
+		const matched = CREATORS.filter((c) => c.id !== id)
+			.filter(
+				(c) =>
+					c.category === base.category ||
+					c.tags.some((t) => base.tags.includes(t)),
+			)
 			.slice(0, 3);
-		const result = matched.length >= 3
-			? matched
-			: [
-					...matched,
-					...CREATORS.filter((c) => c.id !== id && !matched.includes(c)).slice(0, 3 - matched.length),
-				];
+		const result =
+			matched.length >= 3
+				? matched
+				: [
+						...matched,
+						...CREATORS.filter(
+							(c) => c.id !== id && !matched.includes(c),
+						).slice(0, 3 - matched.length),
+					];
 		return result.map((c) => ({
 			id: c.id,
 			name: c.name,
@@ -3604,7 +3914,11 @@ export default function CreatorDetailPage() {
 					<SharedNav />
 					<div className="shell">
 						<CrumbCr />
-						<CreatorHero onInvite={() => setShowInvite(true)} onAddToList={() => setShowAddToList(true)} isInList={isInList} />
+						<CreatorHero
+							onInvite={() => setShowInvite(true)}
+							onAddToList={() => setShowAddToList(true)}
+							isInList={isInList}
+						/>
 						<TabBar active={tab} onChange={setTab} />
 						<div style={S.contentGrid}>
 							<div style={S.main}>{renderTab()}</div>
@@ -3619,7 +3933,13 @@ export default function CreatorDetailPage() {
 					<FooterCr />
 				</div>
 				{showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
-			{showAddToList && <AddToListModal creatorId={id} creatorName={creator.name} onClose={() => setShowAddToList(false)} />}
+				{showAddToList && (
+					<AddToListModal
+						creatorId={id}
+						creatorName={creator.name}
+						onClose={() => setShowAddToList(false)}
+					/>
+				)}
 			</>
 		</CreatorCtx.Provider>
 	);

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 export const list = query({
 	args: {},
@@ -46,7 +46,10 @@ export const onboard = mutation({
 		budget: v.string(),
 	},
 	handler: async (ctx, args) => {
-		const handle = args.company.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+		const handle = args.company
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/(^-|-$)/g, "");
 		return await ctx.db.insert("brands", {
 			userId: args.userId,
 			name: args.company,

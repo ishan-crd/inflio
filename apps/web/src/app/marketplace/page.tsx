@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Nav as SharedNav } from "@/components/nav";
 import {
 	ArrowIcon,
 	BellIcon,
@@ -18,6 +17,7 @@ import {
 	VerifiedIcon,
 	YTIcon,
 } from "@/components/icons";
+import { Nav as SharedNav } from "@/components/nav";
 import {
 	ACCENT_MAP,
 	BRAND_COLORS,
@@ -390,7 +390,10 @@ function CampaignCard({ c }: { c: Campaign }) {
 				<div className="card-foot">
 					<div className="spots-cluster">
 						<div className="spots-bar">
-							<div className="spots-fill" style={{ width: `${spotsUsedPct}%` }} />
+							<div
+								className="spots-fill"
+								style={{ width: `${spotsUsedPct}%` }}
+							/>
 						</div>
 						<span>
 							<strong style={{ color: "var(--color-ink-0)", fontWeight: 500 }}>
@@ -569,7 +572,11 @@ export default function MarketplacePage() {
 
 				<div className="grid">
 					{filtered.map((c) => (
-						<Link key={c.id} href={`/campaign/${c.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+						<Link
+							key={c.id}
+							href={`/campaign/${c.id}`}
+							style={{ textDecoration: "none", color: "inherit" }}
+						>
 							<CampaignCard key={c.id} c={c} />
 						</Link>
 					))}

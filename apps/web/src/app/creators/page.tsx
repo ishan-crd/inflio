@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Nav as SharedNav } from "@/components/nav";
 import {
 	ArrowIcon,
 	BellIcon,
@@ -18,6 +17,7 @@ import {
 	TrendIcon,
 	VerifiedIcon,
 } from "@/components/icons";
+import { Nav as SharedNav } from "@/components/nav";
 import {
 	C_CATEGORIES,
 	C_ENGAGEMENT,
@@ -621,81 +621,85 @@ function CreatorList({ creators }: { creators: Creator[] }) {
 			{creators.map((c) => {
 				const [from, to] = c.avatarColor;
 				return (
-					<Link href={`/creator/${c.id}`} key={c.id} style={{ textDecoration: "none", color: "inherit" }}>
-					<div className="cl-row">
-						{/* Creator cell */}
-						<div className="cl-creator-cell">
-							<div
-								className="cl-avatar-sm"
-								style={{
-									background: `linear-gradient(135deg, ${from}, ${to})`,
-								}}
-							>
-								{initials(c.name)}
-							</div>
-							<div>
-								<div className="cl-name-sm">
-									{c.name}
-									{c.verified && (
-										<span className="verified">
-											<VerifiedIcon />
-										</span>
-									)}
-								</div>
-								<div className="cl-handle-sm">{c.handle}</div>
-							</div>
-						</div>
-
-						{/* Platform */}
-						<div
-							style={{
-								display: "flex",
-								alignItems: "center",
-								gap: 6,
-								color: "var(--color-ink-1)",
-								fontSize: 13,
-							}}
-						>
-							<PlatformIcon name={c.primaryPlatform} />
-							{c.primaryPlatform}
-						</div>
-
-						{/* Followers */}
-						<div className="cl-num">
-							{fmtFollowers(c.followers)}
-							<span className="unit">followers</span>
-						</div>
-
-						{/* Monthly views */}
-						<div className="cl-num">
-							{fmtViews(c.monthlyViews)}
-							<span className="unit">/mo</span>
-						</div>
-
-						{/* Engagement */}
-						<div className="cl-engagement-cell">
-							<div className="bar">
+					<Link
+						href={`/creator/${c.id}`}
+						key={c.id}
+						style={{ textDecoration: "none", color: "inherit" }}
+					>
+						<div className="cl-row">
+							{/* Creator cell */}
+							<div className="cl-creator-cell">
 								<div
-									className="fill"
+									className="cl-avatar-sm"
 									style={{
-										width: `${Math.min((c.engagement / 15) * 100, 100)}%`,
+										background: `linear-gradient(135deg, ${from}, ${to})`,
 									}}
-								/>
+								>
+									{initials(c.name)}
+								</div>
+								<div>
+									<div className="cl-name-sm">
+										{c.name}
+										{c.verified && (
+											<span className="verified">
+												<VerifiedIcon />
+											</span>
+										)}
+									</div>
+									<div className="cl-handle-sm">{c.handle}</div>
+								</div>
 							</div>
-							<span
+
+							{/* Platform */}
+							<div
 								style={{
-									fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+									display: "flex",
+									alignItems: "center",
+									gap: 6,
+									color: "var(--color-ink-1)",
 									fontSize: 13,
-									color: "var(--color-ink-0)",
 								}}
 							>
-								{c.engagement.toFixed(1)}%
-							</span>
-						</div>
+								<PlatformIcon name={c.primaryPlatform} />
+								{c.primaryPlatform}
+							</div>
 
-						{/* Arrow */}
-						<ArrowIcon className="cl-arrow" />
-					</div>
+							{/* Followers */}
+							<div className="cl-num">
+								{fmtFollowers(c.followers)}
+								<span className="unit">followers</span>
+							</div>
+
+							{/* Monthly views */}
+							<div className="cl-num">
+								{fmtViews(c.monthlyViews)}
+								<span className="unit">/mo</span>
+							</div>
+
+							{/* Engagement */}
+							<div className="cl-engagement-cell">
+								<div className="bar">
+									<div
+										className="fill"
+										style={{
+											width: `${Math.min((c.engagement / 15) * 100, 100)}%`,
+										}}
+									/>
+								</div>
+								<span
+									style={{
+										fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+										fontSize: 13,
+										color: "var(--color-ink-0)",
+									}}
+								>
+									{c.engagement.toFixed(1)}%
+								</span>
+							</div>
+
+							{/* Arrow */}
+							<ArrowIcon className="cl-arrow" />
+						</div>
 					</Link>
 				);
 			})}
@@ -835,7 +839,11 @@ export default function CreatorsPage() {
 				) : view === "grid" ? (
 					<div className="creator-grid">
 						{filtered.map((c) => (
-							<Link key={c.id} href={`/creator/${c.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+							<Link
+								key={c.id}
+								href={`/creator/${c.id}`}
+								style={{ textDecoration: "none", color: "inherit" }}
+							>
 								<CreatorCard key={c.id} c={c} />
 							</Link>
 						))}
