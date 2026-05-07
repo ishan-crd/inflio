@@ -14,6 +14,7 @@ import type * as campaigns from "../campaigns.js";
 import type * as creators from "../creators.js";
 import type * as lists from "../lists.js";
 import type * as submissions from "../submissions.js";
+import type * as verifications from "../verifications.js";
 
 import type {
   ApiFromModules,
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   creators: typeof creators;
   lists: typeof lists;
   submissions: typeof submissions;
+  verifications: typeof verifications;
 }>;
 
 /**

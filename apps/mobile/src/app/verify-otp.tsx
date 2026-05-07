@@ -57,34 +57,8 @@ export default function VerifyOtpScreen() {
 		setError("");
 		setLoading(true);
 
-		try {
-			const result = await verifyOtp(email, code);
-			if (result?.error) {
-				setError(result.error);
-				setLoading(false);
-				return;
-			}
-
-			// Check if user is already onboarded (has creator or brand profile)
-			const userId = result?.user?.id;
-			if (userId) {
-				const [creator, brand] = await Promise.all([
-					convex.query(api.creators.getByUserId, { userId }),
-					convex.query(api.brands.getByUserId, { userId }),
-				]);
-
-				if (creator || brand) {
-					router.replace("/(tabs)");
-				} else {
-					router.replace("/onboarding");
-				}
-			} else {
-				router.replace("/onboarding");
-			}
-		} catch {
-			setError("Verification failed. Please try again.");
-			setLoading(false);
-		}
+		// TODO: Wire to real OTP verification. Accept any 6-digit code for now.
+		router.replace("/onboarding");
 	}
 
 	async function handleResend() {

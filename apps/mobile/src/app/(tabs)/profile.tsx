@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { useQuery } from "convex/react";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -7,6 +8,8 @@ import {
 	useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Polygon } from "react-native-svg";
+import { useAuth } from "~/providers/auth";
+import { api } from "../../../convex/_generated/api";
 
 const TAB_OPTIONS = ["Submissions", "Accounts"] as const;
 type TabOption = (typeof TAB_OPTIONS)[number];
@@ -131,6 +134,11 @@ function SubmissionsGrid() {
 export default function ProfileScreen() {
 	const [activeTab, setActiveTab] = useState<TabOption>("Submissions");
 	const insets = useSafeAreaInsets();
+	const { user } = useAuth();
+	const creatorProfile = useQuery(
+		api.creators.getByUserId,
+		user?.id ? { userId: user.id } : "skip",
+	);
 
 	return (
 		<SafeAreaView style={styles.container} edges={["top"]}>
@@ -149,7 +157,7 @@ export default function ProfileScreen() {
 				<View style={styles.profileHeader}>
 					<View style={styles.avatar} />
 					<View>
-						<Text style={styles.handle}>@inflio</Text>
+						<Text style={styles.handle}>@{creatorProfile?.handle || "inflio"}</Text>
 						<Text style={styles.role}>UGC Creator</Text>
 					</View>
 				</View>

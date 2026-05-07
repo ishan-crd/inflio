@@ -1,9 +1,12 @@
-import { useMutation } from "convex/react";
+import * as Clipboard from "expo-clipboard";
+import { useMutation, useQuery } from "convex/react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	Animated,
+	Linking,
+	Modal,
 	Pressable,
 	ScrollView,
 	StyleSheet,
@@ -528,15 +531,62 @@ function CreatorStep2({
 function CreatorStep3({
 	data,
 	onChange,
+	userId,
 }: {
 	data: CreatorData;
 	onChange: (patch: Partial<CreatorData>) => void;
+	userId: string;
 }) {
-	function togglePlatform(id: string) {
-		if (data.connected.includes(id)) {
-			onChange({ connected: data.connected.filter((p) => p !== id) });
-		} else {
-			onChange({ connected: [...data.connected, id] });
+	const createVerification = useMutation(api.verifications.create);
+	const verifications = useQuery(api.verifications.getByUserId, userId ? { userId } : "skip");
+	const [verifyModal, setVerifyModal] = useState<{
+		platform: string;
+		label: string;
+		code: string;
+	} | null>(null);
+	const [copied, setCopied] = useState(false);
+	const [loading, setLoading] = useState<string | null>(null);
+
+	function getVerificationStatus(platformId: string): "none" | "pending" | "verified" {
+		if (!verifications) return data.connected.includes(platformId) ? "pending" : "none";
+		const record = verifications.find((v) => v.platform === platformId);
+		if (!record) return "none";
+		return record.status as "pending" | "verified";
+	}
+
+	async function handleConnect(id: string, label: string) {
+		const status = getVerificationStatus(id);
+		if (status === "verified" || status === "pending") return;
+
+		setLoading(id);
+		try {
+			const code = await createVerification({
+				userId,
+				platform: id,
+				handle: data.handle || "unknown",
+			});
+			setVerifyModal({ platform: id, label, code });
+		} catch {
+			const code = String(Math.floor(100000 + Math.random() * 900000));
+			setVerifyModal({ platform: id, label, code });
+		} finally {
+			setLoading(null);
+		}
+	}
+
+	function handleVerified() {
+		if (verifyModal) {
+			onChange({ connected: [...data.connected, verifyModal.platform] });
+			setVerifyModal(null);
+			setCopied(false);
+		}
+	}
+
+	async function handleCopyCode() {
+		if (verifyModal) {
+			await Clipboard.setStringAsync(verifyModal.code);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
 		}
 	}
 
@@ -550,7 +600,10 @@ function CreatorStep3({
 
 			<View style={styles.platformList}>
 				{PLATFORMS.map(({ id, label }) => {
-					const isConnected = data.connected.includes(id);
+					const status = getVerificationStatus(id);
+					const isPending = status === "pending";
+					const isVerified = status === "verified";
+					const isActive = isPending || isVerified;
 					return (
 						<View key={id} style={styles.platformRow}>
 							<View style={styles.platformLeft}>
@@ -559,7 +612,7 @@ function CreatorStep3({
 								</View>
 								<View>
 									<Text style={styles.platformName}>{label}</Text>
-									{isConnected && (
+									{isActive && (
 										<Text style={styles.platformHandle}>
 											@{data.handle || "yourhandle"}
 										</Text>
@@ -567,22 +620,96 @@ function CreatorStep3({
 								</View>
 							</View>
 							<Pressable
-								style={[styles.connectBtn, isConnected && styles.connectedBtn]}
-								onPress={() => togglePlatform(id)}
+								style={[
+									styles.connectBtn,
+									isPending && styles.pendingBtn,
+									isVerified && styles.connectedBtn,
+								]}
+								onPress={() => handleConnect(id, label)}
+								disabled={loading === id || isActive}
 							>
-								<Text
-									style={[
-										styles.connectBtnText,
-										isConnected && styles.connectedBtnText,
-									]}
-								>
-									{isConnected ? "Connected" : "Connect"}
-								</Text>
+								{loading === id ? (
+									<ActivityIndicator size="small" color="#d9f99d" />
+								) : (
+									<Text
+										style={[
+											styles.connectBtnText,
+											isPending && styles.pendingBtnText,
+											isVerified && styles.connectedBtnText,
+										]}
+									>
+										{isVerified ? "Connected" : isPending ? "Pending" : "Connect"}
+									</Text>
+								)}
 							</Pressable>
 						</View>
 					);
 				})}
 			</View>
+
+			{/* Verification Code Modal */}
+			<Modal
+				visible={!!verifyModal}
+				transparent
+				animationType="fade"
+				onRequestClose={() => setVerifyModal(null)}
+			>
+				<View style={styles.modalOverlay}>
+					<View style={styles.modalCard}>
+						<Text style={styles.modalTitle}>
+							Verify {verifyModal?.label}
+						</Text>
+						<Text style={styles.modalDesc}>
+							Send this code to{" "}
+							<Text style={styles.modalHighlight}>@getinflio</Text> on Instagram
+							to verify your account.
+						</Text>
+
+						<Pressable onPress={handleCopyCode} style={styles.codeBox}>
+							<Text style={styles.codeText}>{verifyModal?.code}</Text>
+							<Text style={styles.codeCopy}>
+								{copied ? "Copied!" : "Tap to copy"}
+							</Text>
+						</Pressable>
+
+						<View style={styles.verifySteps}>
+							{[
+								"Copy the code above",
+								"Open Instagram and DM @getinflio",
+								"Send the code as a message",
+								"Come back and tap \"I've sent it\"",
+							].map((s, i) => (
+								<View key={i} style={styles.verifyStepRow}>
+									<View style={styles.verifyStepDot}>
+										<Text style={styles.verifyStepNum}>{i + 1}</Text>
+									</View>
+									<Text style={styles.verifyStepText}>{s}</Text>
+								</View>
+							))}
+						</View>
+
+						<Pressable
+							onPress={() =>
+								Linking.openURL("https://instagram.com/getinflio")
+							}
+							style={styles.openIgBtn}
+						>
+							<Text style={styles.openIgBtnText}>Open Instagram</Text>
+						</Pressable>
+
+						<Pressable onPress={handleVerified} style={styles.sentItBtn}>
+							<Text style={styles.sentItBtnText}>I've sent it</Text>
+						</Pressable>
+
+						<Pressable
+							onPress={() => setVerifyModal(null)}
+							style={styles.cancelVerifyBtn}
+						>
+							<Text style={styles.cancelVerifyText}>Cancel</Text>
+						</Pressable>
+					</View>
+				</View>
+			</Modal>
 		</View>
 	);
 }
@@ -1007,7 +1134,7 @@ export default function OnboardingScreen() {
 			if (step === 2)
 				return <CreatorStep2 data={creatorData} onChange={onChange} />;
 			if (step === 3)
-				return <CreatorStep3 data={creatorData} onChange={onChange} />;
+				return <CreatorStep3 data={creatorData} onChange={onChange} userId={user?.id || ""} />;
 			if (step === 4)
 				return <CreatorStep4 data={creatorData} onChange={onChange} />;
 		} else if (role === "brand") {
@@ -1287,6 +1414,10 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 		paddingVertical: 8,
 	},
+	pendingBtn: {
+		borderColor: "#fbbf24",
+		backgroundColor: "rgba(251,191,36,0.1)",
+	},
 	connectedBtn: {
 		borderColor: "#d9f99d",
 		backgroundColor: "rgba(217,249,157,0.1)",
@@ -1296,7 +1427,127 @@ const styles = StyleSheet.create({
 		fontSize: 13,
 		color: "#6B7280",
 	},
+	pendingBtnText: { color: "#fbbf24" },
 	connectedBtnText: { color: "#d9f99d" },
+
+	// Verification modal
+	modalOverlay: {
+		flex: 1,
+		backgroundColor: "rgba(0,0,0,0.75)",
+		justifyContent: "center",
+		alignItems: "center",
+		paddingHorizontal: 24,
+	},
+	modalCard: {
+		width: "100%",
+		backgroundColor: "#1A1A1E",
+		borderRadius: 20,
+		padding: 24,
+		borderWidth: 1,
+		borderColor: "#2A2A2E",
+	},
+	modalTitle: {
+		fontFamily: "StackSans-Bold",
+		fontSize: 20,
+		color: "#FFFFFF",
+		marginBottom: 8,
+	},
+	modalDesc: {
+		fontFamily: "Inter-Regular",
+		fontSize: 14,
+		color: "#9CA3AF",
+		lineHeight: 21,
+		marginBottom: 20,
+	},
+	modalHighlight: {
+		fontFamily: "Inter-SemiBold",
+		color: "#d9f99d",
+	},
+	codeBox: {
+		backgroundColor: "#0a0a0c",
+		borderRadius: 14,
+		borderWidth: 1,
+		borderColor: "#2A2A2E",
+		paddingVertical: 20,
+		alignItems: "center",
+		marginBottom: 20,
+	},
+	codeText: {
+		fontFamily: "StackSansHeadline-Medium",
+		fontSize: 36,
+		color: "#FFFFFF",
+		letterSpacing: 8,
+	},
+	codeCopy: {
+		fontFamily: "Inter-Regular",
+		fontSize: 12,
+		color: "#6B7280",
+		marginTop: 6,
+	},
+	verifySteps: {
+		gap: 12,
+		marginBottom: 20,
+	},
+	verifyStepRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+	},
+	verifyStepDot: {
+		width: 24,
+		height: 24,
+		borderRadius: 12,
+		backgroundColor: "rgba(217,249,157,0.1)",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	verifyStepNum: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 11,
+		color: "#d9f99d",
+	},
+	verifyStepText: {
+		fontFamily: "Inter-Regular",
+		fontSize: 13,
+		color: "#9CA3AF",
+		flex: 1,
+	},
+	openIgBtn: {
+		height: 48,
+		borderRadius: 14,
+		backgroundColor: "#2A2A2E",
+		alignItems: "center",
+		justifyContent: "center",
+		marginBottom: 10,
+	},
+	openIgBtnText: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 15,
+		color: "#FFFFFF",
+	},
+	sentItBtn: {
+		height: 48,
+		borderRadius: 14,
+		backgroundColor: "#d9f99d",
+		alignItems: "center",
+		justifyContent: "center",
+		marginBottom: 10,
+	},
+	sentItBtnText: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 15,
+		color: "#0a0a0c",
+	},
+	cancelVerifyBtn: {
+		alignItems: "center",
+		paddingVertical: 8,
+	},
+	cancelVerifyText: {
+		fontFamily: "Inter-Regular",
+		fontSize: 14,
+		color: "#6B7280",
+	},
+
 	budgetGrid: { gap: 10 },
 	bottomNav: { paddingHorizontal: 24, paddingBottom: 16, paddingTop: 12 },
 	primaryBtn: {

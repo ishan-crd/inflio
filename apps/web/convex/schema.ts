@@ -142,6 +142,18 @@ export default defineSchema({
 		.index("by_campaignId", ["campaignId"])
 		.index("by_status", ["status"]),
 
+	verifications: defineTable({
+		userId: v.string(),
+		platform: v.string(), // "instagram" | "youtube" | "tiktok"
+		handle: v.string(),
+		code: v.string(),
+		status: v.string(), // "pending" | "verified"
+		createdAt: v.string(),
+	})
+		.index("by_userId", ["userId"])
+		.index("by_code", ["code"])
+		.index("by_userId_platform", ["userId", "platform"]),
+
 	applications: defineTable({
 		userId: v.string(), // BetterAuth user id
 		userName: v.string(),
