@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { createContext, useEffect, useState } from "react";
 
-const ADMIN_EMAIL = "admin@inflio.com";
+const ADMIN_EMAIL = "admin@inflio.in";
 const ADMIN_PASSWORD = "ishan@admin";
 const STORAGE_KEY = "inflio_admin_auth";
 
@@ -190,7 +190,7 @@ export default function AdminLayout({
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
-								placeholder="admin@inflio.com"
+								placeholder="admin@inflio.in"
 								required
 								className="admin-input"
 							/>

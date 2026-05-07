@@ -9,7 +9,7 @@ import {
 	useState,
 } from "react";
 
-const AUTH_BASE_URL = "https://inflio-web.vercel.app";
+const AUTH_BASE_URL = "https://www.inflio.in";
 
 interface User {
 	id: string;

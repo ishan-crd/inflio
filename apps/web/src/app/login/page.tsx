@@ -192,11 +192,27 @@ function AuthPanel() {
 		router.push(`/login?${params.toString()}`);
 	}
 
-	function handleGoogle() {
-		signIn.social({
-			provider: "google",
-			callbackURL: isSignup ? `/auth/callback?role=${role}` : "/auth/callback",
-		});
+	async function handleGoogle() {
+		try {
+			setError("");
+			setLoading(true);
+			const result = await signIn.social({
+				provider: "google",
+				callbackURL: isSignup
+					? `/auth/callback?role=${role}`
+					: "/auth/callback",
+			});
+			if (result?.error) {
+				setError(
+					result.error.message || "Google sign in failed. Please try again.",
+				);
+				setLoading(false);
+			}
+		} catch (err) {
+			console.error("Google sign in error:", err);
+			setError("Google sign in failed. Please try again.");
+			setLoading(false);
+		}
 	}
 
 	async function handleSubmit(e: React.FormEvent) {
