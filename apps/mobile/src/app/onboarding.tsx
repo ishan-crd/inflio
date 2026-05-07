@@ -686,10 +686,10 @@ function CreatorStep3({
 								"Open Instagram and DM @getinflio",
 								"Send the code as a message",
 								'Come back and tap "I\'ve sent it"',
-							].map((s, i) => (
-								<View key={i} style={styles.verifyStepRow}>
+							].map((s, idx) => (
+								<View key={s} style={styles.verifyStepRow}>
 									<View style={styles.verifyStepDot}>
-										<Text style={styles.verifyStepNum}>{i + 1}</Text>
+										<Text style={styles.verifyStepNum}>{idx + 1}</Text>
 									</View>
 									<Text style={styles.verifyStepText}>{s}</Text>
 								</View>

@@ -449,9 +449,9 @@ function CampaignCard({
 
 					<View style={styles.creatorsStack}>
 						<View style={styles.creatorDots}>
-							{CREATOR_DOT_COLORS.map((c, i) => (
+							{CREATOR_DOT_COLORS.map((c) => (
 								<View
-									key={i}
+									key={c}
 									style={[styles.creatorDot, { backgroundColor: c }]}
 								/>
 							))}

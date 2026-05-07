@@ -120,8 +120,8 @@ function SubmissionsGrid() {
 
 	return (
 		<View style={styles.grid}>
-			{rows.map((row, rowIndex) => (
-				<View key={rowIndex} style={styles.gridRow}>
+			{rows.map((row) => (
+				<View key={row.map((r) => r.id).join("-")} style={styles.gridRow}>
 					{row.map((item) => (
 						<SubmissionCard key={item.id} item={item} />
 					))}

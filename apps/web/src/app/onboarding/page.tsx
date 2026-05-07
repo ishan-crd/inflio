@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -383,15 +383,68 @@ function CreatorStep2({
 function CreatorStep3({
 	data,
 	onChange,
+	userId,
 }: {
 	data: CreatorData;
 	onChange: (patch: Partial<CreatorData>) => void;
+	userId: string;
 }) {
-	function togglePlatform(id: string) {
-		if (data.connected.includes(id)) {
-			onChange({ connected: data.connected.filter((p) => p !== id) });
-		} else {
-			onChange({ connected: [...data.connected, id] });
+	const createVerification = useMutation(api.verifications.create);
+	const verifications = useQuery(
+		api.verifications.getByUserId,
+		userId ? { userId } : "skip",
+	);
+	const [verifyModal, setVerifyModal] = useState<{
+		platform: string;
+		label: string;
+		code: string;
+	} | null>(null);
+	const [copied, setCopied] = useState(false);
+	const [loading, setLoading] = useState<string | null>(null);
+
+	function getVerificationStatus(
+		platformId: string,
+	): "none" | "pending" | "verified" {
+		if (!verifications)
+			return data.connected.includes(platformId) ? "pending" : "none";
+		const record = verifications.find((v) => v.platform === platformId);
+		if (!record) return "none";
+		return record.status as "pending" | "verified";
+	}
+
+	async function handleConnect(id: string, label: string) {
+		const status = getVerificationStatus(id);
+		if (status === "verified" || status === "pending") return;
+
+		setLoading(id);
+		try {
+			const code = await createVerification({
+				userId,
+				platform: id,
+				handle: data.handle || "unknown",
+			});
+			setVerifyModal({ platform: id, label, code });
+		} catch {
+			const code = String(Math.floor(100000 + Math.random() * 900000));
+			setVerifyModal({ platform: id, label, code });
+		} finally {
+			setLoading(null);
+		}
+	}
+
+	function handleVerified() {
+		if (verifyModal) {
+			onChange({ connected: [...data.connected, verifyModal.platform] });
+			setVerifyModal(null);
+			setCopied(false);
+		}
+	}
+
+	async function handleCopyCode() {
+		if (verifyModal) {
+			await navigator.clipboard.writeText(verifyModal.code);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
 		}
 	}
 
@@ -405,7 +458,10 @@ function CreatorStep3({
 
 			<div className="platform-connect">
 				{PLATFORMS.map(({ id, label, Icon }) => {
-					const isConnected = data.connected.includes(id);
+					const status = getVerificationStatus(id);
+					const isPending = status === "pending";
+					const isVerified = status === "verified";
+					const isActive = isPending || isVerified;
 					return (
 						<div key={id} className="platform-row">
 							<div className="platform-left">
@@ -414,7 +470,7 @@ function CreatorStep3({
 								</div>
 								<div>
 									<div className="platform-name">{label}</div>
-									{isConnected && (
+									{isActive && (
 										<div className="platform-handle">
 											@{data.handle || "yourhandle"}
 										</div>
@@ -422,15 +478,92 @@ function CreatorStep3({
 								</div>
 							</div>
 							<button
-								className={`platform-status ${isConnected ? "connected" : "connect"}`}
-								onClick={() => togglePlatform(id)}
+								type="button"
+								className={`platform-status ${isVerified ? "connected" : isPending ? "pending" : "connect"}`}
+								onClick={() => handleConnect(id, label)}
+								disabled={loading === id || isActive}
 							>
-								{isConnected ? "Connected" : "Connect"}
+								{loading === id
+									? "..."
+									: isVerified
+										? "Connected"
+										: isPending
+											? "Pending"
+											: "Connect"}
 							</button>
 						</div>
 					);
 				})}
 			</div>
+
+			{/* Verification Code Modal */}
+			{verifyModal && (
+				<div className="verify-overlay">
+					<div className="verify-modal">
+						<button
+							type="button"
+							className="verify-close"
+							onClick={() => setVerifyModal(null)}
+						>
+							&times;
+						</button>
+
+						<div className="verify-icon-wrap">
+							<IGIcon width={24} height={24} />
+						</div>
+
+						<h3 className="verify-title">Verify {verifyModal.label}</h3>
+						<p className="verify-desc">
+							Send this code to{" "}
+							<span className="verify-highlight">@getinflio</span> on Instagram
+							to verify your account.
+						</p>
+
+						<button
+							type="button"
+							className="verify-code-box"
+							onClick={handleCopyCode}
+						>
+							<span className="verify-code">{verifyModal.code}</span>
+							<span className="verify-copy-hint">
+								{copied ? "Copied!" : "Click to copy"}
+							</span>
+						</button>
+
+						<div className="verify-steps">
+							{[
+								"Copy the code above",
+								"Open Instagram and DM @getinflio",
+								"Send the code as a message",
+								'Come back and click "I\'ve sent it"',
+							].map((s, i) => (
+								<div key={i} className="verify-step-row">
+									<div className="verify-step-num">{i + 1}</div>
+									<span>{s}</span>
+								</div>
+							))}
+						</div>
+
+						<div className="verify-actions">
+							<a
+								href="https://instagram.com/getinflio"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="verify-btn-ig"
+							>
+								Open Instagram
+							</a>
+							<button
+								type="button"
+								className="verify-btn-done"
+								onClick={handleVerified}
+							>
+								I&rsquo;ve sent it
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
@@ -867,6 +1000,7 @@ function OnboardingInner() {
 					<CreatorStep3
 						data={creatorData}
 						onChange={(p) => setCreatorData((d) => ({ ...d, ...p }))}
+						userId={session?.user?.id ?? ""}
 					/>
 				);
 			if (step === 3)

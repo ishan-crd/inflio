@@ -104,8 +104,11 @@ function CustomTabBar({
 	descriptors,
 	navigation,
 }: {
+	// biome-ignore lint/suspicious/noExplicitAny: expo-router tab bar props lack exported types
 	state: any;
+	// biome-ignore lint/suspicious/noExplicitAny: expo-router tab bar props lack exported types
 	descriptors: any;
+	// biome-ignore lint/suspicious/noExplicitAny: expo-router tab bar props lack exported types
 	navigation: any;
 }) {
 	const insets = useSafeAreaInsets();
@@ -135,6 +138,7 @@ function CustomTabBar({
 				<Animated.View
 					style={[styles.indicator, { transform: [{ translateX }] }]}
 				/>
+				{/* biome-ignore lint/suspicious/noExplicitAny: expo-router route type */}
 				{state.routes.map((route: any, index: number) => {
 					const { options } = descriptors[route.key];
 					const isFocused = state.index === index;

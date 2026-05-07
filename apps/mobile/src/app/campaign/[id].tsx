@@ -431,6 +431,7 @@ function ApplyModal({
 	const [submitted, setSubmitted] = useState(false);
 
 	const renderBackdrop = useCallback(
+		// biome-ignore lint/suspicious/noExplicitAny: BottomSheet backdrop props
 		(props: any) => (
 			<BottomSheetBackdrop
 				{...props}
@@ -938,8 +939,8 @@ export default function CampaignDetailScreen() {
 							<Text style={styles.sectionTitle}>Campaign Brief</Text>
 							<Text style={styles.briefText}>{campaign.brief}</Text>
 							<View style={styles.briefList}>
-								{campaign.longBrief.map((item, i) => (
-									<View key={i} style={styles.briefItem}>
+								{campaign.longBrief.map((item) => (
+									<View key={item} style={styles.briefItem}>
 										<View
 											style={[
 												styles.briefDot,
@@ -981,8 +982,8 @@ export default function CampaignDetailScreen() {
 									"Post must remain live for minimum 30 days",
 									"No competitor products visible in frame",
 									"Submit within deadline for payment eligibility",
-								].map((item, i) => (
-									<View key={i} style={styles.briefItem}>
+								].map((item, idx) => (
+									<View key={item} style={styles.briefItem}>
 										<View
 											style={[
 												styles.briefNumber,
@@ -992,7 +993,7 @@ export default function CampaignDetailScreen() {
 											<Text
 												style={[styles.briefNumberText, { color: accent.chip }]}
 											>
-												{i + 1}
+												{idx + 1}
 											</Text>
 										</View>
 										<Text style={styles.briefItemText}>{item}</Text>

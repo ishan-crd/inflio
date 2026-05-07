@@ -90,8 +90,15 @@ export default function LoginScreen() {
 		setLoading(true);
 
 		try {
-			// TODO: Wire to real OTP sending. Skipping for now.
-			router.push({ pathname: "/verify-otp", params: { email: email.trim() } });
+			const result = await sendOtp(email.trim());
+			if (result?.error) {
+				setError(result.error);
+			} else {
+				router.push({
+					pathname: "/verify-otp",
+					params: { email: email.trim() },
+				});
+			}
 		} catch {
 			setError("Something went wrong. Please try again.");
 		} finally {

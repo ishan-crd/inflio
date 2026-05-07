@@ -17,6 +17,7 @@ import { useAuth } from "~/providers/auth";
 import { api } from "../../convex/_generated/api";
 
 const OTP_LENGTH = 6;
+const OTP_SLOTS = ["s0", "s1", "s2", "s3", "s4", "s5"] as const;
 const RESEND_COOLDOWN = 60;
 
 function BackArrow() {
@@ -57,8 +58,35 @@ export default function VerifyOtpScreen() {
 		setError("");
 		setLoading(true);
 
-		// TODO: Wire to real OTP verification. Accept any 6-digit code for now.
-		router.replace("/onboarding");
+		try {
+			const result = await verifyOtp(email, code);
+			if (result?.error) {
+				setError(result.error);
+				setLoading(false);
+				return;
+			}
+
+			// Check if user has a creator profile already
+			const userId = result?.user?.id;
+			if (userId) {
+				try {
+					const profile = await convex.query(api.creators.getByUserId, {
+						userId,
+					});
+					if (profile) {
+						router.replace("/(tabs)");
+						return;
+					}
+				} catch {
+					// No profile — continue to onboarding
+				}
+			}
+
+			router.replace("/onboarding");
+		} catch {
+			setError("Verification failed. Please try again.");
+			setLoading(false);
+		}
 	}
 
 	async function handleResend() {
@@ -112,13 +140,13 @@ export default function VerifyOtpScreen() {
 							selectionColor="transparent"
 							style={styles.hiddenInput}
 						/>
-						{Array.from({ length: OTP_LENGTH }).map((_, i) => {
-							const digit = otp[i] ?? "";
-							const isCurrent = i === otp.length;
+						{OTP_SLOTS.map((slotKey, slotIdx) => {
+							const digit = otp[slotIdx] ?? "";
+							const isCurrent = slotIdx === otp.length;
 							const hasError = !!error && otp.length === OTP_LENGTH;
 							return (
 								<View
-									key={`otp-${i}`}
+									key={slotKey}
 									style={[
 										styles.otpBox,
 										isCurrent && styles.otpBoxFocused,
