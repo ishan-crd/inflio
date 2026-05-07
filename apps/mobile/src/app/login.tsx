@@ -1,6 +1,7 @@
+import { useConvex } from "convex/react";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	KeyboardAvoidingView,
@@ -15,6 +16,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useAuth } from "~/providers/auth";
+import { api } from "../../convex/_generated/api";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -62,7 +64,9 @@ function GoogleIcon() {
 
 export default function LoginScreen() {
 	const { signInWithGoogle, sendOtp } = useAuth();
+	const convex = useConvex();
 	const insets = useSafeAreaInsets();
+	const socialSignInRef = useRef(false);
 
 	const [email, setEmail] = useState("");
 	const [error, setError] = useState("");
@@ -107,17 +111,36 @@ export default function LoginScreen() {
 	}
 
 	async function handleGoogle() {
+		if (socialSignInRef.current) return;
+		socialSignInRef.current = true;
 		setError("");
 		setLoadingGoogle(true);
 		try {
 			const result = await signInWithGoogle();
 			if (result?.error) {
 				setError(result.error);
+				return;
 			}
+			// Navigate based on whether user has a profile
+			if (result?.user?.id) {
+				try {
+					const profile = await convex.query(api.creators.getByUserId, {
+						userId: result.user.id,
+					});
+					if (profile) {
+						router.replace("/(tabs)");
+						return;
+					}
+				} catch {
+					// No profile — go to onboarding
+				}
+			}
+			router.replace("/onboarding");
 		} catch {
 			setError("Google sign in failed. Please try again.");
 		} finally {
 			setLoadingGoogle(false);
+			socialSignInRef.current = false;
 		}
 	}
 

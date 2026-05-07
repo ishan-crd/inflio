@@ -12,7 +12,10 @@ interface User {
 interface AuthContextValue {
 	user: User | null;
 	loading: boolean;
-	signInWithGoogle: () => Promise<{ error?: string }>;
+	signInWithGoogle: () => Promise<{
+		error?: string;
+		user?: User;
+	}>;
 	sendOtp: (email: string) => Promise<{ error?: string }>;
 	verifyOtp: (
 		email: string,
@@ -58,7 +61,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 						result.error.message || "Google sign in failed. Please try again.",
 				};
 			}
-			return {};
+			// After OAuth completes, explicitly fetch the session
+			const { data: sess } = await authClient.getSession();
+			if (sess?.user) {
+				return {
+					user: {
+						id: sess.user.id,
+						name: sess.user.name,
+						email: sess.user.email,
+						image: sess.user.image ?? undefined,
+					},
+				};
+			}
+			return { error: "Sign in completed but no session found." };
 		} catch {
 			return { error: "Google sign in failed. Please try again." };
 		}
@@ -93,17 +108,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 					error: result.error.message || "Invalid OTP. Please try again.",
 				};
 			}
-			const u = result?.data?.user;
-			return {
-				user: u
-					? {
-							id: u.id,
-							name: u.name,
-							email: u.email,
-							image: u.image ?? undefined,
-						}
-					: undefined,
-			};
+			// Explicitly fetch session after OTP verification
+			const { data: sess } = await authClient.getSession();
+			if (sess?.user) {
+				return {
+					user: {
+						id: sess.user.id,
+						name: sess.user.name,
+						email: sess.user.email,
+						image: sess.user.image ?? undefined,
+					},
+				};
+			}
+			return { error: "Verification completed but no session found." };
 		} catch {
 			return { error: "Network error. Please try again." };
 		}
