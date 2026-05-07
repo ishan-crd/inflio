@@ -1,7 +1,11 @@
+import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
-import { emailOTP } from "better-auth/plugins";
+import { emailOTP, oAuthProxy } from "better-auth/plugins";
 import { Pool } from "pg";
 import { Resend } from "resend";
+
+const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const isHttps = baseURL.startsWith("https://");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -80,7 +84,7 @@ Inflio &middot; Creator-first influence platform<br/>
 }
 
 export const auth = betterAuth({
-	baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+	baseURL,
 	database: new Pool({
 		connectionString: process.env.DATABASE_URL,
 	}),
@@ -88,6 +92,12 @@ export const auth = betterAuth({
 		enabled: true,
 	},
 	plugins: [
+		oAuthProxy({
+			productionURL: "https://www.inflio.in",
+		}),
+		expo({
+			overrideOrigin: true,
+		}),
 		emailOTP({
 			async sendVerificationOTP({ email, otp, type }) {
 				await resend.emails.send({
@@ -108,11 +118,19 @@ export const auth = betterAuth({
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
 		},
 	},
+	advanced: {
+		defaultCookieAttributes: {
+			sameSite: isHttps ? "none" : "lax",
+			secure: isHttps,
+		},
+	},
 	trustedOrigins: [
-		process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+		baseURL,
 		"https://www.inflio.in",
 		"https://inflio.in",
 		"https://inflio-green.vercel.app",
 		"inflio://",
+		"expo://",
+		"exp://",
 	],
 });
