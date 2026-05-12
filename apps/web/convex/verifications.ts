@@ -90,6 +90,23 @@ export const verify = mutation({
 	},
 });
 
+export const remove = mutation({
+	args: { userId: v.string(), platform: v.string() },
+	handler: async (ctx, args) => {
+		const record = await ctx.db
+			.query("verifications")
+			.withIndex("by_userId_platform", (q) =>
+				q.eq("userId", args.userId).eq("platform", args.platform),
+			)
+			.first();
+
+		if (!record) return null;
+
+		await ctx.db.delete(record._id);
+		return record;
+	},
+});
+
 export const reject = mutation({
 	args: { code: v.string() },
 	handler: async (ctx, args) => {

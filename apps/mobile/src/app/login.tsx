@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
 		width: "100%",
 	},
 	emailInput: {
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderWidth: 1,
 		borderColor: "#2A2A2E",
 		borderRadius: 14,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		gap: 10,
 		height: 52,
-		backgroundColor: "#2A2A2E",
+		backgroundColor: "#0f0f12",
 		borderRadius: 14,
 	},
 	googleBtnText: {

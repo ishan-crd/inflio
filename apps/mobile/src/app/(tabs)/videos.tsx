@@ -1,3 +1,4 @@
+import { useQuery } from "convex/react";
 import { Image } from "expo-image";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import {
@@ -5,15 +6,8 @@ import {
 	useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Polygon } from "react-native-svg";
-
-const MOCK_VIDEOS = [
-	{ id: "1", random: 1 },
-	{ id: "2", random: 2 },
-	{ id: "3", random: 3 },
-	{ id: "4", random: 4 },
-	{ id: "5", random: 5 },
-	{ id: "6", random: 6 },
-];
+import { api } from "../../../convex/_generated/api";
+import { useAuth } from "~/providers/auth";
 
 function PlayButton() {
 	return (
@@ -55,36 +49,57 @@ function HeartIcon() {
 	);
 }
 
-type VideoItem = { id: string; random: number };
+function fmtNumber(n: number | undefined): string {
+	if (!n) return "0";
+	if (n >= 1000000) return `${(n / 1000000).toFixed(1)}m`;
+	if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+	return String(n);
+}
 
-function VideoCard({ item }: { item: VideoItem }) {
+type Submission = {
+	_id: string;
+	contentUrl: string;
+	contentType: string;
+	views?: number;
+	likes?: number;
+	userName: string;
+	submittedAt: string;
+	platform: string;
+};
+
+function VideoCard({ item }: { item: Submission }) {
+	const timeAgo = (() => {
+		const diff = Date.now() - new Date(item.submittedAt).getTime();
+		const days = Math.floor(diff / 86400000);
+		if (days > 0) return `${days}d`;
+		const hours = Math.floor(diff / 3600000);
+		if (hours > 0) return `${hours}h`;
+		return "now";
+	})();
+
 	return (
 		<View style={styles.card}>
 			<View style={styles.thumbnailContainer}>
-				<Image
-					source={{
-						uri: `https://picsum.photos/200/300?random=${item.random}`,
-					}}
-					style={styles.thumbnail}
-					contentFit="cover"
-				/>
+				<View style={styles.thumbnailPlaceholder}>
+					<Text style={styles.thumbnailPlatform}>{item.platform}</Text>
+				</View>
 				<PlayButton />
 			</View>
 			<View style={styles.cardContent}>
 				<Text style={styles.usernameRow}>
-					<Text style={styles.username}>@ishanxib</Text>
+					<Text style={styles.username}>{item.userName}</Text>
 					<Text style={styles.separator}> · </Text>
-					<Text style={styles.timeAgo}>3d</Text>
+					<Text style={styles.timeAgo}>{timeAgo}</Text>
 				</Text>
 				<Text style={styles.description} numberOfLines={1}>
-					EPICBET - Exclusive Football
+					{item.contentType} on {item.platform}
 				</Text>
 				<View style={styles.statsRow}>
 					<EyeIcon />
-					<Text style={styles.statText}>122.0k</Text>
+					<Text style={styles.statText}>{fmtNumber(item.views)}</Text>
 					<View style={{ width: 12 }} />
 					<HeartIcon />
-					<Text style={styles.statText}>12.0k</Text>
+					<Text style={styles.statText}>{fmtNumber(item.likes)}</Text>
 				</View>
 			</View>
 		</View>
@@ -93,22 +108,36 @@ function VideoCard({ item }: { item: VideoItem }) {
 
 export default function VideosScreen() {
 	const insets = useSafeAreaInsets();
+	const { user } = useAuth();
+	const submissions = useQuery(
+		api.submissions.listByUser,
+		user?.id ? { userId: user.id } : "skip",
+	);
 
 	return (
 		<SafeAreaView style={styles.container} edges={["top"]}>
 			<Text style={styles.heading}>Viral Videos</Text>
-			<FlatList
-				data={MOCK_VIDEOS}
-				keyExtractor={(item) => item.id}
-				numColumns={2}
-				columnWrapperStyle={styles.columnWrapper}
-				contentContainerStyle={{
-					paddingHorizontal: 20,
-					paddingBottom: insets.bottom + 100,
-				}}
-				renderItem={({ item }) => <VideoCard item={item} />}
-				showsVerticalScrollIndicator={false}
-			/>
+			{!submissions || submissions.length === 0 ? (
+				<View style={styles.emptyState}>
+					<Text style={styles.emptyTitle}>No videos yet</Text>
+					<Text style={styles.emptySubtitle}>
+						Submit content to campaigns and your videos will appear here.
+					</Text>
+				</View>
+			) : (
+				<FlatList
+					data={submissions}
+					keyExtractor={(item) => item._id}
+					numColumns={2}
+					columnWrapperStyle={styles.columnWrapper}
+					contentContainerStyle={{
+						paddingHorizontal: 20,
+						paddingBottom: insets.bottom + 100,
+					}}
+					renderItem={({ item }) => <VideoCard item={item} />}
+					showsVerticalScrollIndicator={false}
+				/>
+			)}
 		</SafeAreaView>
 	);
 }
@@ -126,6 +155,24 @@ const styles = StyleSheet.create({
 		marginTop: 8,
 		marginBottom: 16,
 	},
+	emptyState: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 40,
+	},
+	emptyTitle: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 18,
+		color: "#FFFFFF",
+	},
+	emptySubtitle: {
+		fontFamily: "Inter-Regular",
+		fontSize: 14,
+		color: "#6B7280",
+		textAlign: "center",
+		marginTop: 8,
+	},
 	columnWrapper: {
 		gap: 12,
 	},
@@ -140,9 +187,17 @@ const styles = StyleSheet.create({
 		overflow: "hidden",
 		position: "relative",
 	},
-	thumbnail: {
+	thumbnailPlaceholder: {
 		height: 200,
 		width: "100%",
+		backgroundColor: "#0f0f12",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	thumbnailPlatform: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 12,
+		color: "#6B7280",
 	},
 	playButtonContainer: {
 		position: "absolute",

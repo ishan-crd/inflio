@@ -13,23 +13,25 @@ import type * as brands from "../brands.js";
 import type * as campaigns from "../campaigns.js";
 import type * as creators from "../creators.js";
 import type * as lists from "../lists.js";
+import type * as seed from "../seed.js";
 import type * as submissions from "../submissions.js";
 import type * as verifications from "../verifications.js";
 
 import type {
-	ApiFromModules,
-	FilterApi,
-	FunctionReference,
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-	applications: typeof applications;
-	brands: typeof brands;
-	campaigns: typeof campaigns;
-	creators: typeof creators;
-	lists: typeof lists;
-	submissions: typeof submissions;
-	verifications: typeof verifications;
+  applications: typeof applications;
+  brands: typeof brands;
+  campaigns: typeof campaigns;
+  creators: typeof creators;
+  lists: typeof lists;
+  seed: typeof seed;
+  submissions: typeof submissions;
+  verifications: typeof verifications;
 }>;
 
 /**
@@ -41,8 +43,8 @@ declare const fullApi: ApiFromModules<{
  * ```
  */
 export declare const api: FilterApi<
-	typeof fullApi,
-	FunctionReference<any, "public">
+  typeof fullApi,
+  FunctionReference<any, "public">
 >;
 
 /**
@@ -54,8 +56,8 @@ export declare const api: FilterApi<
  * ```
  */
 export declare const internal: FilterApi<
-	typeof fullApi,
-	FunctionReference<any, "internal">
+  typeof fullApi,
+  FunctionReference<any, "internal">
 >;
 
 export declare const components: {};

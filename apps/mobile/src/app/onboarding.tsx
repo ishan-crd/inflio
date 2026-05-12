@@ -538,6 +538,7 @@ function CreatorStep3({
 	userId: string;
 }) {
 	const createVerification = useMutation(api.verifications.create);
+	const removeVerification = useMutation(api.verifications.remove);
 	const verifications = useQuery(
 		api.verifications.getByUserId,
 		userId ? { userId } : "skip",
@@ -560,9 +561,27 @@ function CreatorStep3({
 		return record.status as "pending" | "verified";
 	}
 
+	async function handleDisconnect(id: string) {
+		setLoading(id);
+		try {
+			await removeVerification({ userId, platform: id });
+			onChange({
+				connected: data.connected.filter((c) => c !== id),
+			});
+		} catch {
+			// ignore
+		} finally {
+			setLoading(null);
+		}
+	}
+
 	async function handleConnect(id: string, label: string) {
 		const status = getVerificationStatus(id);
-		if (status === "verified" || status === "pending") return;
+		if (status === "verified") return;
+		if (status === "pending") {
+			handleDisconnect(id);
+			return;
+		}
 
 		setLoading(id);
 		try {
@@ -632,7 +651,7 @@ function CreatorStep3({
 									isVerified && styles.connectedBtn,
 								]}
 								onPress={() => handleConnect(id, label)}
-								disabled={loading === id || isActive}
+								disabled={loading === id || isVerified}
 							>
 								{loading === id ? (
 									<ActivityIndicator size="small" color="#d9f99d" />
@@ -1250,7 +1269,7 @@ const styles = StyleSheet.create({
 		width: 40,
 		height: 40,
 		borderRadius: 20,
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		alignItems: "center",
 		justifyContent: "center",
 	},
@@ -1259,13 +1278,13 @@ const styles = StyleSheet.create({
 		width: 40,
 		height: 40,
 		borderRadius: 20,
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		alignItems: "center",
 		justifyContent: "center",
 	},
 	progressBar: {
 		height: 3,
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		marginHorizontal: 20,
 		borderRadius: 2,
 	},
@@ -1301,7 +1320,7 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 	},
 	input: {
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderWidth: 1,
 		borderColor: "#2A2A2E",
 		borderRadius: 12,
@@ -1318,7 +1337,7 @@ const styles = StyleSheet.create({
 	},
 	tierCard: {
 		flex: 1,
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderWidth: 1.5,
 		borderColor: "#2A2A2E",
 		borderRadius: 14,
@@ -1346,7 +1365,7 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 	},
 	optionCard: {
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderWidth: 1.5,
 		borderColor: "#2A2A2E",
 		borderRadius: 14,
@@ -1367,7 +1386,7 @@ const styles = StyleSheet.create({
 	optionDesc: { fontFamily: "Inter-Regular", fontSize: 13, color: "#9CA3AF" },
 	chipGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
 	chip: {
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderWidth: 1,
 		borderColor: "#2A2A2E",
 		borderRadius: 20,
@@ -1391,7 +1410,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderRadius: 14,
 		padding: 16,
 	},
@@ -1452,7 +1471,7 @@ const styles = StyleSheet.create({
 	},
 	modalCard: {
 		width: "100%",
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderRadius: 20,
 		padding: 24,
 		borderWidth: 1,
@@ -1576,7 +1595,7 @@ const styles = StyleSheet.create({
 	btnDisabled: { opacity: 0.4 },
 	successWrap: { alignItems: "center", paddingTop: 80 },
 	summaryCard: {
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderRadius: 14,
 		padding: 20,
 		width: "100%",
@@ -1596,7 +1615,7 @@ const styles = StyleSheet.create({
 	// Role selection styles
 	roleCards: { gap: 14 },
 	roleCard: {
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderRadius: 18,
 		borderWidth: 1.5,
 		borderColor: "#2A2A2E",

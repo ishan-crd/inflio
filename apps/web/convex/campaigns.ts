@@ -35,6 +35,45 @@ export const listActive = query({
 	},
 });
 
+export const listActiveWithBrands = query({
+	args: {},
+	handler: async (ctx) => {
+		const campaigns = await ctx.db
+			.query("campaigns")
+			.withIndex("by_status", (q) => q.eq("status", "active"))
+			.collect();
+		const results = [];
+		for (const campaign of campaigns) {
+			const brand = await ctx.db.get(campaign.brandId);
+			if (brand) {
+				results.push({
+					...campaign,
+					brand: brand.name,
+					brandHandle: `@${brand.handle}`,
+					brandLogoColors: brand.logoColors,
+				});
+			}
+		}
+		return results;
+	},
+});
+
+export const getByIdWithBrand = query({
+	args: { id: v.id("campaigns") },
+	handler: async (ctx, args) => {
+		const campaign = await ctx.db.get(args.id);
+		if (!campaign) return null;
+		const brand = await ctx.db.get(campaign.brandId);
+		if (!brand) return null;
+		return {
+			...campaign,
+			brand: brand.name,
+			brandHandle: `@${brand.handle}`,
+			brandLogoColors: brand.logoColors,
+		};
+	},
+});
+
 export const create = mutation({
 	args: {
 		brandId: v.id("brands"),

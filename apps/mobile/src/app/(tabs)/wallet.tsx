@@ -13,7 +13,7 @@ export default function WalletScreen() {
 			<Text style={styles.heading}>Wallet</Text>
 
 			<View style={styles.balanceContainer}>
-				<Text style={styles.balanceDollars}>$0</Text>
+				<Text style={styles.balanceDollars}>₹0</Text>
 				<Text style={styles.balanceCents}>.00</Text>
 			</View>
 

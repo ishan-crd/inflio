@@ -14,12 +14,7 @@ import { api } from "../../../convex/_generated/api";
 const TAB_OPTIONS = ["Submissions", "Accounts"] as const;
 type TabOption = (typeof TAB_OPTIONS)[number];
 
-const MOCK_SUBMISSIONS = [
-	{ id: "1", random: 10 },
-	{ id: "2", random: 11 },
-	{ id: "3", random: 12 },
-	{ id: "4", random: 13 },
-];
+// Submissions are fetched from Convex
 
 function SettingsIcon() {
 	return (
@@ -112,10 +107,31 @@ function SubmissionCard({ item }: { item: SubmissionItem }) {
 	);
 }
 
-function SubmissionsGrid() {
+function SubmissionsGrid({ userId }: { userId?: string }) {
+	const submissions = useQuery(
+		api.submissions.listByUser,
+		userId ? { userId } : "skip",
+	);
+
+	if (!submissions || submissions.length === 0) {
+		return (
+			<View style={styles.emptyState}>
+				<Text style={styles.emptyStateText}>No submissions yet</Text>
+				<Text style={styles.emptyStateSubText}>
+					Apply to campaigns and submit your content to see it here.
+				</Text>
+			</View>
+		);
+	}
+
+	const items: SubmissionItem[] = submissions.map((s, i) => ({
+		id: s._id,
+		random: i + 10,
+	}));
+
 	const rows: SubmissionItem[][] = [];
-	for (let i = 0; i < MOCK_SUBMISSIONS.length; i += 2) {
-		rows.push(MOCK_SUBMISSIONS.slice(i, i + 2));
+	for (let i = 0; i < items.length; i += 2) {
+		rows.push(items.slice(i, i + 2));
 	}
 
 	return (
@@ -189,7 +205,7 @@ export default function ProfileScreen() {
 				</View>
 
 				{activeTab === "Submissions" ? (
-					<SubmissionsGrid />
+					<SubmissionsGrid userId={user?.id} />
 				) : (
 					<View style={styles.emptyState}>
 						<Text style={styles.emptyText}>No accounts connected</Text>
@@ -215,7 +231,7 @@ const styles = StyleSheet.create({
 		width: 40,
 		height: 40,
 		borderRadius: 20,
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		alignItems: "center",
 		justifyContent: "center",
 	},
@@ -269,6 +285,23 @@ const styles = StyleSheet.create({
 	},
 	tabTextInactive: {
 		color: "#6B7280",
+	},
+	emptyState: {
+		paddingHorizontal: 20,
+		paddingTop: 40,
+		alignItems: "center",
+	},
+	emptyStateText: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 16,
+		color: "#FFFFFF",
+	},
+	emptyStateSubText: {
+		fontFamily: "Inter-Regular",
+		fontSize: 13,
+		color: "#6B7280",
+		marginTop: 6,
+		textAlign: "center",
 	},
 	grid: {
 		paddingHorizontal: 20,
@@ -340,10 +373,6 @@ const styles = StyleSheet.create({
 		fontSize: 11,
 		color: "#6B7280",
 		marginLeft: 4,
-	},
-	emptyState: {
-		alignItems: "center",
-		marginTop: 40,
 	},
 	emptyText: {
 		fontFamily: "Inter-Regular",

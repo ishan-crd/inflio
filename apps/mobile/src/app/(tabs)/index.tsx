@@ -1,4 +1,4 @@
-import { Image } from "expo-image";
+import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -6,122 +6,25 @@ import {
 	SafeAreaView,
 	useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import Svg, { Circle, Line, Path, Polygon, Rect } from "react-native-svg";
+import Svg, { Circle, Line, Path, Rect } from "react-native-svg";
+import { api } from "../../../convex/_generated/api";
 import { InflioLogo } from "~/components/inflio-logo";
+import { useAuth } from "~/providers/auth";
 
-// ── Mock dashboard data ──────────────────────────────────────────────
+// Dashboard data is fetched from Convex where available
 
-const RECENT_VIDEOS = [
-	{
-		id: "1",
-		thumbnail: "https://picsum.photos/400/600?random=10",
-		title: "Summer Collection Launch",
-		views: "122.0k",
-		likes: "12.0k",
-		timeAgo: "2h ago",
-	},
-	{
-		id: "2",
-		thumbnail: "https://picsum.photos/400/600?random=11",
-		title: "Fitness App Promo",
-		views: "89.3k",
-		likes: "7.2k",
-		timeAgo: "5h ago",
-	},
-	{
-		id: "3",
-		thumbnail: "https://picsum.photos/400/600?random=12",
-		title: "Brand Identity Redesign",
-		views: "45.1k",
-		likes: "3.8k",
-		timeAgo: "1d ago",
-	},
-	{
-		id: "4",
-		thumbnail: "https://picsum.photos/400/600?random=13",
-		title: "Restaurant Logo Refresh",
-		views: "210.5k",
-		likes: "18.4k",
-		timeAgo: "1d ago",
-	},
-];
+// Active campaigns are now fetched from Convex
 
-const ACTIVE_CAMPAIGNS = [
-	{
-		id: "1",
-		title: "Philips Razor Promotion",
-		brand: "Philips",
-		brandColor: "#0B3D91",
-		spent: 230,
-		total: 850,
-		deadline: "Oct 24",
-		image: "https://picsum.photos/seed/philips/400/200",
-	},
-	{
-		id: "2",
-		title: "Nike Summer Collection",
-		brand: "Nike",
-		brandColor: "#111111",
-		spent: 500,
-		total: 1200,
-		deadline: "Nov 15",
-		image: "https://picsum.photos/seed/nike/400/200",
-	},
-	{
-		id: "3",
-		title: "Apple Music Campaign",
-		brand: "Apple",
-		brandColor: "#FB5C74",
-		spent: 180,
-		total: 600,
-		deadline: "Dec 01",
-		image: "https://picsum.photos/seed/apple/400/200",
-	},
-];
-
-const MY_APPLICATIONS = [
-	{
-		id: "1",
-		campaignTitle: "Launch reels for Lumen Pro 2",
-		brand: "Lumen Audio",
-		status: "pending" as const,
-		appliedDate: "May 2",
-		platform: "Instagram",
-	},
-	{
-		id: "2",
-		campaignTitle: "Morning ritual UGC for cold brew",
-		brand: "Kavi Coffee Co.",
-		status: "accepted" as const,
-		appliedDate: "Apr 28",
-		platform: "Instagram",
-	},
-	{
-		id: "3",
-		campaignTitle: "Studio-tour shorts for SS26",
-		brand: "Northform",
-		status: "rejected" as const,
-		appliedDate: "Apr 25",
-		platform: "YouTube",
-	},
-	{
-		id: "4",
-		campaignTitle: "First-ride POV for Glide G3",
-		brand: "Glide Mobility",
-		status: "pending" as const,
-		appliedDate: "May 4",
-		platform: "TikTok",
-	},
-];
+// Applications are now fetched from Convex
 
 const WEEKLY_EARNINGS = [
-	{ day: "Mon", amount: 45 },
-	{ day: "Tue", amount: 72 },
-	{ day: "Wed", amount: 58 },
-	{ day: "Thu", amount: 110 },
-	{ day: "Fri", amount: 89 },
-	{ day: "Sat", amount: 134 },
-	{ day: "Sun", amount: 96 },
+	{ day: "Mon", amount: 0 },
+	{ day: "Tue", amount: 0 },
+	{ day: "Wed", amount: 0 },
+	{ day: "Thu", amount: 0 },
+	{ day: "Fri", amount: 0 },
+	{ day: "Sat", amount: 0 },
+	{ day: "Sun", amount: 0 },
 ];
 
 // ── Icons ────────────────────────────────────────────────────────────
@@ -140,58 +43,6 @@ function BellIcon() {
 				d="M13.73 21a2 2 0 0 1-3.46 0"
 				stroke="white"
 				strokeWidth={1.5}
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-		</Svg>
-	);
-}
-
-function PlayButton() {
-	return (
-		<View style={styles.playButtonContainer}>
-			<Svg width={32} height={32} viewBox="0 0 36 36">
-				<Circle cx={18} cy={18} r={18} fill="rgba(0,0,0,0.5)" />
-				<Polygon points="14,11 14,25 26,18" fill="white" />
-			</Svg>
-		</View>
-	);
-}
-
-function EyeIcon({
-	size = 12,
-	color = "#6B7280",
-}: {
-	size?: number;
-	color?: string;
-}) {
-	return (
-		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-			<Path
-				d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"
-				stroke={color}
-				strokeWidth={2}
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<Circle cx={12} cy={12} r={3} stroke={color} strokeWidth={2} />
-		</Svg>
-	);
-}
-
-function HeartIcon({
-	size = 12,
-	color = "#6B7280",
-}: {
-	size?: number;
-	color?: string;
-}) {
-	return (
-		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-			<Path
-				d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-				stroke={color}
-				strokeWidth={2}
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -277,13 +128,29 @@ const STATUS_CONFIG = {
 	rejected: { label: "Rejected", color: "#EF4444", bg: "rgba(239,68,68,0.12)" },
 } as const;
 
-function ApplicationCard({ app }: { app: (typeof MY_APPLICATIONS)[number] }) {
-	const status = STATUS_CONFIG[app.status];
+function ApplicationCard({
+	app,
+}: {
+	app: {
+		_id: string;
+		campaignTitle: string;
+		campaignBrand: string;
+		status: string;
+		platform: string;
+		_creationTime: number;
+	};
+}) {
+	const statusKey = app.status as keyof typeof STATUS_CONFIG;
+	const status = STATUS_CONFIG[statusKey] || STATUS_CONFIG.pending;
+	const appliedDate = new Date(app._creationTime).toLocaleDateString("en-IN", {
+		month: "short",
+		day: "numeric",
+	});
 	return (
 		<View style={styles.appCard}>
 			<View style={styles.appCardTop}>
 				<View style={{ flex: 1 }}>
-					<Text style={styles.appBrand}>{app.brand}</Text>
+					<Text style={styles.appBrand}>{app.campaignBrand}</Text>
 					<Text style={styles.appTitle} numberOfLines={1}>
 						{app.campaignTitle}
 					</Text>
@@ -297,7 +164,7 @@ function ApplicationCard({ app }: { app: (typeof MY_APPLICATIONS)[number] }) {
 			<View style={styles.appCardBottom}>
 				<Text style={styles.appMeta}>{app.platform}</Text>
 				<View style={styles.appDotSep} />
-				<Text style={styles.appMeta}>Applied {app.appliedDate}</Text>
+				<Text style={styles.appMeta}>Applied {appliedDate}</Text>
 			</View>
 		</View>
 	);
@@ -313,11 +180,11 @@ function EarningsChart() {
 			<View style={styles.earningsHeader}>
 				<View>
 					<Text style={styles.earningsSectionTitle}>This Week</Text>
-					<Text style={styles.earningsTotal}>$604.00</Text>
+					<Text style={styles.earningsTotal}>₹0.00</Text>
 				</View>
 				<View style={styles.earningsBadge}>
 					<TrendUpIcon />
-					<Text style={styles.earningsBadgeText}>+18.2%</Text>
+					<Text style={styles.earningsBadgeText}>—</Text>
 				</View>
 			</View>
 			<View style={styles.chartContainer}>
@@ -351,56 +218,34 @@ function EarningsChart() {
 
 // ── Video Card (horizontal) ──────────────────────────────────────────
 
-function VideoCard({ video }: { video: (typeof RECENT_VIDEOS)[number] }) {
-	return (
-		<View style={styles.videoCard}>
-			<View style={styles.videoThumbnailContainer}>
-				<Image
-					source={{ uri: video.thumbnail }}
-					style={styles.videoThumbnail}
-					contentFit="cover"
-				/>
-				<PlayButton />
-				<View style={styles.videoTimeBadge}>
-					<Text style={styles.videoTimeBadgeText}>{video.timeAgo}</Text>
-				</View>
-			</View>
-			<Text style={styles.videoTitle} numberOfLines={1}>
-				{video.title}
-			</Text>
-			<View style={styles.videoStatsRow}>
-				<EyeIcon />
-				<Text style={styles.videoStatText}>{video.views}</Text>
-				<View style={{ width: 8 }} />
-				<HeartIcon />
-				<Text style={styles.videoStatText}>{video.likes}</Text>
-			</View>
-		</View>
-	);
-}
-
 // ── Campaign Card ────────────────────────────────────────────────────
 
-function CampaignCard({
+function DashboardCampaignCard({
 	campaign,
 	onPress,
 }: {
-	campaign: (typeof ACTIVE_CAMPAIGNS)[number];
+	campaign: {
+		_id: string;
+		brand: string;
+		brandLogoColors: string[];
+		title: string;
+		deadline: string;
+		spotsLeft: number;
+		totalSpots: number;
+		platform: string;
+		currency: string;
+		rate: number;
+	};
 	onPress: () => void;
 }) {
-	const progress = campaign.spent / campaign.total;
-	const percent = Math.round(progress * 100);
+	const spotsUsed = campaign.totalSpots - campaign.spotsLeft;
+	const percent = Math.round((spotsUsed / campaign.totalSpots) * 100);
 
 	return (
 		<Pressable onPress={onPress} style={styles.campaignCard}>
-			<Image
-				source={{ uri: campaign.image }}
-				style={styles.campaignCardImage}
-				contentFit="cover"
-			/>
 			<LinearGradient
-				colors={["transparent", "rgba(0,0,0,0.85)", "#000000"]}
-				locations={[0, 0.55, 1]}
+				colors={[campaign.brandLogoColors[0] || "#1a2e05", "#000000"]}
+				locations={[0, 0.7]}
 				style={StyleSheet.absoluteFill}
 			/>
 
@@ -409,7 +254,7 @@ function CampaignCard({
 				<View
 					style={[
 						styles.campaignBrandDot,
-						{ backgroundColor: campaign.brandColor },
+						{ backgroundColor: campaign.brandLogoColors[1] || "#bef264" },
 					]}
 				/>
 				<Text style={styles.campaignBrandText}>{campaign.brand}</Text>
@@ -433,8 +278,13 @@ function CampaignCard({
 						/>
 					</View>
 					<Text style={styles.campaignBudgetText}>
-						<Text style={styles.campaignBudgetSpent}>${campaign.spent}</Text>
-						<Text style={styles.campaignBudgetTotal}> / ${campaign.total}</Text>
+						<Text style={styles.campaignBudgetSpent}>
+							{spotsUsed} spots filled
+						</Text>
+						<Text style={styles.campaignBudgetTotal}>
+							{" "}
+							/ {campaign.totalSpots}
+						</Text>
 					</Text>
 				</View>
 			</View>
@@ -469,6 +319,12 @@ function SectionHeader({
 export default function DashboardScreen() {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
+	const { user } = useAuth();
+	const applications = useQuery(
+		api.applications.listByUser,
+		user?.id ? { userId: user.id } : "skip",
+	);
+	const campaigns = useQuery(api.campaigns.listActiveWithBrands);
 
 	return (
 		<SafeAreaView style={styles.container} edges={["top"]}>
@@ -491,53 +347,42 @@ export default function DashboardScreen() {
 					<EarningsChart />
 				</View>
 
-				{/* Recent Videos */}
-				<View style={styles.sectionContainer}>
-					<SectionHeader
-						title="Recent Videos"
-						onSeeAll={() => router.push("/(tabs)/videos")}
-					/>
-					<ScrollView
-						horizontal
-						showsHorizontalScrollIndicator={false}
-						contentContainerStyle={styles.videosScroll}
-					>
-						{RECENT_VIDEOS.map((video) => (
-							<VideoCard key={video.id} video={video} />
-						))}
-					</ScrollView>
-				</View>
+				{/* Recent Videos - shown when submissions exist */}
 
 				{/* My Applications */}
-				<View style={styles.sectionContainer}>
-					<SectionHeader title="My Applications" onSeeAll={() => {}} />
-					<View style={styles.appList}>
-						{MY_APPLICATIONS.map((app) => (
-							<ApplicationCard key={app.id} app={app} />
-						))}
+				{applications && applications.length > 0 && (
+					<View style={styles.sectionContainer}>
+						<SectionHeader title="My Applications" onSeeAll={() => {}} />
+						<View style={styles.appList}>
+							{applications.slice(0, 4).map((app) => (
+								<ApplicationCard key={app._id} app={app} />
+							))}
+						</View>
 					</View>
-				</View>
+				)}
 
 				{/* Active Campaigns */}
-				<View style={styles.sectionContainer}>
-					<SectionHeader
-						title="Active Campaigns"
-						onSeeAll={() => router.push("/(tabs)/campaigns")}
-					/>
-					<ScrollView
-						horizontal
-						showsHorizontalScrollIndicator={false}
-						contentContainerStyle={styles.campaignsScroll}
-					>
-						{ACTIVE_CAMPAIGNS.map((campaign) => (
-							<CampaignCard
-								key={campaign.id}
-								campaign={campaign}
-								onPress={() => router.push(`/campaign/${campaign.id}`)}
-							/>
-						))}
-					</ScrollView>
-				</View>
+				{campaigns && campaigns.length > 0 && (
+					<View style={styles.sectionContainer}>
+						<SectionHeader
+							title="Active Campaigns"
+							onSeeAll={() => router.push("/(tabs)/campaigns")}
+						/>
+						<ScrollView
+							horizontal
+							showsHorizontalScrollIndicator={false}
+							contentContainerStyle={styles.campaignsScroll}
+						>
+							{campaigns.slice(0, 5).map((campaign) => (
+								<DashboardCampaignCard
+									key={campaign._id}
+									campaign={campaign}
+									onPress={() => router.push(`/campaign/${campaign._id}`)}
+								/>
+							))}
+						</ScrollView>
+					</View>
+				)}
 
 				{/* Quick Actions */}
 				<View style={styles.sectionContainer}>
@@ -595,7 +440,7 @@ const styles = StyleSheet.create({
 		width: 44,
 		height: 44,
 		borderRadius: 12,
-		backgroundColor: "#1A1A1A",
+		backgroundColor: "#0f0f12",
 		alignItems: "center",
 		justifyContent: "center",
 		borderWidth: 1,
@@ -643,7 +488,7 @@ const styles = StyleSheet.create({
 	// Earnings Card
 	earningsCard: {
 		marginHorizontal: 20,
-		backgroundColor: "#1A1A1A",
+		backgroundColor: "#0f0f12",
 		borderRadius: 16,
 		padding: 18,
 		borderWidth: 1,
@@ -708,75 +553,13 @@ const styles = StyleSheet.create({
 		color: "#6B7280",
 	},
 
-	// Videos horizontal scroll
-	videosScroll: {
-		paddingLeft: 20,
-		paddingRight: 8,
-		gap: 12,
-	},
-	videoCard: {
-		width: 150,
-	},
-	videoThumbnailContainer: {
-		width: 150,
-		height: 200,
-		borderRadius: 14,
-		overflow: "hidden",
-		position: "relative",
-	},
-	videoThumbnail: {
-		width: 150,
-		height: 200,
-	},
-	playButtonContainer: {
-		position: "absolute",
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	videoTimeBadge: {
-		position: "absolute",
-		top: 8,
-		right: 8,
-		backgroundColor: "rgba(0,0,0,0.6)",
-		borderRadius: 6,
-		paddingHorizontal: 7,
-		paddingVertical: 3,
-	},
-	videoTimeBadgeText: {
-		fontFamily: "Inter-SemiBold",
-		fontSize: 10,
-		color: "#FFFFFF",
-	},
-	videoTitle: {
-		fontFamily: "Inter-SemiBold",
-		fontSize: 12,
-		color: "#FFFFFF",
-		marginTop: 8,
-	},
-	videoStatsRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 3,
-		marginTop: 4,
-	},
-	videoStatText: {
-		fontFamily: "Inter-Regular",
-		fontSize: 11,
-		color: "#6B7280",
-		marginLeft: 2,
-	},
-
 	// Applications
 	appList: {
 		paddingHorizontal: 20,
 		gap: 10,
 	},
 	appCard: {
-		backgroundColor: "#1A1A1A",
+		backgroundColor: "#0f0f12",
 		borderRadius: 14,
 		padding: 14,
 		borderWidth: 1,
@@ -839,11 +622,6 @@ const styles = StyleSheet.create({
 		overflow: "hidden",
 		borderWidth: 1,
 		borderColor: "rgba(255,255,255,0.06)",
-	},
-	campaignCardImage: {
-		...StyleSheet.absoluteFillObject,
-		width: 240,
-		height: 180,
 	},
 	campaignBrandBadge: {
 		position: "absolute",

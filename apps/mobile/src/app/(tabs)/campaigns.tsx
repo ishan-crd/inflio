@@ -1,7 +1,9 @@
+import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+	ActivityIndicator,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -13,229 +15,8 @@ import {
 	useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Svg, { Circle, Path } from "react-native-svg";
-import { ACCENT_MAP, BRAND_COLORS, colors } from "~/utils/theme";
-
-interface Campaign {
-	id: number;
-	brand: string;
-	brandHandle: string;
-	title: string;
-	brief: string;
-	platform: string;
-	category: string;
-	rate: number;
-	currency: string;
-	perViews: string;
-	minViews: string;
-	budget: string;
-	deadline: string;
-	spotsLeft: number;
-	totalSpots: number;
-	trending: boolean;
-	color: string;
-	tags: string[];
-	creatorsJoined: number;
-}
-
-const CAMPAIGNS: Campaign[] = [
-	{
-		id: 1,
-		brand: "Lumen Audio",
-		brandHandle: "@lumenaudio",
-		title: "Launch reels for the new Lumen Pro 2 earbuds",
-		brief:
-			"Authentic 30\u201360s reel showcasing Lumen Pro 2 in a daily-life moment. Highlight ANC and 12-hour battery.",
-		platform: "Instagram",
-		category: "Tech",
-		rate: 240,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "10k",
-		budget: "4.8L",
-		deadline: "May 18",
-		spotsLeft: 12,
-		totalSpots: 30,
-		trending: true,
-		color: "lime",
-		tags: ["Reels", "Unboxing", "Lifestyle"],
-		creatorsJoined: 18,
-	},
-	{
-		id: 2,
-		brand: "Kavi Coffee Co.",
-		brandHandle: "@kavicoffee",
-		title: "Morning ritual UGC for cold brew launch",
-		brief:
-			"Short-form video starring our cold brew bottle. Bonus payout for >50k views in first 72 hours.",
-		platform: "Instagram",
-		category: "Food & Bev",
-		rate: 180,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "5k",
-		budget: "2.4L",
-		deadline: "May 24",
-		spotsLeft: 6,
-		totalSpots: 20,
-		trending: true,
-		color: "amber",
-		tags: ["UGC", "Lifestyle"],
-		creatorsJoined: 14,
-	},
-	{
-		id: 3,
-		brand: "Northform",
-		brandHandle: "@northform.studio",
-		title: "Studio-tour shorts for the SS26 collection",
-		brief:
-			"Behind-the-scenes shorts from our Mumbai studio. Quiet, cinematic tone preferred.",
-		platform: "YouTube",
-		category: "Fashion",
-		rate: 420,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "20k",
-		budget: "8.2L",
-		deadline: "Jun 02",
-		spotsLeft: 4,
-		totalSpots: 10,
-		trending: false,
-		color: "violet",
-		tags: ["Shorts", "Cinematic"],
-		creatorsJoined: 6,
-	},
-	{
-		id: 4,
-		brand: "Glide Mobility",
-		brandHandle: "@rideglide",
-		title: "First-ride POV for the Glide G3 e-scooter",
-		brief:
-			"POV ride through your city. Hooks under 2s. Strong CTA to test-ride event.",
-		platform: "TikTok",
-		category: "Auto",
-		rate: 310,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "25k",
-		budget: "6.0L",
-		deadline: "May 30",
-		spotsLeft: 9,
-		totalSpots: 25,
-		trending: true,
-		color: "lime",
-		tags: ["POV", "Outdoor"],
-		creatorsJoined: 22,
-	},
-	{
-		id: 5,
-		brand: "Petal & Press",
-		brandHandle: "@petalandpress",
-		title: "GRWM with our new clean-skin serum",
-		brief:
-			"Get-ready-with-me clip featuring the Hydra Veil serum. No filters, no over-editing.",
-		platform: "Instagram",
-		category: "Beauty",
-		rate: 200,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "8k",
-		budget: "3.0L",
-		deadline: "May 21",
-		spotsLeft: 17,
-		totalSpots: 40,
-		trending: false,
-		color: "rose",
-		tags: ["GRWM", "Skincare"],
-		creatorsJoined: 11,
-	},
-	{
-		id: 6,
-		brand: "Forge Finance",
-		brandHandle: "@forgefin",
-		title: "60-second explainer: why your SIP isn\u2019t working",
-		brief:
-			"Educational short. Calm voiceover, on-screen captions. We\u2019ll provide the script outline.",
-		platform: "YouTube",
-		category: "Finance",
-		rate: 520,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "15k",
-		budget: "9.5L",
-		deadline: "Jun 10",
-		spotsLeft: 3,
-		totalSpots: 8,
-		trending: false,
-		color: "sky",
-		tags: ["Explainer", "Voiceover"],
-		creatorsJoined: 5,
-	},
-	{
-		id: 7,
-		brand: "Halfmoon Kitchen",
-		brandHandle: "@halfmoonkitchen",
-		title: "60s recipe reel using our miso paste",
-		brief: "One recipe, one minute, one pan. Hero shot of the jar at the end.",
-		platform: "Instagram",
-		category: "Food & Bev",
-		rate: 160,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "10k",
-		budget: "1.8L",
-		deadline: "May 16",
-		spotsLeft: 22,
-		totalSpots: 50,
-		trending: false,
-		color: "amber",
-		tags: ["Recipe", "Reels"],
-		creatorsJoined: 9,
-	},
-	{
-		id: 8,
-		brand: "Atlas Outdoors",
-		brandHandle: "@atlas.outdoors",
-		title: "Trail-test the Atlas X1 jacket in the Himalayas",
-		brief:
-			"Field-test footage with weather details. Bonus payout for snow conditions.",
-		platform: "YouTube",
-		category: "Outdoor",
-		rate: 480,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "20k",
-		budget: "7.6L",
-		deadline: "Jun 18",
-		spotsLeft: 5,
-		totalSpots: 12,
-		trending: true,
-		color: "sky",
-		tags: ["Adventure", "Field-test"],
-		creatorsJoined: 8,
-	},
-	{
-		id: 9,
-		brand: "Soko Stationery",
-		brandHandle: "@sokostationery",
-		title: "Desk-setup ASMR with our new notebook line",
-		brief:
-			"Cozy, ambient desk-setup video. Highlight the textured cover of the Soko Daily.",
-		platform: "TikTok",
-		category: "Lifestyle",
-		rate: 140,
-		currency: "\u20B9",
-		perViews: "1k",
-		minViews: "5k",
-		budget: "1.2L",
-		deadline: "May 14",
-		spotsLeft: 28,
-		totalSpots: 60,
-		trending: false,
-		color: "violet",
-		tags: ["ASMR", "Desk"],
-		creatorsJoined: 7,
-	},
-];
+import { api } from "../../../convex/_generated/api";
+import { ACCENT_MAP, colors } from "~/utils/theme";
 
 const PLATFORMS = ["All", "Instagram", "YouTube", "TikTok"];
 
@@ -335,11 +116,32 @@ function CampaignCard({
 	campaign,
 	onPress,
 }: {
-	campaign: Campaign;
+	campaign: {
+		_id: string;
+		brand: string;
+		brandHandle: string;
+		brandLogoColors: string[];
+		title: string;
+		brief: string;
+		platform: string;
+		category: string;
+		rate: number;
+		currency: string;
+		perViews: string;
+		minViews: string;
+		budget: string;
+		deadline: string;
+		spotsLeft: number;
+		totalSpots: number;
+		trending: boolean;
+		color: string;
+		tags: string[];
+		creatorsJoined: number;
+	};
 	onPress: () => void;
 }) {
 	const accent = ACCENT_MAP[campaign.color] || ACCENT_MAP.lime;
-	const brandColor = BRAND_COLORS[campaign.brand] || ["#d9f99d", "#1a2e05"];
+	const brandColor = campaign.brandLogoColors || ["#d9f99d", "#1a2e05"];
 	const spotsPercent =
 		((campaign.totalSpots - campaign.spotsLeft) / campaign.totalSpots) * 100;
 
@@ -477,11 +279,14 @@ export default function CampaignsScreen() {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
 	const [activePlatform, setActivePlatform] = useState("All");
+	const campaigns = useQuery(api.campaigns.listActiveWithBrands);
 
 	const filtered =
-		activePlatform === "All"
-			? CAMPAIGNS
-			: CAMPAIGNS.filter((c) => c.platform === activePlatform);
+		!campaigns
+			? []
+			: activePlatform === "All"
+				? campaigns
+				: campaigns.filter((c) => c.platform === activePlatform);
 
 	return (
 		<View style={styles.container}>
@@ -491,7 +296,7 @@ export default function CampaignsScreen() {
 					<View>
 						<Text style={styles.heading}>Campaigns</Text>
 						<Text style={styles.subheading}>
-							{CAMPAIGNS.length} active campaigns
+							{campaigns?.length ?? 0} active campaigns
 						</Text>
 					</View>
 					<TouchableOpacity style={styles.bellBtn}>
@@ -536,13 +341,20 @@ export default function CampaignsScreen() {
 					}}
 					showsVerticalScrollIndicator={false}
 				>
-					{filtered.map((campaign) => (
-						<CampaignCard
-							key={campaign.id}
-							campaign={campaign}
-							onPress={() => router.push(`/campaign/${campaign.id}`)}
+					{campaigns === undefined ? (
+						<ActivityIndicator
+							color={colors.accent}
+							style={{ marginTop: 40 }}
 						/>
-					))}
+					) : (
+						filtered.map((campaign) => (
+							<CampaignCard
+								key={campaign._id}
+								campaign={campaign}
+								onPress={() => router.push(`/campaign/${campaign._id}`)}
+							/>
+						))
+					)}
 				</ScrollView>
 			</SafeAreaView>
 		</View>

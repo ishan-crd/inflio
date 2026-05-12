@@ -1,8 +1,11 @@
+import { useMutation } from "convex/react";
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useAuth } from "~/providers/auth";
+import { api } from "../../convex/_generated/api";
 
 function BackArrow() {
 	return (
@@ -32,12 +35,56 @@ function LogOutIcon() {
 	);
 }
 
+function TrashIcon() {
+	return (
+		<Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6"
+				stroke="#ef4444"
+				strokeWidth={2}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
 export default function SettingsScreen() {
-	const { signOut } = useAuth();
+	const { user, signOut } = useAuth();
+	const disableCreator = useMutation(api.creators.disableAccount);
+	const disableBrand = useMutation(api.brands.disableAccount);
+	const [deleting, setDeleting] = useState(false);
 
 	async function handleLogout() {
 		await signOut();
 		router.replace("/login");
+	}
+
+	function handleDeleteAccount() {
+		Alert.alert(
+			"Delete Account",
+			"Are you sure you want to delete your account? Your profile will be deactivated and you will be logged out. This action can only be reversed by contacting support.",
+			[
+				{ text: "Cancel", style: "cancel" },
+				{
+					text: "Delete",
+					style: "destructive",
+					onPress: async () => {
+						if (!user?.id) return;
+						setDeleting(true);
+						try {
+							await disableCreator({ userId: user.id });
+							await disableBrand({ userId: user.id });
+							await signOut();
+							router.replace("/login");
+						} catch {
+							setDeleting(false);
+							Alert.alert("Error", "Failed to delete account. Please try again.");
+						}
+					},
+				},
+			],
+		);
 	}
 
 	return (
@@ -53,13 +100,29 @@ export default function SettingsScreen() {
 			<View style={styles.content}>
 				<Pressable
 					style={({ pressed }) => [
-						styles.logoutBtn,
+						styles.menuBtn,
 						pressed && { opacity: 0.85 },
 					]}
 					onPress={handleLogout}
 				>
 					<LogOutIcon />
 					<Text style={styles.logoutText}>Log out</Text>
+				</Pressable>
+
+				<Pressable
+					style={({ pressed }) => [
+						styles.menuBtn,
+						styles.deleteBtn,
+						pressed && { opacity: 0.85 },
+						deleting && { opacity: 0.5 },
+					]}
+					onPress={handleDeleteAccount}
+					disabled={deleting}
+				>
+					<TrashIcon />
+					<Text style={styles.deleteText}>
+						{deleting ? "Deleting..." : "Delete account"}
+					</Text>
 				</Pressable>
 			</View>
 		</SafeAreaView>
@@ -82,7 +145,7 @@ const styles = StyleSheet.create({
 		width: 40,
 		height: 40,
 		borderRadius: 20,
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		alignItems: "center",
 		justifyContent: "center",
 	},
@@ -95,21 +158,30 @@ const styles = StyleSheet.create({
 		flex: 1,
 		paddingHorizontal: 24,
 		paddingTop: 24,
+		gap: 12,
 	},
-	logoutBtn: {
+	menuBtn: {
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 12,
-		backgroundColor: "#1A1A1E",
+		backgroundColor: "#0f0f12",
 		borderRadius: 14,
 		borderWidth: 1,
 		borderColor: "#2A2A2E",
 		paddingHorizontal: 20,
 		paddingVertical: 16,
 	},
+	deleteBtn: {
+		borderColor: "rgba(239,68,68,0.2)",
+	},
 	logoutText: {
 		fontFamily: "Inter-SemiBold",
 		fontSize: 16,
 		color: "#fb7185",
+	},
+	deleteText: {
+		fontFamily: "Inter-SemiBold",
+		fontSize: 16,
+		color: "#ef4444",
 	},
 });

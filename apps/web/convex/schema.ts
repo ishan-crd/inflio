@@ -14,6 +14,7 @@ export default defineSchema({
 		responseTime: v.string(),
 		website: v.optional(v.string()),
 		category: v.string(),
+		accountStatus: v.optional(v.string()), // "active" | "disabled" — soft delete
 	})
 		.index("by_handle", ["handle"])
 		.index("by_userId", ["userId"]),
@@ -101,6 +102,7 @@ export default defineSchema({
 				tt: v.string(),
 			}),
 		),
+		accountStatus: v.optional(v.string()), // "active" | "disabled" — soft delete
 	})
 		.index("by_handle", ["handle"])
 		.index("by_userId", ["userId"])

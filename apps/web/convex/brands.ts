@@ -28,10 +28,12 @@ export const getByHandle = query({
 export const getByUserId = query({
 	args: { userId: v.string() },
 	handler: async (ctx, args) => {
-		return await ctx.db
+		const brand = await ctx.db
 			.query("brands")
 			.withIndex("by_userId", (q) => q.eq("userId", args.userId))
 			.first();
+		if (brand?.accountStatus === "disabled") return null;
+		return brand;
 	},
 });
 
@@ -54,6 +56,7 @@ export const onboard = mutation({
 			userId: args.userId,
 			name: args.company,
 			handle,
+			accountStatus: "active",
 			logoColors: ["#1e1e24", "#f5f5f5"],
 			bio: `${args.industry} brand focused on ${args.goal}`,
 			followers: "0",
@@ -82,6 +85,19 @@ export const create = mutation({
 	},
 	handler: async (ctx, args) => {
 		return await ctx.db.insert("brands", args);
+	},
+});
+
+export const disableAccount = mutation({
+	args: { userId: v.string() },
+	handler: async (ctx, args) => {
+		const brand = await ctx.db
+			.query("brands")
+			.withIndex("by_userId", (q) => q.eq("userId", args.userId))
+			.first();
+		if (!brand) return null;
+		await ctx.db.patch(brand._id, { accountStatus: "disabled" });
+		return brand._id;
 	},
 });
 

@@ -28,10 +28,12 @@ export const getByHandle = query({
 export const getByUserId = query({
 	args: { userId: v.string() },
 	handler: async (ctx, args) => {
-		return await ctx.db
+		const creator = await ctx.db
 			.query("creators")
 			.withIndex("by_userId", (q) => q.eq("userId", args.userId))
 			.first();
+		if (creator?.accountStatus === "disabled") return null;
+		return creator;
 	},
 });
 
@@ -62,6 +64,7 @@ export const onboard = mutation({
 			userId: args.userId,
 			name: args.name,
 			handle: args.handle,
+			accountStatus: "active",
 			avatarColor: colors,
 			location: args.city,
 			bio: `${args.niches.slice(0, 2).join(" & ")} creator`,
@@ -172,6 +175,19 @@ export const create = mutation({
 	},
 	handler: async (ctx, args) => {
 		return await ctx.db.insert("creators", args);
+	},
+});
+
+export const disableAccount = mutation({
+	args: { userId: v.string() },
+	handler: async (ctx, args) => {
+		const creator = await ctx.db
+			.query("creators")
+			.withIndex("by_userId", (q) => q.eq("userId", args.userId))
+			.first();
+		if (!creator) return null;
+		await ctx.db.patch(creator._id, { accountStatus: "disabled" });
+		return creator._id;
 	},
 });
 
