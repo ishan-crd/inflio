@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	ArrowIcon,
 	BackIcon,
@@ -916,6 +916,102 @@ function Step5({
 }
 
 // ---------------------------------------------------------------------------
+// Cancel Confirm Dialog
+// ---------------------------------------------------------------------------
+
+function CancelConfirmDialog({
+	onConfirm,
+	onCancel,
+}: {
+	onConfirm: () => void;
+	onCancel: () => void;
+}) {
+	const overlayRef = useRef<HTMLDivElement>(null);
+
+	return (
+		<div
+			ref={overlayRef}
+			onClick={(e) => { if (e.target === overlayRef.current) onCancel(); }}
+			style={{
+				position: "fixed",
+				inset: 0,
+				background: "rgba(0,0,0,0.6)",
+				backdropFilter: "blur(4px)",
+				WebkitBackdropFilter: "blur(4px)",
+				zIndex: 9998,
+				display: "grid",
+				placeItems: "center",
+			}}
+		>
+			<div
+				style={{
+					background: "rgba(22,22,26,0.98)",
+					border: "1px solid var(--color-line)",
+					borderRadius: 16,
+					padding: 28,
+					width: 400,
+					maxWidth: "90vw",
+					boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+				}}
+			>
+				<h3 style={{
+					fontFamily: "'Geist', sans-serif",
+					fontSize: 17,
+					fontWeight: 600,
+					letterSpacing: "-0.02em",
+					margin: "0 0 8px",
+				}}>
+					Discard campaign?
+				</h3>
+				<p style={{
+					fontSize: 13,
+					color: "var(--color-ink-2)",
+					lineHeight: 1.6,
+					margin: "0 0 24px",
+				}}>
+					You haven&apos;t published yet. All progress on this campaign will be lost.
+				</p>
+				<div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+					<button
+						onClick={onCancel}
+						style={{
+							padding: "9px 20px",
+							borderRadius: 8,
+							fontSize: 13,
+							fontWeight: 500,
+							background: "rgba(255,255,255,0.04)",
+							border: "1px solid var(--color-line-2)",
+							color: "var(--color-ink-1)",
+							cursor: "pointer",
+							transition: "background 0.15s",
+						}}
+					>
+						Keep editing
+					</button>
+					<button
+						onClick={onConfirm}
+						style={{
+							padding: "9px 20px",
+							borderRadius: 8,
+							fontSize: 13,
+							fontWeight: 500,
+							border: "none",
+							cursor: "pointer",
+							transition: "all 0.15s",
+							background: "rgba(251,113,133,0.15)",
+							color: "#fb7185",
+							boxShadow: "0 0 0 1px rgba(251,113,133,0.3)",
+						}}
+					>
+						Discard & leave
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// ---------------------------------------------------------------------------
 // Inner page
 // ---------------------------------------------------------------------------
 
@@ -934,6 +1030,7 @@ function CreateCampaignInner() {
 	const [saving, setSaving] = useState(false);
 	const [published, setPublished] = useState(false);
 	const [data, setData] = useState<CampaignFormData>(INITIAL_DATA);
+	const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
 	const TOTAL_STEPS = 5;
 	const progress = ((step + 1) / TOTAL_STEPS) * 100;
@@ -1021,7 +1118,7 @@ function CreateCampaignInner() {
 						Inflio
 					</div>
 					<span />
-					<Link href="/campaigns" className="skip">
+					<Link href="/dashboard/campaigns" className="skip">
 						Cancel
 					</Link>
 				</nav>
@@ -1054,7 +1151,7 @@ function CreateCampaignInner() {
 						Inflio
 					</div>
 					<span />
-					<Link href="/campaigns" className="skip">
+					<Link href="/dashboard/campaigns" className="skip">
 						Back
 					</Link>
 				</nav>
@@ -1221,10 +1318,21 @@ function CreateCampaignInner() {
 				>
 					{step + 1} / {TOTAL_STEPS}
 				</span>
-				<Link href="/campaigns" className="skip">
+				<button
+					onClick={() => setShowCancelConfirm(true)}
+					className="skip"
+					style={{ background: "none", border: "none", cursor: "pointer" }}
+				>
 					Cancel
-				</Link>
+				</button>
 			</nav>
+
+			{showCancelConfirm && (
+				<CancelConfirmDialog
+					onConfirm={() => router.push("/dashboard/campaigns")}
+					onCancel={() => setShowCancelConfirm(false)}
+				/>
+			)}
 
 			{/* Progress */}
 			<div className="onboard-progress">
