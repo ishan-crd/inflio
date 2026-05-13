@@ -104,9 +104,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				otp,
 			});
 			if (result?.error) {
-				return {
-					error: result.error.message || "Invalid OTP. Please try again.",
-				};
+				const msg = result.error.message || "";
+				if (msg.toLowerCase().includes("invalid")) {
+					return { error: "Invalid OTP. Please check and try again." };
+				}
+				return { error: msg || "Verification failed. Please try again." };
 			}
 			// Explicitly fetch session after OTP verification
 			const { data: sess } = await authClient.getSession();
@@ -121,7 +123,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				};
 			}
 			return { error: "Verification completed but no session found." };
-		} catch {
+		} catch (e: unknown) {
+			const msg =
+				e instanceof Error ? e.message : typeof e === "string" ? e : "";
+			if (msg.toLowerCase().includes("invalid")) {
+				return { error: "Invalid OTP. Please check and try again." };
+			}
 			return { error: "Network error. Please try again." };
 		}
 	}, []);

@@ -62,6 +62,7 @@ export default function VerifyOtpScreen() {
 			const result = await verifyOtp(email, code);
 			if (result?.error) {
 				setError(result.error);
+				setOtp("");
 				setLoading(false);
 				return;
 			}
@@ -85,6 +86,7 @@ export default function VerifyOtpScreen() {
 			router.replace("/onboarding");
 		} catch {
 			setError("Verification failed. Please try again.");
+			setOtp("");
 			setLoading(false);
 		}
 	}

@@ -18,13 +18,10 @@ import {
 	BellIcon,
 	CheckBigIcon,
 	CheckIcon,
-	IGIcon,
 	PlatformIcon,
 	PlusIcon,
 	TrendIcon,
-	TTIcon,
 	VerifiedIcon,
-	YTIcon,
 } from "@/components/icons";
 import { Nav as SharedNav } from "@/components/nav";
 import { ACCENT_MAP } from "@/data/constants";
@@ -296,11 +293,7 @@ const FAQS = [
 	},
 ];
 
-const PLATFORM_OPTS = [
-	{ name: "Instagram", handle: "@riya.makes", followers: "84.2k" },
-	{ name: "YouTube", handle: "Riya Makes", followers: "12.4k" },
-	{ name: "TikTok", handle: "@riyamakes", followers: "31.9k" },
-];
+type PlatformOpt = { name: string; handle: string; followers: string };
 
 const DELIVERABLES = [
 	{
@@ -2470,6 +2463,13 @@ function ApplyModal({
 }) {
 	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
+	const creatorProfile = useQuery(
+		api.creators.getByUserId,
+		session.user.id ? { userId: session.user.id } : "skip",
+	);
+	const platformOpts: PlatformOpt[] = (creatorProfile?.platforms ?? []).map(
+		(p) => ({ name: p.name, handle: p.handle, followers: p.followers }),
+	);
 	const [step, setStep] = useState(0);
 	const [selectedPlatform, setSelectedPlatform] = useState(0);
 	const [pitch, setPitch] = useState("");
@@ -2489,7 +2489,7 @@ function ApplyModal({
 
 	const canNext =
 		step === 0
-			? true
+			? platformOpts.length > 0
 			: step === 1
 				? pitch.length >= 20
 				: step === 2
@@ -2500,7 +2500,8 @@ function ApplyModal({
 		if (step < 2) {
 			setStep(step + 1);
 		} else {
-			const platform = PLATFORM_OPTS[selectedPlatform];
+			const platform = platformOpts[selectedPlatform];
+			if (!platform) return;
 			await createApplication({
 				userId: session.user.id,
 				userName: session.user.name,
@@ -2657,7 +2658,7 @@ function ApplyModal({
 										color: "var(--color-ink-0)",
 									}}
 								>
-									{PLATFORM_OPTS[selectedPlatform].name}
+									{platformOpts[selectedPlatform]?.name ?? "—"}
 								</div>
 							</div>
 							<div
@@ -2789,27 +2790,31 @@ function ApplyModal({
 								}}
 							>
 								{step === 0
-									? "Select your platform"
+									? "Select your account"
 									: step === 1
 										? "Write your pitch"
 										: "Confirm & apply"}
 							</h3>
 						</div>
 
-						{/* Step 0: Platform picker */}
+						{/* Step 0: Account picker */}
 						{step === 0 && (
 							<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-								{PLATFORM_OPTS.map((p, i) => {
+								{creatorProfile === undefined && (
+									<div style={{ padding: "24px 0", textAlign: "center", fontSize: 13, color: "var(--color-ink-3)" }}>
+										Loading your accounts…
+									</div>
+								)}
+								{creatorProfile !== undefined && platformOpts.length === 0 && (
+									<div style={{ padding: "24px 0", textAlign: "center", fontSize: 13, color: "var(--color-ink-3)" }}>
+										No connected accounts found. Complete your profile to add platform accounts.
+									</div>
+								)}
+								{platformOpts.map((p, i) => {
 									const selected = selectedPlatform === i;
-									const Icon =
-										p.name === "Instagram"
-											? IGIcon
-											: p.name === "YouTube"
-												? YTIcon
-												: TTIcon;
 									return (
 										<button
-											key={p.name}
+											key={`${p.name}-${p.handle}`}
 											onClick={() => setSelectedPlatform(i)}
 											style={{
 												display: "flex",
@@ -2838,7 +2843,7 @@ function ApplyModal({
 													color: selected ? accent.chip : "var(--color-ink-1)",
 												}}
 											>
-												<Icon />
+												<PlatformIcon name={p.name} />
 											</div>
 											<div style={{ flex: 1 }}>
 												<div
