@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
+import { useAuth } from "~/providers/auth";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { ACCENT_MAP, BRAND_COLORS, colors } from "~/utils/theme";
@@ -73,12 +74,7 @@ function BackIcon() {
 	);
 }
 
-// ── Platform options (mock creator profile) ─────────────────────────
-const PLATFORM_OPTS = [
-	{ name: "Instagram", handle: "@riya.makes", followers: "84.2k" },
-	{ name: "YouTube", handle: "Riya Makes", followers: "12.4k" },
-	{ name: "TikTok", handle: "@riyamakes", followers: "31.9k" },
-];
+type PlatformOpt = { name: string; handle: string; followers: string };
 
 // ── Icons for modal ─────────────────────────────────────────────────
 function CheckSmallIcon({ color = "#0a0a0c" }: { color?: string }) {
@@ -167,10 +163,12 @@ function CheckBigIcon({ color }: { color: string }) {
 function ApplyModal({
 	sheetRef,
 	campaign,
+	platformOpts,
 	onDismiss,
 }: {
 	sheetRef: React.RefObject<BottomSheetModal | null>;
 	campaign: Campaign;
+	platformOpts: PlatformOpt[];
 	onDismiss: () => void;
 }) {
 	const insets = useSafeAreaInsets();
@@ -199,7 +197,7 @@ function ApplyModal({
 
 	const canNext =
 		step === 0
-			? true
+			? platformOpts.length > 0
 			: step === 1
 				? pitch.length >= 20
 				: step === 2
@@ -271,7 +269,7 @@ function ApplyModal({
 							<View style={modalStyles.summaryCard}>
 								<Text style={modalStyles.summaryLabel}>Platform</Text>
 								<Text style={modalStyles.summaryValue}>
-									{PLATFORM_OPTS[selectedPlatform].name}
+									{platformOpts[selectedPlatform]?.name ?? "—"}
 								</Text>
 							</View>
 							<View style={modalStyles.summaryCard}>
@@ -330,16 +328,21 @@ function ApplyModal({
 						<Text style={modalStyles.stepLabel}>Step {step + 1} of 3</Text>
 						<Text style={modalStyles.stepTitle}>
 							{step === 0
-								? "Select your platform"
+								? "Select your account"
 								: step === 1
 									? "Write your pitch"
 									: "Confirm & apply"}
 						</Text>
 
-						{/* Step 0: Platform picker */}
+						{/* Step 0: Account picker */}
 						{step === 0 && (
 							<View style={modalStyles.platformList}>
-								{PLATFORM_OPTS.map((p, i) => {
+								{platformOpts.length === 0 && (
+									<Text style={{ color: colors.textTertiary, fontSize: 13, textAlign: "center", paddingVertical: 24 }}>
+										No connected accounts. Complete your profile to add platform accounts.
+									</Text>
+								)}
+								{platformOpts.map((p, i) => {
 									const selected = selectedPlatform === i;
 									return (
 										<Pressable
@@ -553,10 +556,24 @@ export default function CampaignDetailScreen() {
 	const insets = useSafeAreaInsets();
 	const [activeTab, setActiveTab] = useState<Tab>("Brief");
 	const applySheetRef = useRef<BottomSheetModal>(null);
+	const { user } = useAuth();
 
 	const campaign = useQuery(
 		api.campaigns.getByIdWithBrand,
 		id ? { id: id as Id<"campaigns"> } : "skip",
+	);
+
+	const creatorProfile = useQuery(
+		api.creators.getByUserId,
+		user?.id ? { userId: user.id } : "skip",
+	);
+	const brandProfile = useQuery(
+		api.brands.getByUserId,
+		user?.id ? { userId: user.id } : "skip",
+	);
+	const isBrand = !!brandProfile;
+	const platformOpts: PlatformOpt[] = (creatorProfile?.platforms ?? []).map(
+		(p) => ({ name: p.name, handle: p.handle, followers: p.followers }),
 	);
 
 	if (campaign === undefined) {
@@ -887,25 +904,39 @@ export default function CampaignDetailScreen() {
 							<Text style={styles.footerPer}>/{campaign.perViews}</Text>
 						</View>
 					</View>
-					<Pressable
-						onPress={() => applySheetRef.current?.present()}
-						style={({ pressed }) => [
-							styles.footerApplyBtn,
-							{ backgroundColor: accent.chip },
-							pressed && { opacity: 0.85 },
-						]}
-					>
-						<Text style={styles.footerApplyText}>Apply →</Text>
-					</Pressable>
+					{!isBrand ? (
+						<Pressable
+							onPress={() => applySheetRef.current?.present()}
+							style={({ pressed }) => [
+								styles.footerApplyBtn,
+								{ backgroundColor: accent.chip },
+								pressed && { opacity: 0.85 },
+							]}
+						>
+							<Text style={styles.footerApplyText}>Apply →</Text>
+						</Pressable>
+					) : (
+						<View
+							style={[
+								styles.footerApplyBtn,
+								{ backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: colors.border },
+							]}
+						>
+							<Text style={[styles.footerApplyText, { color: colors.textSecondary }]}>Viewing as brand</Text>
+						</View>
+					)}
 				</View>
 			</View>
 
 			{/* Apply Bottom Sheet */}
-			<ApplyModal
-				sheetRef={applySheetRef}
-				campaign={campaign}
-				onDismiss={() => {}}
-			/>
+			{!isBrand && (
+				<ApplyModal
+					sheetRef={applySheetRef}
+					campaign={campaign}
+					platformOpts={platformOpts}
+					onDismiss={() => {}}
+				/>
+			)}
 		</View>
 	);
 }
