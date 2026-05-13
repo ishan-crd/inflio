@@ -1636,7 +1636,7 @@ function CreateCampaignInner() {
 						totalSteps={TOTAL_STEPS}
 						onBack={handleBack}
 						onNext={handleNext}
-						canContinue={canContinue()}
+						canContinue={true}
 						nextLabel={
 							step === TOTAL_STEPS - 1
 								? "Publish Campaign"
