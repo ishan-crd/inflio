@@ -2,12 +2,36 @@
 
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowIcon, PlatformIcon, VerifiedIcon } from "@/components/icons";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowIcon, IGIcon, PlatformIcon, TTIcon, VerifiedIcon, YTIcon } from "@/components/icons";
 import { ACCENT_MAP } from "@/data/constants";
 import { useSession } from "@/lib/auth-client";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
+
+const CATEGORIES = [
+	"Tech", "Fashion", "Beauty", "Food & Bev", "Finance", "Fitness",
+	"Lifestyle", "Gaming", "Travel", "Music", "Education", "Other",
+];
+const CONTENT_TAGS = [
+	"Reels", "Shorts", "UGC", "Unboxing", "Review", "Tutorial",
+	"Lifestyle", "GRWM", "Vlog", "Story", "Collab", "Other",
+];
+const PLATFORMS = [
+	{ id: "Instagram", label: "Instagram", Icon: IGIcon },
+	{ id: "YouTube", label: "YouTube", Icon: YTIcon },
+	{ id: "TikTok", label: "TikTok", Icon: TTIcon },
+];
+const CURRENCIES = ["₹", "$", "€"];
+const COLORS = ["lime", "cyan", "violet", "amber", "rose"] as const;
+type ColorKey = (typeof COLORS)[number];
+const COLOR_DOT: Record<string, string> = {
+	lime: "linear-gradient(135deg, #bef264, #22c55e)",
+	cyan: "linear-gradient(135deg, #22d3ee, #0ea5e9)",
+	violet: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
+	amber: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+	rose: "linear-gradient(135deg, #fb7185, #e11d48)",
+};
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -48,6 +72,136 @@ const CREATOR_DOT_GRADIENTS: [string, string][] = [
 	["#60a5fa", "#22d3ee"],
 	["#fb923c", "#facc15"],
 ];
+
+// ─── Toast ──────────────────────────────────────────────────────────────────
+
+function Toast({ message, onDone }: { message: string; onDone: () => void }) {
+	useEffect(() => {
+		const t = setTimeout(onDone, 3000);
+		return () => clearTimeout(t);
+	}, [onDone]);
+
+	return (
+		<div
+			style={{
+				position: "fixed",
+				bottom: 32,
+				left: "50%",
+				transform: "translateX(-50%)",
+				padding: "12px 24px",
+				borderRadius: 12,
+				background: "rgba(22,22,26,0.95)",
+				border: "1px solid rgba(74,222,128,0.25)",
+				backdropFilter: "blur(20px)",
+				WebkitBackdropFilter: "blur(20px)",
+				boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+				zIndex: 9999,
+				display: "flex",
+				alignItems: "center",
+				gap: 10,
+				animation: "toast-in 0.3s ease",
+			}}
+		>
+			<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+				<circle cx="8" cy="8" r="8" fill="rgba(74,222,128,0.15)" />
+				<path d="M5 8.5L7 10.5L11 6" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+			</svg>
+			<span style={{ fontSize: 13, color: "var(--color-ink-0)", fontWeight: 500 }}>
+				{message}
+			</span>
+		</div>
+	);
+}
+
+// ─── Confirm Dialog ─────────────────────────────────────────────────────────
+
+function ConfirmDialog({
+	title,
+	message,
+	confirmLabel,
+	onConfirm,
+	onCancel,
+	saving,
+}: {
+	title: string;
+	message: string;
+	confirmLabel: string;
+	onConfirm: () => void;
+	onCancel: () => void;
+	saving: boolean;
+}) {
+	const overlayRef = useRef<HTMLDivElement>(null);
+
+	return (
+		<div
+			ref={overlayRef}
+			onClick={(e) => { if (e.target === overlayRef.current) onCancel(); }}
+			style={{
+				position: "fixed",
+				inset: 0,
+				background: "rgba(0,0,0,0.6)",
+				backdropFilter: "blur(4px)",
+				WebkitBackdropFilter: "blur(4px)",
+				zIndex: 9998,
+				display: "grid",
+				placeItems: "center",
+				animation: "toast-in 0.15s ease",
+			}}
+		>
+			<div
+				style={{
+					background: "rgba(22,22,26,0.98)",
+					border: "1px solid var(--color-line)",
+					borderRadius: 16,
+					padding: 28,
+					width: 420,
+					maxWidth: "90vw",
+					boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+				}}
+			>
+				<h3 style={{
+					fontFamily: "'Geist', sans-serif",
+					fontSize: 17,
+					fontWeight: 600,
+					letterSpacing: "-0.02em",
+					margin: "0 0 8px",
+				}}>
+					{title}
+				</h3>
+				<p style={{
+					fontSize: 13,
+					color: "var(--color-ink-2)",
+					lineHeight: 1.6,
+					margin: "0 0 24px",
+				}}>
+					{message}
+				</p>
+				<div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+					<button
+						onClick={onCancel}
+						disabled={saving}
+						className="db-btn-outline"
+						style={{ flex: "none", padding: "9px 20px" }}
+					>
+						Cancel
+					</button>
+					<button
+						onClick={onConfirm}
+						disabled={saving}
+						className="btn btn-primary"
+						style={{
+							fontSize: 13,
+							padding: "9px 20px",
+							opacity: saving ? 0.6 : 1,
+						}}
+					>
+						{saving ? "Saving..." : confirmLabel}
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+}
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 
@@ -341,6 +495,46 @@ function DashboardCampaignCard({
 
 // ─── Campaign Detail View ───────────────────────────────────────────────────
 
+interface EditFormData {
+	title: string;
+	brief: string;
+	longBriefRaw: string;
+	category: string;
+	platform: string;
+	tags: string[];
+	color: string;
+	budget: string;
+	rate: string;
+	currency: string;
+	perViews: string;
+	minViews: string;
+	totalSpots: string;
+	deadline: string;
+	bonusThreshold: string;
+	bonusAmount: string;
+}
+
+function campaignToForm(c: any): EditFormData {
+	return {
+		title: c.title ?? "",
+		brief: c.brief ?? "",
+		longBriefRaw: (c.longBrief ?? []).join("\n"),
+		category: c.category ?? "",
+		platform: c.platform ?? "",
+		tags: c.tags ?? [],
+		color: c.color ?? "lime",
+		budget: String(c.budget ?? ""),
+		rate: String(c.rate ?? ""),
+		currency: c.currency ?? "₹",
+		perViews: c.perViews ?? "1k",
+		minViews: c.minViews ?? "",
+		totalSpots: String(c.totalSpots ?? ""),
+		deadline: c.deadline ?? "",
+		bonusThreshold: c.bonus?.threshold === "—" ? "" : (c.bonus?.threshold ?? ""),
+		bonusAmount: c.bonus?.amount === "—" ? "" : (c.bonus?.amount ?? ""),
+	};
+}
+
 function CampaignDetail({
 	campaign: c,
 	brand,
@@ -359,6 +553,11 @@ function CampaignDetail({
 	const [detailTab, setDetailTab] = useState<
 		"overview" | "applications" | "submissions"
 	>("overview");
+	const [editing, setEditing] = useState(false);
+	const [editData, setEditData] = useState<EditFormData>(() => campaignToForm(c));
+	const [showConfirm, setShowConfirm] = useState(false);
+	const [saving, setSaving] = useState(false);
+	const [toast, setToast] = useState("");
 
 	const detailTabs = [
 		{ key: "overview" as const, label: "Overview" },
@@ -370,8 +569,90 @@ function CampaignDetail({
 		await updateCampaign({ id: c._id, submissionsPaused: !c.submissionsPaused });
 	}
 
+	function startEdit() {
+		setEditData(campaignToForm(c));
+		setEditing(true);
+	}
+
+	function cancelEdit() {
+		setEditing(false);
+		setShowConfirm(false);
+	}
+
+	function patchEdit(p: Partial<EditFormData>) {
+		setEditData((d) => ({ ...d, ...p }));
+	}
+
+	async function saveEdit() {
+		setSaving(true);
+		try {
+			const daysLeft = Math.max(
+				0,
+				Math.ceil((new Date(editData.deadline).getTime() - Date.now()) / 86400000),
+			);
+			const spots = parseInt(editData.totalSpots) || 0;
+			await updateCampaign({
+				id: c._id,
+				title: editData.title,
+				brief: editData.brief,
+				longBrief: editData.longBriefRaw.split("\n").map((l) => l.trim()).filter(Boolean),
+				category: editData.category,
+				platform: editData.platform,
+				tags: editData.tags,
+				color: editData.color,
+				budget: editData.budget,
+				rate: parseFloat(editData.rate) || 0,
+				currency: editData.currency,
+				perViews: editData.perViews,
+				minViews: editData.minViews,
+				totalSpots: spots,
+				spotsLeft: Math.max(0, spots - c.creatorsJoined),
+				deadline: editData.deadline,
+				daysLeft,
+				bonus: {
+					threshold: editData.bonusThreshold || "—",
+					amount: editData.bonusAmount || "—",
+				},
+			});
+			setEditing(false);
+			setShowConfirm(false);
+			setToast("Campaign updated successfully");
+		} catch (err) {
+			console.error("Failed to update campaign:", err);
+		} finally {
+			setSaving(false);
+		}
+	}
+
+	const clearToast = useCallback(() => setToast(""), []);
+
+	if (editing) {
+		return (
+			<>
+				<CampaignEditForm
+					data={editData}
+					onChange={patchEdit}
+					onSave={() => setShowConfirm(true)}
+					onCancel={cancelEdit}
+				/>
+				{showConfirm && (
+					<ConfirmDialog
+						title="Save changes?"
+						message="This will update the campaign immediately. Creators will see the updated details in the marketplace."
+						confirmLabel="Save changes"
+						onConfirm={saveEdit}
+						onCancel={() => setShowConfirm(false)}
+						saving={saving}
+					/>
+				)}
+			</>
+		);
+	}
+
 	return (
 		<div>
+			{toast && <Toast message={toast} onDone={clearToast} />}
+
 			{/* Back button */}
 			<button onClick={onBack} className="db-back-btn">
 				<svg
@@ -430,6 +711,16 @@ function CampaignDetail({
 					</p>
 				</div>
 				<div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+					<button
+						onClick={startEdit}
+						className="db-btn-outline"
+						style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 6 }}
+					>
+						<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+							<path d="M11.5 1.5l3 3L5 14H2v-3L11.5 1.5z" />
+						</svg>
+						Edit Campaign
+					</button>
 					<button
 						onClick={toggleSubmissions}
 						className="db-btn-outline"
@@ -547,6 +838,447 @@ function CampaignDetail({
 			)}
 			{detailTab === "applications" && <CampaignApplications campaign={c} />}
 			{detailTab === "submissions" && <CampaignSubmissions campaign={c} />}
+		</div>
+	);
+}
+
+// ─── Edit Form ──────────────────────────────────────────────────────────────
+
+const fieldLabel: React.CSSProperties = {
+	fontFamily: "'JetBrains Mono', monospace",
+	fontSize: 10.5,
+	fontWeight: 500,
+	textTransform: "uppercase",
+	letterSpacing: "0.04em",
+	color: "var(--color-ink-3)",
+	marginBottom: 8,
+};
+
+const fieldInput: React.CSSProperties = {
+	width: "100%",
+	padding: "10px 14px",
+	borderRadius: 10,
+	border: "1px solid var(--color-line-2)",
+	background: "rgba(255,255,255,0.03)",
+	color: "var(--color-ink-0)",
+	fontSize: 13,
+	fontFamily: "'Inter', sans-serif",
+	outline: "none",
+	transition: "border-color 0.15s",
+};
+
+const fieldTextarea: React.CSSProperties = {
+	...fieldInput,
+	resize: "vertical",
+	minHeight: 100,
+	lineHeight: 1.6,
+};
+
+function CampaignEditForm({
+	data,
+	onChange,
+	onSave,
+	onCancel,
+}: {
+	data: EditFormData;
+	onChange: (p: Partial<EditFormData>) => void;
+	onSave: () => void;
+	onCancel: () => void;
+}) {
+	const canSave = !!data.title.trim() && !!data.brief.trim() && !!data.category && !!data.platform && !!data.budget.trim() && !!data.rate.trim() && !!data.totalSpots.trim() && !!data.deadline;
+
+	return (
+		<div>
+			{/* Header */}
+			<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
+				<div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+					<button onClick={onCancel} className="db-back-btn" style={{ margin: 0 }}>
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+							<polyline points="10 12 6 8 10 4" />
+						</svg>
+						Cancel
+					</button>
+					<h1 className="db-page-title" style={{ margin: 0 }}>Edit Campaign</h1>
+				</div>
+				<div style={{ display: "flex", gap: 10 }}>
+					<button onClick={onCancel} className="db-btn-outline" style={{ padding: "9px 20px" }}>
+						Discard
+					</button>
+					<button
+						onClick={onSave}
+						disabled={!canSave}
+						className="btn btn-primary"
+						style={{ fontSize: 13, padding: "9px 20px", opacity: canSave ? 1 : 0.4 }}
+					>
+						Save Changes
+					</button>
+				</div>
+			</div>
+
+			<div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24 }}>
+				{/* Left column — main fields */}
+				<div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+					{/* Basics */}
+					<div className="db-card">
+						<div className="db-card-title" style={{ marginBottom: 20 }}>Basics</div>
+
+						<div style={{ marginBottom: 18 }}>
+							<div style={fieldLabel}>Campaign title</div>
+							<input
+								type="text"
+								value={data.title}
+								onChange={(e) => onChange({ title: e.target.value })}
+								placeholder="e.g. Summer Launch — Reels Campaign"
+								style={fieldInput}
+								onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+								onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+							/>
+						</div>
+
+						<div style={{ marginBottom: 18 }}>
+							<div style={fieldLabel}>Short brief</div>
+							<input
+								type="text"
+								value={data.brief}
+								onChange={(e) => onChange({ brief: e.target.value })}
+								placeholder="One-line description of the campaign"
+								style={fieldInput}
+								maxLength={120}
+								onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+								onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+							/>
+							<div style={{ fontSize: 11, color: "var(--color-ink-3)", marginTop: 4, textAlign: "right" }}>
+								{data.brief.length}/120
+							</div>
+						</div>
+
+						<div style={{ marginBottom: 18 }}>
+							<div style={fieldLabel}>Detailed brief</div>
+							<textarea
+								value={data.longBriefRaw}
+								onChange={(e) => onChange({ longBriefRaw: e.target.value })}
+								placeholder="One instruction per line..."
+								style={fieldTextarea}
+								onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+								onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+							/>
+							<div style={{ fontSize: 11, color: "var(--color-ink-3)", marginTop: 4 }}>
+								One instruction per line
+							</div>
+						</div>
+
+						<div>
+							<div style={fieldLabel}>Category</div>
+							<div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+								{CATEGORIES.map((cat) => (
+									<button
+										key={cat}
+										onClick={() => onChange({ category: cat })}
+										style={{
+											padding: "7px 14px",
+											borderRadius: 8,
+											fontSize: 12,
+											fontWeight: 500,
+											border: "1px solid",
+											borderColor: data.category === cat ? "rgba(190,242,100,0.4)" : "var(--color-line-2)",
+											background: data.category === cat ? "rgba(190,242,100,0.08)" : "rgba(255,255,255,0.03)",
+											color: data.category === cat ? "#bef264" : "var(--color-ink-1)",
+											cursor: "pointer",
+											transition: "all 0.15s",
+										}}
+									>
+										{cat}
+									</button>
+								))}
+							</div>
+						</div>
+					</div>
+
+					{/* Platform & Tags */}
+					<div className="db-card">
+						<div className="db-card-title" style={{ marginBottom: 20 }}>Platform & Tags</div>
+
+						<div style={{ marginBottom: 18 }}>
+							<div style={fieldLabel}>Platform</div>
+							<div style={{ display: "flex", gap: 10 }}>
+								{PLATFORMS.map((p) => (
+									<button
+										key={p.id}
+										onClick={() => onChange({ platform: p.id })}
+										style={{
+											flex: 1,
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+											gap: 8,
+											padding: "12px 16px",
+											borderRadius: 10,
+											fontSize: 13,
+											fontWeight: 500,
+											border: "1px solid",
+											borderColor: data.platform === p.id ? "rgba(190,242,100,0.4)" : "var(--color-line-2)",
+											background: data.platform === p.id ? "rgba(190,242,100,0.08)" : "rgba(255,255,255,0.03)",
+											color: data.platform === p.id ? "#bef264" : "var(--color-ink-1)",
+											cursor: "pointer",
+											transition: "all 0.15s",
+										}}
+									>
+										<p.Icon />
+										{p.label}
+									</button>
+								))}
+							</div>
+						</div>
+
+						<div style={{ marginBottom: 18 }}>
+							<div style={fieldLabel}>Content tags</div>
+							<div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+								{CONTENT_TAGS.map((tag) => {
+									const selected = data.tags.includes(tag);
+									return (
+										<button
+											key={tag}
+											onClick={() => onChange({
+												tags: selected
+													? data.tags.filter((t) => t !== tag)
+													: [...data.tags, tag],
+											})}
+											style={{
+												padding: "6px 12px",
+												borderRadius: 8,
+												fontSize: 12,
+												fontWeight: 500,
+												border: "1px solid",
+												borderColor: selected ? "rgba(190,242,100,0.4)" : "var(--color-line-2)",
+												background: selected ? "rgba(190,242,100,0.08)" : "rgba(255,255,255,0.03)",
+												color: selected ? "#bef264" : "var(--color-ink-1)",
+												cursor: "pointer",
+												transition: "all 0.15s",
+											}}
+										>
+											{tag}
+										</button>
+									);
+								})}
+							</div>
+						</div>
+
+						<div>
+							<div style={fieldLabel}>Accent color</div>
+							<div style={{ display: "flex", gap: 10 }}>
+								{COLORS.map((clr) => (
+									<button
+										key={clr}
+										onClick={() => onChange({ color: clr })}
+										style={{
+											width: 36,
+											height: 36,
+											borderRadius: 10,
+											background: COLOR_DOT[clr],
+											border: "2px solid",
+											borderColor: data.color === clr ? "#fff" : "transparent",
+											cursor: "pointer",
+											transition: "border-color 0.15s",
+											outline: data.color === clr ? "2px solid rgba(255,255,255,0.2)" : "none",
+											outlineOffset: 2,
+										}}
+									/>
+								))}
+							</div>
+						</div>
+					</div>
+
+					{/* Budget & Payout */}
+					<div className="db-card">
+						<div className="db-card-title" style={{ marginBottom: 20 }}>Budget & Payout</div>
+
+						<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }}>
+							<div>
+								<div style={fieldLabel}>Budget</div>
+								<div style={{ display: "flex", gap: 0 }}>
+									<select
+										value={data.currency}
+										onChange={(e) => onChange({ currency: e.target.value })}
+										style={{
+											...fieldInput,
+											width: 56,
+											borderRadius: "10px 0 0 10px",
+											borderRight: "none",
+											padding: "10px 8px",
+											textAlign: "center",
+											appearance: "none",
+											background: "rgba(255,255,255,0.06)",
+										}}
+									>
+										{CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
+									</select>
+									<input
+										type="text"
+										value={data.budget}
+										onChange={(e) => onChange({ budget: e.target.value })}
+										placeholder="50,000"
+										style={{ ...fieldInput, borderRadius: "0 10px 10px 0" }}
+										onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+										onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+									/>
+								</div>
+							</div>
+							<div>
+								<div style={fieldLabel}>CPM rate</div>
+								<input
+									type="text"
+									value={data.rate}
+									onChange={(e) => onChange({ rate: e.target.value })}
+									placeholder="200"
+									style={fieldInput}
+									onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+									onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+								/>
+							</div>
+						</div>
+
+						<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+							<div>
+								<div style={fieldLabel}>Per views</div>
+								<div style={{ display: "flex", gap: 8 }}>
+									{["1k", "10k", "100k"].map((v) => (
+										<button
+											key={v}
+											onClick={() => onChange({ perViews: v })}
+											style={{
+												flex: 1,
+												padding: "8px",
+												borderRadius: 8,
+												fontSize: 12,
+												fontWeight: 500,
+												border: "1px solid",
+												borderColor: data.perViews === v ? "rgba(190,242,100,0.4)" : "var(--color-line-2)",
+												background: data.perViews === v ? "rgba(190,242,100,0.08)" : "rgba(255,255,255,0.03)",
+												color: data.perViews === v ? "#bef264" : "var(--color-ink-1)",
+												cursor: "pointer",
+												transition: "all 0.15s",
+											}}
+										>
+											{v}
+										</button>
+									))}
+								</div>
+							</div>
+							<div>
+								<div style={fieldLabel}>Min views</div>
+								<input
+									type="text"
+									value={data.minViews}
+									onChange={(e) => onChange({ minViews: e.target.value })}
+									placeholder="e.g. 10k"
+									style={fieldInput}
+									onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+									onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{/* Right column — timeline & bonus */}
+				<div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+					{/* Timeline */}
+					<div className="db-card">
+						<div className="db-card-title" style={{ marginBottom: 20 }}>Timeline & Spots</div>
+
+						<div style={{ marginBottom: 18 }}>
+							<div style={fieldLabel}>Total spots</div>
+							<input
+								type="text"
+								value={data.totalSpots}
+								onChange={(e) => onChange({ totalSpots: e.target.value })}
+								placeholder="e.g. 25"
+								style={fieldInput}
+								onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+								onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+							/>
+						</div>
+
+						<div>
+							<div style={fieldLabel}>Deadline</div>
+							<input
+								type="date"
+								value={data.deadline}
+								onChange={(e) => onChange({ deadline: e.target.value })}
+								style={{
+									...fieldInput,
+									colorScheme: "dark",
+								}}
+								onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+								onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+							/>
+						</div>
+					</div>
+
+					{/* Bonus */}
+					<div className="db-card">
+						<div className="db-card-title" style={{ marginBottom: 20 }}>
+							Bonus
+							<span style={{ fontSize: 11, color: "var(--color-ink-3)", fontWeight: 400, marginLeft: 8 }}>Optional</span>
+						</div>
+
+						<div style={{ marginBottom: 18 }}>
+							<div style={fieldLabel}>Views threshold</div>
+							<input
+								type="text"
+								value={data.bonusThreshold}
+								onChange={(e) => onChange({ bonusThreshold: e.target.value })}
+								placeholder="e.g. 100k"
+								style={fieldInput}
+								onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+								onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+							/>
+						</div>
+
+						<div>
+							<div style={fieldLabel}>Bonus amount</div>
+							<input
+								type="text"
+								value={data.bonusAmount}
+								onChange={(e) => onChange({ bonusAmount: e.target.value })}
+								placeholder="e.g. 5,000"
+								style={fieldInput}
+								onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(190,242,100,0.4)")}
+								onBlur={(e) => (e.currentTarget.style.borderColor = "var(--color-line-2)")}
+							/>
+						</div>
+					</div>
+
+					{/* Sticky save bar */}
+					<div
+						style={{
+							position: "sticky",
+							bottom: 20,
+							padding: "16px 20px",
+							borderRadius: 14,
+							background: "rgba(22,22,26,0.95)",
+							border: "1px solid var(--color-line)",
+							backdropFilter: "blur(20px)",
+							WebkitBackdropFilter: "blur(20px)",
+							boxShadow: "0 -4px 32px rgba(0,0,0,0.3)",
+							display: "flex",
+							gap: 10,
+						}}
+					>
+						<button onClick={onCancel} className="db-btn-outline" style={{ flex: 1, padding: "10px 0" }}>
+							Cancel
+						</button>
+						<button
+							onClick={onSave}
+							disabled={!canSave}
+							className="btn btn-primary"
+							style={{ flex: 1, fontSize: 13, padding: "10px 0", opacity: canSave ? 1 : 0.4 }}
+						>
+							Save Changes
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
