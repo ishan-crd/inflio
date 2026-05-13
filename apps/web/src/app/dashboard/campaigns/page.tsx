@@ -122,6 +122,7 @@ function ConfirmDialog({
 	onConfirm,
 	onCancel,
 	saving,
+	danger,
 }: {
 	title: string;
 	message: string;
@@ -129,6 +130,7 @@ function ConfirmDialog({
 	onConfirm: () => void;
 	onCancel: () => void;
 	saving: boolean;
+	danger?: boolean;
 }) {
 	const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -188,11 +190,20 @@ function ConfirmDialog({
 					<button
 						onClick={onConfirm}
 						disabled={saving}
-						className="btn btn-primary"
 						style={{
 							fontSize: 13,
+							fontWeight: 500,
 							padding: "9px 20px",
+							borderRadius: 8,
+							border: "none",
+							cursor: saving ? "default" : "pointer",
 							opacity: saving ? 0.6 : 1,
+							transition: "all 0.15s",
+							background: danger ? "rgba(251,113,133,0.15)" : "rgba(190,242,100,0.12)",
+							color: danger ? "#fb7185" : "#bef264",
+							boxShadow: danger
+								? "0 0 0 1px rgba(251,113,133,0.3)"
+								: "0 0 0 1px rgba(190,242,100,0.3)",
 						}}
 					>
 						{saving ? "Saving..." : confirmLabel}
@@ -565,8 +576,18 @@ function CampaignDetail({
 		{ key: "submissions" as const, label: "Submissions" },
 	];
 
-	async function toggleSubmissions() {
-		await updateCampaign({ id: c._id, submissionsPaused: !c.submissionsPaused });
+	const [showPauseConfirm, setShowPauseConfirm] = useState(false);
+	const [pauseSaving, setPauseSaving] = useState(false);
+
+	async function doToggleSubmissions() {
+		setPauseSaving(true);
+		try {
+			await updateCampaign({ id: c._id, submissionsPaused: !c.submissionsPaused });
+			setShowPauseConfirm(false);
+			setToast(c.submissionsPaused ? "Submissions resumed" : "Submissions paused");
+		} finally {
+			setPauseSaving(false);
+		}
 	}
 
 	function startEdit() {
@@ -652,6 +673,21 @@ function CampaignDetail({
 	return (
 		<div>
 			{toast && <Toast message={toast} onDone={clearToast} />}
+			{showPauseConfirm && (
+				<ConfirmDialog
+					title={c.submissionsPaused ? "Resume submissions?" : "Pause submissions?"}
+					message={
+						c.submissionsPaused
+							? "Creators will be able to submit content for this campaign again."
+							: "Creators won't be able to submit new content for this campaign until you resume."
+					}
+					confirmLabel={c.submissionsPaused ? "Resume" : "Pause Submissions"}
+					onConfirm={doToggleSubmissions}
+					onCancel={() => setShowPauseConfirm(false)}
+					saving={pauseSaving}
+					danger={!c.submissionsPaused}
+				/>
+			)}
 
 			{/* Back button */}
 			<button onClick={onBack} className="db-back-btn">
@@ -710,11 +746,11 @@ function CampaignDetail({
 						{c.brief}
 					</p>
 				</div>
-				<div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+				<div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
 					<button
 						onClick={startEdit}
 						className="db-btn-outline"
-						style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 6 }}
+						style={{ padding: "8px 16px", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}
 					>
 						<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
 							<path d="M11.5 1.5l3 3L5 14H2v-3L11.5 1.5z" />
@@ -722,15 +758,28 @@ function CampaignDetail({
 						Edit Campaign
 					</button>
 					<button
-						onClick={toggleSubmissions}
-						className="db-btn-outline"
-						style={{ padding: "8px 16px" }}
+						onClick={() => setShowPauseConfirm(true)}
+						style={{
+							padding: "8px 16px",
+							borderRadius: 8,
+							fontSize: 12,
+							fontWeight: 500,
+							whiteSpace: "nowrap",
+							cursor: "pointer",
+							display: "flex",
+							alignItems: "center",
+							gap: 6,
+							transition: "all 0.15s",
+							background: c.submissionsPaused ? "rgba(74,222,128,0.06)" : "rgba(251,113,133,0.06)",
+							border: `1px solid ${c.submissionsPaused ? "rgba(74,222,128,0.25)" : "rgba(251,113,133,0.25)"}`,
+							color: c.submissionsPaused ? "#4ade80" : "#fb7185",
+						}}
 					>
 						{c.submissionsPaused ? "Resume Submissions" : "Pause Submissions"}
 					</button>
 					<span
 						className={`db-status-badge ${c.status}`}
-						style={{ padding: "6px 12px", fontSize: 12 }}
+						style={{ padding: "6px 12px", fontSize: 12, whiteSpace: "nowrap" }}
 					>
 						{c.submissionsPaused ? "submissions paused" : c.status}
 					</span>
@@ -907,8 +956,19 @@ function CampaignEditForm({
 					<button
 						onClick={onSave}
 						disabled={!canSave}
-						className="btn btn-primary"
-						style={{ fontSize: 13, padding: "9px 20px", opacity: canSave ? 1 : 0.4 }}
+						style={{
+							fontSize: 13,
+							fontWeight: 500,
+							padding: "9px 20px",
+							borderRadius: 8,
+							border: "none",
+							cursor: canSave ? "pointer" : "default",
+							opacity: canSave ? 1 : 0.4,
+							transition: "all 0.15s",
+							background: "rgba(190,242,100,0.12)",
+							color: "#bef264",
+							boxShadow: "0 0 0 1px rgba(190,242,100,0.3)",
+						}}
 					>
 						Save Changes
 					</button>
@@ -1249,34 +1309,6 @@ function CampaignEditForm({
 						</div>
 					</div>
 
-					{/* Sticky save bar */}
-					<div
-						style={{
-							position: "sticky",
-							bottom: 20,
-							padding: "16px 20px",
-							borderRadius: 14,
-							background: "rgba(22,22,26,0.95)",
-							border: "1px solid var(--color-line)",
-							backdropFilter: "blur(20px)",
-							WebkitBackdropFilter: "blur(20px)",
-							boxShadow: "0 -4px 32px rgba(0,0,0,0.3)",
-							display: "flex",
-							gap: 10,
-						}}
-					>
-						<button onClick={onCancel} className="db-btn-outline" style={{ flex: 1, padding: "10px 0" }}>
-							Cancel
-						</button>
-						<button
-							onClick={onSave}
-							disabled={!canSave}
-							className="btn btn-primary"
-							style={{ flex: 1, fontSize: 13, padding: "10px 0", opacity: canSave ? 1 : 0.4 }}
-						>
-							Save Changes
-						</button>
-					</div>
 				</div>
 			</div>
 		</div>
