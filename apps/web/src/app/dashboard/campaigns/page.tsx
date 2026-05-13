@@ -1496,25 +1496,24 @@ function CampaignOverview({
 								</div>
 							</div>
 						)}
-						{c.bonus?.amount && (
-							<div>
-								<div
-									style={{
-										fontSize: 11,
-										color: "var(--color-ink-3)",
-										marginBottom: 6,
-										textTransform: "uppercase",
-										letterSpacing: "0.04em",
-									}}
-								>
-									Bonus
-								</div>
-								<div style={{ fontSize: 13, fontWeight: 500 }}>
-									{c.currency}
-									{c.bonus.amount} for {c.bonus.threshold}+ views
-								</div>
+						<div>
+							<div
+								style={{
+									fontSize: 11,
+									color: "var(--color-ink-3)",
+									marginBottom: 6,
+									textTransform: "uppercase",
+									letterSpacing: "0.04em",
+								}}
+							>
+								Bonus
 							</div>
-						)}
+							<div style={{ fontSize: 13, fontWeight: 500, color: c.bonus?.amount && c.bonus.amount !== "—" ? "var(--color-ink-0)" : "var(--color-ink-3)" }}>
+								{c.bonus?.amount && c.bonus.amount !== "—"
+									? `${c.currency}${c.bonus.amount} for ${c.bonus.threshold}+ views`
+									: "None"}
+							</div>
+						</div>
 					</div>
 					{c.tags?.length > 0 && (
 						<div style={{ marginTop: 16 }}>
