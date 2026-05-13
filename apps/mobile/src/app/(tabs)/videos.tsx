@@ -1,6 +1,6 @@
 import { useQuery } from "convex/react";
 import { Image } from "expo-image";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { type DimensionValue, FlatList, StyleSheet, Text, View } from "react-native";
 import {
 	SafeAreaView,
 	useSafeAreaInsets,
@@ -8,6 +8,10 @@ import {
 import Svg, { Circle, Path, Polygon } from "react-native-svg";
 import { api } from "../../../convex/_generated/api";
 import { useAuth } from "~/providers/auth";
+
+function Skel({ w, h, r = 8, mb = 0 }: { w: DimensionValue; h: number; r?: number; mb?: number }) {
+	return <View style={{ width: w, height: h, borderRadius: r, marginBottom: mb, backgroundColor: "rgba(255,255,255,0.06)" }} />;
+}
 
 function PlayButton() {
 	return (
@@ -117,7 +121,18 @@ export default function VideosScreen() {
 	return (
 		<SafeAreaView style={styles.container} edges={["top"]}>
 			<Text style={styles.heading}>Viral Videos</Text>
-			{!submissions || submissions.length === 0 ? (
+			{submissions === undefined ? (
+				<View style={{ paddingHorizontal: 20, paddingTop: 8 }}>
+					<View style={{ flexDirection: "row", gap: 12, marginBottom: 16 }}>
+						<View style={{ flex: 1 }}><Skel w="100%" h={200} r={12} mb={8} /><Skel w="80%" h={12} r={4} mb={4} /><Skel w="60%" h={10} r={4} /></View>
+						<View style={{ flex: 1 }}><Skel w="100%" h={200} r={12} mb={8} /><Skel w="80%" h={12} r={4} mb={4} /><Skel w="60%" h={10} r={4} /></View>
+					</View>
+					<View style={{ flexDirection: "row", gap: 12 }}>
+						<View style={{ flex: 1 }}><Skel w="100%" h={200} r={12} mb={8} /><Skel w="80%" h={12} r={4} mb={4} /><Skel w="60%" h={10} r={4} /></View>
+						<View style={{ flex: 1 }}><Skel w="100%" h={200} r={12} mb={8} /><Skel w="80%" h={12} r={4} mb={4} /><Skel w="60%" h={10} r={4} /></View>
+					</View>
+				</View>
+			) : submissions.length === 0 ? (
 				<View style={styles.emptyState}>
 					<Text style={styles.emptyTitle}>No videos yet</Text>
 					<Text style={styles.emptySubtitle}>

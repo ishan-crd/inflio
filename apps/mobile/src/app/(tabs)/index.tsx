@@ -1,7 +1,7 @@
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { type DimensionValue, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
 	SafeAreaView,
 	useSafeAreaInsets,
@@ -10,6 +10,10 @@ import Svg, { Circle, Line, Path, Rect } from "react-native-svg";
 import { api } from "../../../convex/_generated/api";
 import { InflioLogo } from "~/components/inflio-logo";
 import { useAuth } from "~/providers/auth";
+
+function Skel({ w, h, r = 8, mb = 0 }: { w: DimensionValue; h: number; r?: number; mb?: number }) {
+	return <View style={{ width: w, height: h, borderRadius: r, marginBottom: mb, backgroundColor: "rgba(255,255,255,0.06)" }} />;
+}
 
 // Dashboard data is fetched from Convex where available
 
@@ -350,6 +354,16 @@ export default function DashboardScreen() {
 				{/* Recent Videos - shown when submissions exist */}
 
 				{/* My Applications */}
+				{applications === undefined && (
+					<View style={styles.sectionContainer}>
+						<SectionHeader title="My Applications" />
+						<View style={styles.appList}>
+							{[0, 1].map((i) => (
+								<Skel key={i} w="100%" h={72} r={14} />
+							))}
+						</View>
+					</View>
+				)}
 				{applications && applications.length > 0 && (
 					<View style={styles.sectionContainer}>
 						<SectionHeader title="My Applications" onSeeAll={() => {}} />
@@ -362,6 +376,20 @@ export default function DashboardScreen() {
 				)}
 
 				{/* Active Campaigns */}
+				{campaigns === undefined && (
+					<View style={styles.sectionContainer}>
+						<SectionHeader title="Active Campaigns" />
+						<ScrollView
+							horizontal
+							showsHorizontalScrollIndicator={false}
+							contentContainerStyle={styles.campaignsScroll}
+						>
+							{[0, 1].map((i) => (
+								<Skel key={i} w={240} h={180} r={16} />
+							))}
+						</ScrollView>
+					</View>
+				)}
 				{campaigns && campaigns.length > 0 && (
 					<View style={styles.sectionContainer}>
 						<SectionHeader

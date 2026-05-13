@@ -815,15 +815,33 @@ export default function CreatorsPage() {
 			{/* Content */}
 			<div className="shell" style={{ paddingBottom: 80 }}>
 				{creators === undefined ? (
-					<div
-						style={{
-							textAlign: "center",
-							padding: "80px 0",
-							color: "var(--color-ink-2)",
-							fontSize: 15,
-						}}
-					>
-						Loading creators…
+					<div className="creator-grid">
+						{Array.from({ length: 6 }).map((_, i) => (
+							<div
+								key={i}
+								style={{
+									background: "rgba(255,255,255,0.03)",
+									borderRadius: 16,
+									padding: 24,
+									border: "1px solid rgba(255,255,255,0.06)",
+								}}
+							>
+								<div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+									<div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
+									<div style={{ flex: 1 }}>
+										<div style={{ width: "60%", height: 16, borderRadius: 8, marginBottom: 8, background: "rgba(255,255,255,0.06)" }} />
+										<div style={{ width: "40%", height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+									</div>
+								</div>
+								<div style={{ width: "100%", height: 12, borderRadius: 6, marginBottom: 6, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ width: "75%", height: 12, borderRadius: 6, marginBottom: 16, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ display: "flex", gap: 16 }}>
+									<div style={{ width: 64, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+									<div style={{ width: 64, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+									<div style={{ width: 48, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+								</div>
+							</div>
+						))}
 					</div>
 				) : filtered.length === 0 ? (
 					<div

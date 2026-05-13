@@ -38,9 +38,24 @@ export default function DashboardLayout({
 
 	if (!session?.user) {
 		return (
-			<div className="db-loading">
-				<div className="db-loading-spinner" />
-				Loading...
+			<div className="db-loading" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, padding: 80 }}>
+				{/* Sidebar skeleton */}
+				<div style={{ position: "fixed", left: 0, top: 0, width: 240, height: "100vh", padding: "24px 16px", background: "rgba(255,255,255,0.02)", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+					<div style={{ width: 80, height: 20, borderRadius: 8, marginBottom: 40, background: "rgba(255,255,255,0.06)" }} />
+					{[120, 100, 110, 90].map((w, i) => (
+						<div key={i} style={{ width: w, height: 14, borderRadius: 6, marginBottom: 20, background: "rgba(255,255,255,0.06)" }} />
+					))}
+				</div>
+				{/* Main content skeleton */}
+				<div style={{ marginLeft: 240, width: "calc(100% - 240px)", padding: "24px 32px" }}>
+					<div style={{ width: "100%", height: 48, borderRadius: 12, marginBottom: 32, background: "rgba(255,255,255,0.04)" }} />
+					<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, marginBottom: 32 }}>
+						{[1, 2, 3].map((_, i) => (
+							<div key={i} style={{ height: 100, borderRadius: 16, background: "rgba(255,255,255,0.04)" }} />
+						))}
+					</div>
+					<div style={{ width: "100%", height: 300, borderRadius: 16, background: "rgba(255,255,255,0.03)" }} />
+				</div>
 			</div>
 		);
 	}

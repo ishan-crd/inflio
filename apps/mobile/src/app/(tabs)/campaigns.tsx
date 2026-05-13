@@ -3,7 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-	ActivityIndicator,
+	type DimensionValue,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -17,6 +17,10 @@ import {
 import Svg, { Circle, Path } from "react-native-svg";
 import { api } from "../../../convex/_generated/api";
 import { ACCENT_MAP, colors } from "~/utils/theme";
+
+function Skel({ w, h, r = 8, mb = 0 }: { w: DimensionValue; h: number; r?: number; mb?: number }) {
+	return <View style={{ width: w, height: h, borderRadius: r, marginBottom: mb, backgroundColor: "rgba(255,255,255,0.06)" }} />;
+}
 
 const PLATFORMS = ["All", "Instagram", "YouTube", "TikTok"];
 
@@ -342,10 +346,11 @@ export default function CampaignsScreen() {
 					showsVerticalScrollIndicator={false}
 				>
 					{campaigns === undefined ? (
-						<ActivityIndicator
-							color={colors.accent}
-							style={{ marginTop: 40 }}
-						/>
+						<View style={{ gap: 16, marginTop: 8 }}>
+							{[0, 1, 2, 3].map((i) => (
+								<Skel key={i} w="100%" h={160} r={16} />
+							))}
+						</View>
 					) : (
 						filtered.map((campaign) => (
 							<CampaignCard

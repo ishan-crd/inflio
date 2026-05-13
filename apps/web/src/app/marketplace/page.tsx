@@ -559,14 +559,30 @@ export default function MarketplacePage() {
 			{/* Campaign grid */}
 			<div className="shell">
 				{campaigns === undefined ? (
-					<div
-						style={{
-							textAlign: "center",
-							padding: "80px 0",
-							color: "var(--color-ink-2)",
-						}}
-					>
-						<p style={{ fontSize: "15px" }}>Loading campaigns…</p>
+					<div className="grid">
+						{Array.from({ length: 6 }).map((_, i) => (
+							<div
+								key={i}
+								style={{
+									background: "rgba(255,255,255,0.03)",
+									borderRadius: 16,
+									overflow: "hidden",
+									border: "1px solid rgba(255,255,255,0.06)",
+								}}
+							>
+								<div style={{ width: "100%", height: 200, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ padding: 20 }}>
+									<div style={{ width: "70%", height: 18, borderRadius: 8, marginBottom: 10, background: "rgba(255,255,255,0.06)" }} />
+									<div style={{ width: "100%", height: 14, borderRadius: 6, marginBottom: 6, background: "rgba(255,255,255,0.06)" }} />
+									<div style={{ width: "85%", height: 14, borderRadius: 6, marginBottom: 16, background: "rgba(255,255,255,0.06)" }} />
+									<div style={{ display: "flex", gap: 8 }}>
+										<div style={{ width: 60, height: 22, borderRadius: 12, background: "rgba(255,255,255,0.06)" }} />
+										<div style={{ width: 72, height: 22, borderRadius: 12, background: "rgba(255,255,255,0.06)" }} />
+										<div style={{ width: 56, height: 22, borderRadius: 12, background: "rgba(255,255,255,0.06)" }} />
+									</div>
+								</div>
+							</div>
+						))}
 					</div>
 				) : (
 				<>

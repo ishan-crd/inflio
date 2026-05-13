@@ -498,9 +498,29 @@ function ApplicationsInner() {
 
 				{/* Content */}
 				{applications === undefined ? (
-					<div className="app-loading">
-						<div className="app-loading-spinner" />
-						<span>Loading...</span>
+					<div className="app-grid">
+						{Array.from({ length: 4 }).map((_, i) => (
+							<div
+								key={i}
+								style={{
+									background: "rgba(255,255,255,0.03)",
+									borderRadius: 16,
+									padding: 20,
+									border: "1px solid rgba(255,255,255,0.06)",
+								}}
+							>
+								<div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+									<div style={{ width: "55%", height: 18, borderRadius: 8, background: "rgba(255,255,255,0.06)" }} />
+									<div style={{ width: 64, height: 22, borderRadius: 12, background: "rgba(255,255,255,0.06)" }} />
+								</div>
+								<div style={{ width: "100%", height: 12, borderRadius: 6, marginBottom: 6, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ width: "70%", height: 12, borderRadius: 6, marginBottom: 16, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ display: "flex", gap: 12 }}>
+									<div style={{ width: 80, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+									<div style={{ width: 60, height: 12, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+								</div>
+							</div>
+						))}
 					</div>
 				) : activeTab === "applications" ? (
 					allApps.length === 0 ? (

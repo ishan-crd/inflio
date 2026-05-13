@@ -3167,13 +3167,45 @@ export default function CampaignDetailPage() {
 				<div className="ambient" />
 				<div className="grain" />
 				<SharedNav />
-				<div
-					className="shell"
-					style={{ padding: "120px 0", textAlign: "center" }}
-				>
-					<p style={{ color: "var(--color-ink-2)", fontSize: 15 }}>
-						Loading campaign…
-					</p>
+				<div className="shell" style={{ paddingTop: 48 }}>
+					{/* Hero skeleton */}
+					<div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32, marginBottom: 40 }}>
+						<div>
+							<div style={{ width: 120, height: 22, borderRadius: 12, marginBottom: 16, background: "rgba(255,255,255,0.06)" }} />
+							<div style={{ width: "75%", height: 28, borderRadius: 8, marginBottom: 12, background: "rgba(255,255,255,0.06)" }} />
+							<div style={{ width: "100%", height: 14, borderRadius: 6, marginBottom: 8, background: "rgba(255,255,255,0.06)" }} />
+							<div style={{ width: "90%", height: 14, borderRadius: 6, marginBottom: 8, background: "rgba(255,255,255,0.06)" }} />
+							<div style={{ width: "60%", height: 14, borderRadius: 6, marginBottom: 20, background: "rgba(255,255,255,0.06)" }} />
+							<div style={{ display: "flex", gap: 8 }}>
+								<div style={{ width: 72, height: 26, borderRadius: 14, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ width: 60, height: 26, borderRadius: 14, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ width: 80, height: 26, borderRadius: 14, background: "rgba(255,255,255,0.06)" }} />
+							</div>
+						</div>
+						<div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, padding: 24, border: "1px solid rgba(255,255,255,0.06)" }}>
+							<div style={{ width: "50%", height: 16, borderRadius: 8, marginBottom: 16, background: "rgba(255,255,255,0.06)" }} />
+							<div style={{ width: "100%", height: 40, borderRadius: 10, marginBottom: 12, background: "rgba(255,255,255,0.06)" }} />
+							<div style={{ width: "100%", height: 40, borderRadius: 10, background: "rgba(255,255,255,0.06)" }} />
+						</div>
+					</div>
+					{/* Tab bar skeleton */}
+					<div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
+						{[80, 100, 90, 70].map((w, i) => (
+							<div key={i} style={{ width: w, height: 14, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+						))}
+					</div>
+					{/* Content skeleton */}
+					<div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32 }}>
+						<div>
+							{[100, 95, 85, 100, 70].map((pct, i) => (
+								<div key={i} style={{ width: `${pct}%`, height: 14, borderRadius: 6, marginBottom: 10, background: "rgba(255,255,255,0.06)" }} />
+							))}
+						</div>
+						<div>
+							<div style={{ width: "100%", height: 160, borderRadius: 16, marginBottom: 16, background: "rgba(255,255,255,0.04)" }} />
+							<div style={{ width: "100%", height: 120, borderRadius: 16, background: "rgba(255,255,255,0.04)" }} />
+						</div>
+					</div>
 				</div>
 			</div>
 		);

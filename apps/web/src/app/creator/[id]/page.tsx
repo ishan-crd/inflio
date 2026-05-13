@@ -3099,15 +3099,48 @@ export default function CreatorDetailPage() {
 	/* Loading state */
 	if (base === undefined) {
 		return (
-			<div
-				style={{
-					padding: 80,
-					textAlign: "center",
-					color: "var(--color-ink-2)",
-				}}
-			>
-				Loading…
-			</div>
+			<>
+				<div className="ambient" />
+				<div className="grain" />
+				<div style={{ position: "relative", zIndex: 1 }}>
+					<SharedNav />
+					<div className="shell" style={{ paddingTop: 48 }}>
+						{/* Hero skeleton */}
+						<div style={{ display: "flex", alignItems: "flex-start", gap: 24, marginBottom: 40 }}>
+							<div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
+							<div style={{ flex: 1 }}>
+								<div style={{ width: "40%", height: 24, borderRadius: 8, marginBottom: 10, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ width: "25%", height: 14, borderRadius: 6, marginBottom: 12, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ width: "80%", height: 14, borderRadius: 6, marginBottom: 6, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ width: "55%", height: 14, borderRadius: 6, marginBottom: 16, background: "rgba(255,255,255,0.06)" }} />
+								<div style={{ display: "flex", gap: 20 }}>
+									{[64, 72, 56, 64].map((w, i) => (
+										<div key={i} style={{ width: w, height: 14, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+									))}
+								</div>
+							</div>
+						</div>
+						{/* Tab bar skeleton */}
+						<div style={{ display: "flex", gap: 24, marginBottom: 32 }}>
+							{[60, 80, 70, 90, 60].map((w, i) => (
+								<div key={i} style={{ width: w, height: 14, borderRadius: 6, background: "rgba(255,255,255,0.06)" }} />
+							))}
+						</div>
+						{/* Content + sidebar skeleton */}
+						<div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32 }}>
+							<div>
+								{[100, 90, 95, 100, 80, 100, 70].map((pct, i) => (
+									<div key={i} style={{ width: `${pct}%`, height: 14, borderRadius: 6, marginBottom: 10, background: "rgba(255,255,255,0.06)" }} />
+								))}
+							</div>
+							<div>
+								<div style={{ width: "100%", height: 140, borderRadius: 16, marginBottom: 16, background: "rgba(255,255,255,0.04)" }} />
+								<div style={{ width: "100%", height: 120, borderRadius: 16, background: "rgba(255,255,255,0.04)" }} />
+							</div>
+						</div>
+					</div>
+				</div>
+			</>
 		);
 	}
 

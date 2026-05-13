@@ -8,7 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
-	ActivityIndicator,
+	type DimensionValue,
 	Pressable,
 	ScrollView,
 	StyleSheet,
@@ -22,6 +22,10 @@ import { useAuth } from "~/providers/auth";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { ACCENT_MAP, BRAND_COLORS, colors } from "~/utils/theme";
+
+function Skel({ w, h, r = 8, mb = 0 }: { w: DimensionValue; h: number; r?: number; mb?: number }) {
+	return <View style={{ width: w, height: h, borderRadius: r, marginBottom: mb, backgroundColor: "rgba(255,255,255,0.06)" }} />;
+}
 
 type Campaign = {
 	_id: string;
@@ -579,7 +583,36 @@ export default function CampaignDetailScreen() {
 	if (campaign === undefined) {
 		return (
 			<View style={styles.notFound}>
-				<ActivityIndicator color={colors.accent} />
+				<View style={{ width: "100%", paddingHorizontal: 20, paddingTop: 60 }}>
+					{/* Back button area */}
+					<Skel w={40} h={40} r={20} mb={24} />
+					{/* Brand mark + title */}
+					<View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16 }}>
+						<Skel w={48} h={48} r={14} />
+						<View style={{ gap: 6 }}>
+							<Skel w={120} h={14} r={6} />
+							<Skel w={80} h={10} r={4} />
+						</View>
+					</View>
+					{/* Title bars */}
+					<Skel w="90%" h={20} r={6} mb={8} />
+					<Skel w="70%" h={20} r={6} mb={16} />
+					{/* Brief bars */}
+					<Skel w="100%" h={12} r={4} mb={6} />
+					<Skel w="85%" h={12} r={4} mb={24} />
+					{/* Rate card */}
+					<Skel w="100%" h={100} r={12} mb={24} />
+					{/* Tab area */}
+					<View style={{ flexDirection: "row", gap: 16, marginBottom: 20 }}>
+						<Skel w={80} h={32} r={16} />
+						<Skel w={80} h={32} r={16} />
+						<Skel w={80} h={32} r={16} />
+					</View>
+					{/* Content rows */}
+					<Skel w="100%" h={14} r={4} mb={10} />
+					<Skel w="100%" h={14} r={4} mb={10} />
+					<Skel w="60%" h={14} r={4} />
+				</View>
 			</View>
 		);
 	}

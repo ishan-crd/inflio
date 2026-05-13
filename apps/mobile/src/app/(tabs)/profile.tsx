@@ -2,7 +2,7 @@ import { useQuery } from "convex/react";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { type DimensionValue, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
 	SafeAreaView,
 	useSafeAreaInsets,
@@ -10,6 +10,10 @@ import {
 import Svg, { Circle, Path, Polygon } from "react-native-svg";
 import { useAuth } from "~/providers/auth";
 import { api } from "../../../convex/_generated/api";
+
+function Skel({ w, h, r = 8, mb = 0 }: { w: DimensionValue; h: number; r?: number; mb?: number }) {
+	return <View style={{ width: w, height: h, borderRadius: r, marginBottom: mb, backgroundColor: "rgba(255,255,255,0.06)" }} />;
+}
 
 const TAB_OPTIONS = ["Submissions", "Accounts"] as const;
 type TabOption = (typeof TAB_OPTIONS)[number];
@@ -113,7 +117,22 @@ function SubmissionsGrid({ userId }: { userId?: string }) {
 		userId ? { userId } : "skip",
 	);
 
-	if (!submissions || submissions.length === 0) {
+	if (submissions === undefined) {
+		return (
+			<View style={styles.grid}>
+				<View style={styles.gridRow}>
+					<View style={{ flex: 1 }}><Skel w="100%" h={200} r={12} mb={8} /><Skel w="80%" h={12} r={4} mb={4} /><Skel w="60%" h={10} r={4} /></View>
+					<View style={{ flex: 1 }}><Skel w="100%" h={200} r={12} mb={8} /><Skel w="80%" h={12} r={4} mb={4} /><Skel w="60%" h={10} r={4} /></View>
+				</View>
+				<View style={styles.gridRow}>
+					<View style={{ flex: 1 }}><Skel w="100%" h={200} r={12} mb={8} /><Skel w="80%" h={12} r={4} mb={4} /><Skel w="60%" h={10} r={4} /></View>
+					<View style={{ flex: 1 }}><Skel w="100%" h={200} r={12} mb={8} /><Skel w="80%" h={12} r={4} mb={4} /><Skel w="60%" h={10} r={4} /></View>
+				</View>
+			</View>
+		);
+	}
+
+	if (submissions.length === 0) {
 		return (
 			<View style={styles.emptyState}>
 				<Text style={styles.emptyStateText}>No submissions yet</Text>
