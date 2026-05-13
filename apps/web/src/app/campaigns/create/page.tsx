@@ -879,7 +879,6 @@ function Step4({
 					className="field-input"
 					type="date"
 					value={data.deadline}
-					style={errors.includes("deadline") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}
 					onChange={(e) => {
 						const val = e.target.value;
 						const today = new Date().toISOString().split("T")[0];
