@@ -481,6 +481,13 @@ export default function DashboardLayout({
 						<TopbarProfileDropdown
 							name={session.user.name || ""}
 							image={session.user.image}
+							profileUrl={
+								isBrand
+									? `/brand/${brandProfile._id}`
+									: isCreator
+										? `/creator/${creatorProfile._id}`
+										: "/dashboard/settings"
+							}
 						/>
 					</div>
 				</header>
@@ -497,9 +504,11 @@ export default function DashboardLayout({
 function TopbarProfileDropdown({
 	name,
 	image,
+	profileUrl,
 }: {
 	name: string;
 	image?: string | null;
+	profileUrl: string;
 }) {
 	const [open, setOpen] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
@@ -548,7 +557,7 @@ function TopbarProfileDropdown({
 					<button
 						onClick={() => {
 							setOpen(false);
-							router.push("/profile");
+							router.push(profileUrl);
 						}}
 						style={{
 							display: "flex",

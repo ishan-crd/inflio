@@ -40,6 +40,12 @@ export function Nav() {
 		return <NavSkeleton pathname={pathname} />;
 	}
 
+	const profileUrl = brandProfile
+		? `/brand/${brandProfile._id}`
+		: creatorProfile
+			? `/creator/${creatorProfile._id}`
+			: "/dashboard/settings";
+
 	if (loggedIn) {
 		return (
 			<LoggedInNav
@@ -48,6 +54,7 @@ export function Nav() {
 				image={session.user.image}
 				role={role}
 				brandName={brandProfile?.name}
+				profileUrl={profileUrl}
 			/>
 		);
 	}
@@ -154,9 +161,11 @@ function NavSkeleton({ pathname }: { pathname: string }) {
 function ProfileDropdown({
 	name,
 	image,
+	profileUrl,
 }: {
 	name: string;
 	image?: string | null;
+	profileUrl: string;
 }) {
 	const [open, setOpen] = useState(false);
 	const ref = useRef<HTMLDivElement>(null);
@@ -221,7 +230,7 @@ function ProfileDropdown({
 					<button
 						onClick={() => {
 							setOpen(false);
-							router.push("/profile");
+							router.push(profileUrl);
 						}}
 						style={{
 							display: "flex",
@@ -311,12 +320,14 @@ function LoggedInNav({
 	image,
 	role,
 	brandName,
+	profileUrl,
 }: {
 	pathname: string;
 	name: string;
 	image?: string | null;
 	role: "creator" | "brand";
 	brandName?: string;
+	profileUrl: string;
 }) {
 	const links =
 		role === "brand"
@@ -371,7 +382,7 @@ function LoggedInNav({
 						<button className="btn btn-ghost" aria-label="Notifications">
 							<BellIcon />
 						</button>
-						<ProfileDropdown name={brandName || name} image={image} />
+						<ProfileDropdown name={brandName || name} image={image} profileUrl={profileUrl} />
 					</div>
 				</div>
 			</div>
