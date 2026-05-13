@@ -106,7 +106,7 @@ const BUDGETS = [
 const PLATFORMS = [
 	{ id: "instagram", label: "Instagram", Icon: IGIcon },
 	{ id: "youtube", label: "YouTube", Icon: YTIcon },
-	{ id: "tiktok", label: "TikTok", Icon: TTIcon },
+	{ id: "x", label: "X (Twitter)", Icon: TTIcon },
 ];
 
 // ---------------------------------------------------------------------------

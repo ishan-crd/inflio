@@ -1,4 +1,4 @@
-export const PLATFORMS = ["All", "Instagram", "YouTube", "TikTok"];
+export const PLATFORMS = ["All", "Instagram", "YouTube", "X"];
 export const CATEGORIES = [
 	"All",
 	"Tech",
@@ -49,7 +49,7 @@ export const ACCENT_MAP: Record<
 };
 
 // Creator filter constants
-export const C_PLATFORMS = ["All", "Instagram", "YouTube", "TikTok"];
+export const C_PLATFORMS = ["All", "Instagram", "YouTube", "X"];
 export const C_CATEGORIES = [
 	"All",
 	"Fashion",

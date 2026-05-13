@@ -281,7 +281,7 @@ const FAQS = [
 	},
 	{
 		q: "Can I post on multiple platforms?",
-		a: "This campaign is Instagram-first. You can crosspost to Reels, TikTok, and YouTube Shorts \u2014 each platform earns separately at the published CPM. The reel must stay live for at least 30 days.",
+		a: "This campaign is Instagram-first. You can crosspost to Reels, X, and YouTube Shorts \u2014 each platform earns separately at the published CPM. The reel must stay live for at least 30 days.",
 	},
 	{
 		q: "Do I need to send drafts for approval?",

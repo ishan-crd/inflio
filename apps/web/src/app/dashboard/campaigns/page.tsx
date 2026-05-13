@@ -20,7 +20,7 @@ const CONTENT_TAGS = [
 const PLATFORMS = [
 	{ id: "Instagram", label: "Instagram", Icon: IGIcon },
 	{ id: "YouTube", label: "YouTube", Icon: YTIcon },
-	{ id: "TikTok", label: "TikTok", Icon: TTIcon },
+	{ id: "X", label: "X (Twitter)", Icon: TTIcon },
 ];
 const CURRENCIES = ["₹", "$", "€"];
 const COLORS = ["lime", "cyan", "violet", "amber", "rose"] as const;

@@ -244,9 +244,13 @@ export function YTIcon(p: P) {
 }
 
 export function TTIcon(p: P) {
+	return <XIcon {...p} />;
+}
+
+export function XIcon(p: P) {
 	return (
-		<svg width="11" height="11" viewBox="0 0 14 14" fill="currentColor" {...p}>
-			<path d="M9.5 1.5v6.7a2.6 2.6 0 11-2.6-2.6v1.7a.9.9 0 100 1.8.9.9 0 00.9-.9V1.5h.9a2.4 2.4 0 002.4 2.4V5.6a4 4 0 01-1.6-.4z" />
+		<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" {...p}>
+			<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
 		</svg>
 	);
 }
@@ -426,6 +430,7 @@ export function GoogleG(p: P) {
 export function PlatformIcon({ name, ...p }: { name: string } & P) {
 	if (name === "Instagram") return <IGIcon {...p} />;
 	if (name === "YouTube") return <YTIcon {...p} />;
-	if (name === "TikTok") return <TTIcon {...p} />;
+	if (name === "X") return <XIcon {...p} />;
+	if (name === "TikTok") return <XIcon {...p} />;
 	return null;
 }

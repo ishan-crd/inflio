@@ -1994,7 +1994,7 @@ function RatesBlock() {
 							<YTIcon style={{ marginRight: 4 }} /> YouTube
 						</th>
 						<th style={S.rateTh}>
-							<TTIcon style={{ marginRight: 4 }} /> TikTok
+							<TTIcon style={{ marginRight: 4 }} /> X
 						</th>
 					</tr>
 				</thead>

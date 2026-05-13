@@ -52,7 +52,7 @@ const CONTENT_TAGS = [
 const PLATFORMS = [
 	{ id: "Instagram", label: "Instagram", Icon: IGIcon },
 	{ id: "YouTube", label: "YouTube", Icon: YTIcon },
-	{ id: "TikTok", label: "TikTok", Icon: TTIcon },
+	{ id: "X", label: "X (Twitter)", Icon: TTIcon },
 ];
 
 const COLORS = ["lime", "cyan", "violet", "amber", "rose"] as const;
@@ -188,6 +188,33 @@ const NICHES = [
 ];
 
 // ---------------------------------------------------------------------------
+// Field Error
+// ---------------------------------------------------------------------------
+
+function FieldError({ show, message = "This field is required" }: { show: boolean; message?: string }) {
+	if (!show) return null;
+	return (
+		<div
+			style={{
+				display: "flex",
+				alignItems: "center",
+				gap: 5,
+				marginTop: 6,
+				fontSize: 12,
+				color: "#fb7185",
+				fontFamily: "'Inter', sans-serif",
+			}}
+		>
+			<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#fb7185" strokeWidth="1.5" strokeLinecap="round">
+				<circle cx="8" cy="8" r="6.5" />
+				<path d="M8 5.5v3M8 10.5v.5" />
+			</svg>
+			{message}
+		</div>
+	);
+}
+
+// ---------------------------------------------------------------------------
 // StepNav
 // ---------------------------------------------------------------------------
 
@@ -227,7 +254,7 @@ function StepNav({
 			<button
 				className="btn-next"
 				onClick={onNext}
-				disabled={!canContinue || saving}
+				disabled={saving}
 			>
 				{saving ? "Publishing..." : nextLabel}
 				{!saving && <ArrowIcon />}
@@ -295,7 +322,7 @@ function PreviewCard({
 								<IGIcon width={11} height={11} />
 							)}
 							{data.platform === "YouTube" && <YTIcon width={13} height={13} />}
-							{data.platform === "TikTok" && <TTIcon width={11} height={11} />}
+							{data.platform === "X" && <TTIcon width={11} height={11} />}
 							{data.platform}
 						</div>
 					)}
@@ -369,9 +396,11 @@ function PreviewCard({
 function Step1({
 	data,
 	onChange,
+	errors = [],
 }: {
 	data: CampaignFormData;
 	onChange: (patch: Partial<CampaignFormData>) => void;
+	errors?: string[];
 }) {
 	const [showCatInput, setShowCatInput] = useState(false);
 	const [catValue, setCatValue] = useState("");
@@ -414,7 +443,9 @@ function Step1({
 					placeholder="e.g. Summer Tech Drop 2025"
 					value={data.title}
 					onChange={(e) => onChange({ title: e.target.value })}
+					style={errors.includes("title") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}
 				/>
+				<FieldError show={errors.includes("title")} message="Give your campaign a title" />
 			</div>
 
 			<div className="field">
@@ -424,7 +455,9 @@ function Step1({
 					placeholder="e.g. Showcase our new earbuds in your style"
 					value={data.brief}
 					onChange={(e) => onChange({ brief: e.target.value })}
+					style={errors.includes("brief") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}
 				/>
+				<FieldError show={errors.includes("brief")} message="Add a short description" />
 			</div>
 
 			<div className="field">
@@ -514,6 +547,7 @@ function Step1({
 						</button>
 					</div>
 				)}
+				<FieldError show={errors.includes("category")} message="Pick a category" />
 			</div>
 		</div>
 	);
@@ -522,9 +556,11 @@ function Step1({
 function Step2({
 	data,
 	onChange,
+	errors = [],
 }: {
 	data: CampaignFormData;
 	onChange: (patch: Partial<CampaignFormData>) => void;
+	errors?: string[];
 }) {
 	const [showTagInput, setShowTagInput] = useState(false);
 	const [tagValue, setTagValue] = useState("");
@@ -570,7 +606,7 @@ function Step2({
 			<div className="field-label" style={{ marginBottom: 10 }}>
 				Platform
 			</div>
-			<div className="option-grid three" style={{ marginBottom: 24 }}>
+			<div className="option-grid three" style={{ marginBottom: errors.includes("platform") ? 8 : 24 }}>
 				{PLATFORMS.map(({ id, label, Icon }) => (
 					<button
 						key={id}
@@ -587,6 +623,8 @@ function Step2({
 					</button>
 				))}
 			</div>
+			<FieldError show={errors.includes("platform")} message="Select a platform" />
+			{errors.includes("platform") && <div style={{ marginBottom: 16 }} />}
 
 			<div className="field-label" style={{ marginBottom: 10 }}>
 				Content tags
@@ -720,9 +758,11 @@ function handleMoneyInput(
 function Step3({
 	data,
 	onChange,
+	errors = [],
 }: {
 	data: CampaignFormData;
 	onChange: (patch: Partial<CampaignFormData>) => void;
+	errors?: string[];
 }) {
 	return (
 		<div className="onboard-step">
@@ -734,7 +774,7 @@ function Step3({
 
 			<div className="field">
 				<label className="field-label">Total campaign budget</label>
-				<div className="cc-input-prefix">
+				<div className="cc-input-prefix" style={errors.includes("budget") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}>
 					<span className="prefix">{data.currency}</span>
 					<input
 						type="text"
@@ -746,11 +786,12 @@ function Step3({
 						}
 					/>
 				</div>
+				<FieldError show={errors.includes("budget")} message="Enter a campaign budget" />
 			</div>
 
 			<div className="field">
 				<label className="field-label">CPM rate (per 1k views)</label>
-				<div className="cc-input-prefix">
+				<div className="cc-input-prefix" style={errors.includes("rate") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}>
 					<span className="prefix">{data.currency}</span>
 					<input
 						type="text"
@@ -762,6 +803,7 @@ function Step3({
 						}
 					/>
 				</div>
+				<FieldError show={errors.includes("rate")} message="Set a CPM rate" />
 			</div>
 
 			<div className="field">
@@ -804,9 +846,11 @@ function Step3({
 function Step4({
 	data,
 	onChange,
+	errors = [],
 }: {
 	data: CampaignFormData;
 	onChange: (patch: Partial<CampaignFormData>) => void;
+	errors?: string[];
 }) {
 	return (
 		<div className="onboard-step">
@@ -824,7 +868,9 @@ function Step4({
 					placeholder="20"
 					value={data.totalSpots}
 					onChange={(e) => onChange({ totalSpots: e.target.value })}
+					style={errors.includes("totalSpots") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}
 				/>
+				<FieldError show={errors.includes("totalSpots")} message="Enter the number of spots" />
 			</div>
 
 			<div className="field">
@@ -833,6 +879,7 @@ function Step4({
 					className="field-input"
 					type="date"
 					value={data.deadline}
+					style={errors.includes("deadline") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}
 					onChange={(e) => {
 						const val = e.target.value;
 						const today = new Date().toISOString().split("T")[0];
@@ -840,8 +887,9 @@ function Step4({
 					}}
 					onKeyDown={(e) => e.preventDefault()}
 					min={new Date().toISOString().split("T")[0]}
-					style={{ colorScheme: "dark" }}
+					style={{ colorScheme: "dark", ...(errors.includes("deadline") ? { borderColor: "rgba(251,113,133,0.5)" } : {}) }}
 				/>
+				<FieldError show={errors.includes("deadline")} message="Set a campaign deadline" />
 			</div>
 
 			<div style={{ marginTop: 8, marginBottom: 16 }}>
@@ -1238,27 +1286,41 @@ function CreateCampaignInner() {
 	const [published, setPublished] = useState(false);
 	const [data, setData] = useState<CampaignFormData>(INITIAL_DATA);
 	const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+	const [errors, setErrors] = useState<string[]>([]);
 
 	const TOTAL_STEPS = 6;
 	const progress = ((step + 1) / TOTAL_STEPS) * 100;
 
 	function patch(p: Partial<CampaignFormData>) {
 		setData((d) => ({ ...d, ...p }));
+		if (errors.length) setErrors([]);
 	}
 
-	function canContinue(): boolean {
-		if (saving) return false;
-		if (step === 0)
-			return !!data.title.trim() && !!data.brief.trim() && !!data.category;
-		if (step === 1) return !!data.platform;
-		if (step === 2) return !!data.budget.trim() && !!data.rate.trim();
-		if (step === 3) return !!data.totalSpots.trim() && !!data.deadline;
-		if (step === 4) return true; // eligibility — optional
-		if (step === 5) return true; // review
-		return true;
+	function validate(): string[] {
+		const e: string[] = [];
+		if (step === 0) {
+			if (!data.title.trim()) e.push("title");
+			if (!data.brief.trim()) e.push("brief");
+			if (!data.category) e.push("category");
+		} else if (step === 1) {
+			if (!data.platform) e.push("platform");
+		} else if (step === 2) {
+			if (!data.budget.trim()) e.push("budget");
+			if (!data.rate.trim()) e.push("rate");
+		} else if (step === 3) {
+			if (!data.totalSpots.trim()) e.push("totalSpots");
+			if (!data.deadline) e.push("deadline");
+		}
+		return e;
 	}
 
 	async function handleNext() {
+		const errs = validate();
+		if (errs.length) {
+			setErrors(errs);
+			return;
+		}
+
 		if (step < TOTAL_STEPS - 1) {
 			setStep((s) => s + 1);
 			return;
@@ -1323,7 +1385,10 @@ function CreateCampaignInner() {
 	}
 
 	function handleBack() {
-		if (step > 0) setStep((s) => s - 1);
+		if (step > 0) {
+			setErrors([]);
+			setStep((s) => s - 1);
+		}
 	}
 
 	// Loading state
@@ -1510,10 +1575,10 @@ function CreateCampaignInner() {
 	}
 
 	function renderStep() {
-		if (step === 0) return <Step1 data={data} onChange={patch} />;
-		if (step === 1) return <Step2 data={data} onChange={patch} />;
-		if (step === 2) return <Step3 data={data} onChange={patch} />;
-		if (step === 3) return <Step4 data={data} onChange={patch} />;
+		if (step === 0) return <Step1 data={data} onChange={patch} errors={errors} />;
+		if (step === 1) return <Step2 data={data} onChange={patch} errors={errors} />;
+		if (step === 2) return <Step3 data={data} onChange={patch} errors={errors} />;
+		if (step === 3) return <Step4 data={data} onChange={patch} errors={errors} />;
 		if (step === 4) return <Step5Eligibility data={data} onChange={patch} />;
 		if (step === 5) return <Step6Review data={data} brandName={brandName} />;
 		return null;

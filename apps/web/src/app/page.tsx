@@ -589,7 +589,7 @@ const faqs = [
 	},
 	{
 		q: "What platforms are supported?",
-		a: "Currently Instagram (Reels & posts) and YouTube (Shorts & long-form). TikTok support is planned for 2025. Brands can specify which platforms they want content on.",
+		a: "Currently Instagram (Reels & posts), YouTube (Shorts & long-form), and X (Twitter). Brands can specify which platforms they want content on.",
 	},
 	{
 		q: "How does Inflio verify views are real?",

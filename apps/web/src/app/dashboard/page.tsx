@@ -157,8 +157,7 @@ function BrandHome({ userId }: { userId: string }) {
 	const platforms = [
 		{ name: "Instagram", icon: "ig", color: "#e040fb" },
 		{ name: "YouTube", icon: "yt", color: "#ff1744" },
-		{ name: "TikTok", icon: "tt", color: "#00e5ff" },
-		{ name: "Twitter / X", icon: "x", color: "#94a3b8" },
+		{ name: "X (Twitter)", icon: "x", color: "#94a3b8" },
 	];
 
 	const segments = [
