@@ -2588,7 +2588,7 @@ function AddToListModal({
 			name: newName.trim(),
 			description: newDesc.trim() || undefined,
 			color: newColor,
-			creatorIds: [creatorId as any],
+			creatorIds: [creatorId as Id<"creators">],
 			createdAt: new Date().toISOString(),
 		});
 		setJustAdded(newName.trim());
@@ -2599,11 +2599,11 @@ function AddToListModal({
 		setNewColor("lime");
 	}
 
-	async function handleToggle(listId: any, isInList: boolean) {
+	async function handleToggle(listId: Id<"lists">, isInList: boolean) {
 		if (isInList) {
-			await removeCreator({ id: listId, creatorId: creatorId as any });
+			await removeCreator({ id: listId, creatorId: creatorId as Id<"creators"> });
 		} else {
-			await addCreator({ id: listId, creatorId: creatorId as any });
+			await addCreator({ id: listId, creatorId: creatorId as Id<"creators"> });
 			const list = (lists ?? []).find((l) => l._id === listId);
 			if (list) setJustAdded(list.name);
 		}
@@ -2694,7 +2694,7 @@ function AddToListModal({
 								</div>
 							)}
 							{(lists ?? []).map((list) => {
-								const isInList = list.creatorIds.includes(creatorId as any);
+								const isInList = list.creatorIds.includes(creatorId as Id<"creators">);
 								const colorHex =
 									LIST_COLORS.find((c) => c.name === list.color)?.hex ??
 									"#bef264";

@@ -115,7 +115,7 @@ export default defineSchema({
 		name: v.string(),
 		description: v.optional(v.string()),
 		color: v.string(),
-		creatorIds: v.array(v.number()), // static creator IDs for now
+		creatorIds: v.array(v.id("creators")),
 		createdAt: v.string(),
 	}).index("by_userId", ["userId"]),
 

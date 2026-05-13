@@ -17,7 +17,7 @@ export const create = mutation({
 		name: v.string(),
 		description: v.optional(v.string()),
 		color: v.string(),
-		creatorIds: v.array(v.number()),
+		creatorIds: v.array(v.id("creators")),
 		createdAt: v.string(),
 	},
 	handler: async (ctx, args) => {
@@ -28,7 +28,7 @@ export const create = mutation({
 export const addCreator = mutation({
 	args: {
 		id: v.id("lists"),
-		creatorId: v.number(),
+		creatorId: v.id("creators"),
 	},
 	handler: async (ctx, args) => {
 		const list = await ctx.db.get(args.id);
@@ -43,7 +43,7 @@ export const addCreator = mutation({
 export const removeCreator = mutation({
 	args: {
 		id: v.id("lists"),
-		creatorId: v.number(),
+		creatorId: v.id("creators"),
 	},
 	handler: async (ctx, args) => {
 		const list = await ctx.db.get(args.id);
