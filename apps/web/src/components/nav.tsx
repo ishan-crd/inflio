@@ -19,7 +19,7 @@ function initials(s: string) {
 }
 
 export function Nav() {
-	const { data: session } = useSession();
+	const { data: session, isPending } = useSession();
 	const pathname = usePathname();
 	const loggedIn = !!session?.user;
 	const userId = session?.user?.id;
@@ -34,6 +34,11 @@ export function Nav() {
 	);
 
 	const role: "creator" | "brand" = brandProfile ? "brand" : "creator";
+
+	// While session is loading, show a minimal skeleton nav to prevent flash
+	if (isPending) {
+		return <NavSkeleton pathname={pathname} />;
+	}
 
 	if (loggedIn) {
 		return (
@@ -93,6 +98,53 @@ function PublicNav({ pathname }: { pathname: string }) {
 					<Link href="/login?mode=signup" className="btn btn-primary">
 						Get started <ArrowIcon />
 					</Link>
+				</div>
+			</div>
+		</nav>
+	);
+}
+
+function NavSkeleton({ pathname }: { pathname: string }) {
+	return (
+		<nav className="nav">
+			<div className="shell nav-inner" style={{ position: "relative" }}>
+				<Link
+					href="/"
+					className="logo"
+					style={{ textDecoration: "none", color: "inherit" }}
+				>
+					<div className="logo-dot" />
+					Inflio
+				</Link>
+
+				<div
+					className="nav-links"
+					style={{
+						position: "absolute",
+						left: "50%",
+						transform: "translateX(-50%)",
+						display: "flex",
+					}}
+				>
+					<Link
+						href="/marketplace"
+						className={pathname === "/marketplace" ? "active" : ""}
+					>
+						Campaigns
+					</Link>
+					<Link
+						href="/creators"
+						className={pathname === "/creators" ? "active" : ""}
+					>
+						Creators
+					</Link>
+				</div>
+
+				<div className="nav-cta" style={{ visibility: "hidden" }}>
+					<div className="btn btn-ghost">Sign in</div>
+					<div className="btn btn-primary">
+						Get started <ArrowIcon />
+					</div>
 				</div>
 			</div>
 		</nav>
