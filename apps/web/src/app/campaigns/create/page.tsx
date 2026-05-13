@@ -164,15 +164,17 @@ const INITIAL_DATA: CampaignFormData = {
 };
 
 const GEOS = [
-	"India", "United States", "United Kingdom", "Canada", "Australia",
-	"Germany", "France", "Brazil", "Indonesia", "Middle East",
-	"Southeast Asia", "Africa", "Latin America", "Global",
+	"Pan India", "Maharashtra", "Delhi NCR", "Karnataka", "Tamil Nadu",
+	"Telangana", "Gujarat", "Rajasthan", "Uttar Pradesh", "West Bengal",
+	"Kerala", "Punjab", "Haryana", "Madhya Pradesh", "Bihar",
+	"Andhra Pradesh", "Odisha", "Assam", "Jharkhand", "Goa",
+	"Chandigarh", "Himachal Pradesh", "Uttarakhand", "J&K",
 ];
 
 const LANGUAGES = [
-	"English", "Hindi", "Spanish", "Portuguese", "French",
-	"German", "Arabic", "Japanese", "Korean", "Indonesian",
-	"Tamil", "Telugu", "Bengali", "Marathi",
+	"English", "Hindi", "Hinglish", "Tamil", "Telugu", "Kannada",
+	"Malayalam", "Marathi", "Bengali", "Gujarati", "Punjabi",
+	"Odia", "Assamese", "Urdu", "Rajasthani", "Bhojpuri",
 ];
 
 const AGE_RANGES = [
@@ -963,7 +965,7 @@ function Step5Eligibility({
 			{/* Geo targeting */}
 			<div className="field">
 				<label className="field-label" style={{ marginBottom: 10 }}>
-					Geo targeting
+					Target regions
 					<span style={{ color: "var(--color-ink-3)", fontWeight: 400, marginLeft: 6 }}>
 						Creator&apos;s audience location
 					</span>
@@ -1048,7 +1050,7 @@ function Step6Review({
 	const eligRows = [
 		{ label: "Min. followers", value: data.eligMinFollowers ? formatNumber(data.eligMinFollowers) : "" },
 		{ label: "Min. avg. views", value: data.eligMinAvgViews ? formatNumber(data.eligMinAvgViews) : "" },
-		{ label: "Geo targeting", value: data.eligGeos.join(", ") },
+		{ label: "Target regions", value: data.eligGeos.join(", ") },
 		{ label: "Languages", value: data.eligLanguages.join(", ") },
 		{ label: "Audience age", value: data.eligAgeRange },
 		{ label: "Creator niche", value: data.eligNiche.join(", ") },
