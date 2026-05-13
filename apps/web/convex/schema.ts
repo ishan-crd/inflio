@@ -44,7 +44,8 @@ export default defineSchema({
 			amount: v.string(),
 		}),
 		titleAccent: v.optional(v.string()), // highlighted phrase in the campaign title
-		status: v.string(), // "active" | "paused" | "completed"
+		submissionsPaused: v.optional(v.boolean()), // true = not accepting new submissions
+		status: v.string(), // "active" | "completed"
 	})
 		.index("by_brand", ["brandId"])
 		.index("by_status", ["status"])

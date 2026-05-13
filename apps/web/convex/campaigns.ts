@@ -135,6 +135,7 @@ export const update = mutation({
 		creatorsJoined: v.optional(v.number()),
 		bonus: v.optional(v.object({ threshold: v.string(), amount: v.string() })),
 		titleAccent: v.optional(v.string()),
+		submissionsPaused: v.optional(v.boolean()),
 		status: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {

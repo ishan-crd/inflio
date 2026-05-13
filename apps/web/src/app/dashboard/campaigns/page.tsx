@@ -65,7 +65,7 @@ export default function DashboardCampaigns() {
 	const updateCampaign = useMutation(api.campaigns.update);
 
 	const [filter, setFilter] = useState<
-		"all" | "active" | "paused" | "completed"
+		"all" | "active" | "completed"
 	>("all");
 	const [selectedCampaignId, setSelectedCampaignId] =
 		useState<Id<"campaigns"> | null>(null);
@@ -82,7 +82,6 @@ export default function DashboardCampaigns() {
 	const counts = {
 		all: allCampaigns.length,
 		active: allCampaigns.filter((c) => c.status === "active").length,
-		paused: allCampaigns.filter((c) => c.status === "paused").length,
 		completed: allCampaigns.filter((c) => c.status === "completed").length,
 	};
 
@@ -115,7 +114,7 @@ export default function DashboardCampaigns() {
 
 			{/* Filter pills */}
 			<div className="db-filters" style={{ marginBottom: 24 }}>
-				{(["all", "active", "paused", "completed"] as const).map((f) => (
+				{(["all", "active", "completed"] as const).map((f) => (
 					<button
 						key={f}
 						onClick={() => setFilter(f)}
@@ -225,15 +224,11 @@ function DashboardCampaignCard({
 					background:
 						c.status === "active"
 							? "rgba(74,222,128,0.12)"
-							: c.status === "paused"
-								? "rgba(251,191,36,0.12)"
-								: "rgba(148,163,184,0.12)",
+							: "rgba(148,163,184,0.12)",
 					color:
 						c.status === "active"
 							? "#4ade80"
-							: c.status === "paused"
-								? "#fbbf24"
-								: "#94a3b8",
+							: "#94a3b8",
 					zIndex: 2,
 				}}
 			>
@@ -371,9 +366,8 @@ function CampaignDetail({
 		{ key: "submissions" as const, label: "Submissions" },
 	];
 
-	async function toggleStatus() {
-		const newStatus = c.status === "active" ? "paused" : "active";
-		await updateCampaign({ id: c._id, status: newStatus });
+	async function toggleSubmissions() {
+		await updateCampaign({ id: c._id, submissionsPaused: !c.submissionsPaused });
 	}
 
 	return (
@@ -437,17 +431,17 @@ function CampaignDetail({
 				</div>
 				<div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
 					<button
-						onClick={toggleStatus}
+						onClick={toggleSubmissions}
 						className="db-btn-outline"
 						style={{ padding: "8px 16px" }}
 					>
-						{c.status === "active" ? "Pause" : "Resume"}
+						{c.submissionsPaused ? "Resume Submissions" : "Pause Submissions"}
 					</button>
 					<span
 						className={`db-status-badge ${c.status}`}
 						style={{ padding: "6px 12px", fontSize: 12 }}
 					>
-						{c.status}
+						{c.submissionsPaused ? "submissions paused" : c.status}
 					</span>
 				</div>
 			</div>
