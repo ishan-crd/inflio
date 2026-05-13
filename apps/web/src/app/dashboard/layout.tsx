@@ -139,7 +139,15 @@ export default function DashboardLayout({
 	if (!session?.user) {
 		return (
 			<div className="db-loading" style={{ textAlign: "center" }}>
-				<h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8 }}>
+				<h2
+					style={{
+						fontFamily: '"Geist", sans-serif',
+						fontSize: 22,
+						fontWeight: 600,
+						letterSpacing: "-0.025em",
+						marginBottom: 8,
+					}}
+				>
 					Join inflio first
 				</h2>
 				<p
@@ -264,7 +272,15 @@ export default function DashboardLayout({
 	if (!brandProfile && !creatorProfile) {
 		return (
 			<div className="db-loading" style={{ textAlign: "center" }}>
-				<h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8 }}>
+				<h2
+					style={{
+						fontFamily: '"Geist", sans-serif',
+						fontSize: 22,
+						fontWeight: 600,
+						letterSpacing: "-0.025em",
+						marginBottom: 8,
+					}}
+				>
 					Complete your onboarding
 				</h2>
 				<p
