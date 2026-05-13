@@ -3,7 +3,7 @@
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
 	ArrowIcon,
 	BackIcon,
@@ -129,6 +129,13 @@ interface CampaignFormData {
 	deadline: string;
 	bonusThreshold: string;
 	bonusAmount: string;
+	// Step 5 — Eligibility (optional)
+	eligMinFollowers: string;
+	eligMinAvgViews: string;
+	eligGeos: string[];
+	eligLanguages: string[];
+	eligAgeRange: string;
+	eligNiche: string[];
 }
 
 const INITIAL_DATA: CampaignFormData = {
@@ -148,7 +155,35 @@ const INITIAL_DATA: CampaignFormData = {
 	deadline: "",
 	bonusThreshold: "",
 	bonusAmount: "",
+	eligMinFollowers: "",
+	eligMinAvgViews: "",
+	eligGeos: [],
+	eligLanguages: [],
+	eligAgeRange: "",
+	eligNiche: [],
 };
+
+const GEOS = [
+	"India", "United States", "United Kingdom", "Canada", "Australia",
+	"Germany", "France", "Brazil", "Indonesia", "Middle East",
+	"Southeast Asia", "Africa", "Latin America", "Global",
+];
+
+const LANGUAGES = [
+	"English", "Hindi", "Spanish", "Portuguese", "French",
+	"German", "Arabic", "Japanese", "Korean", "Indonesian",
+	"Tamil", "Telugu", "Bengali", "Marathi",
+];
+
+const AGE_RANGES = [
+	"18–24", "25–34", "35–44", "45+", "All ages",
+];
+
+const NICHES = [
+	"Tech", "Fashion", "Beauty", "Food", "Fitness", "Gaming",
+	"Finance", "Travel", "Education", "Lifestyle", "Parenting",
+	"Music", "Comedy", "Health", "DIY",
+];
 
 // ---------------------------------------------------------------------------
 // StepNav
@@ -364,7 +399,7 @@ function Step1({
 
 	return (
 		<div className="onboard-step">
-			<div className="onboard-eyebrow">Step 1 of 5 &mdash; Basics</div>
+			<div className="onboard-eyebrow">Step 1 of 6 &mdash; Basics</div>
 			<h2>Campaign basics</h2>
 			<p className="lead">
 				Give your campaign a title, tagline, and detailed guidelines.
@@ -524,7 +559,7 @@ function Step2({
 
 	return (
 		<div className="onboard-step">
-			<div className="onboard-eyebrow">Step 2 of 5 &mdash; Platform</div>
+			<div className="onboard-eyebrow">Step 2 of 6 &mdash; Platform</div>
 			<h2>Platform &amp; content</h2>
 			<p className="lead">
 				Choose where your campaign runs and what kind of content you want.
@@ -689,7 +724,7 @@ function Step3({
 }) {
 	return (
 		<div className="onboard-step">
-			<div className="onboard-eyebrow">Step 3 of 5 &mdash; Budget</div>
+			<div className="onboard-eyebrow">Step 3 of 6 &mdash; Budget</div>
 			<h2>Budget &amp; rates</h2>
 			<p className="lead">
 				Define how much you&apos;re paying and what you expect in return.
@@ -773,7 +808,7 @@ function Step4({
 }) {
 	return (
 		<div className="onboard-step">
-			<div className="onboard-eyebrow">Step 4 of 5 &mdash; Timeline</div>
+			<div className="onboard-eyebrow">Step 4 of 6 &mdash; Timeline</div>
 			<h2>Spots &amp; timeline</h2>
 			<p className="lead">
 				Set how many creators you want and when the campaign ends.
@@ -847,13 +882,178 @@ function Step4({
 	);
 }
 
-function Step5({
+function Step5Eligibility({
+	data,
+	onChange,
+}: {
+	data: CampaignFormData;
+	onChange: (patch: Partial<CampaignFormData>) => void;
+}) {
+	function toggleIn(arr: string[], item: string): string[] {
+		return arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];
+	}
+
+	return (
+		<div className="onboard-step">
+			<div className="onboard-eyebrow">Step 5 of 6 &mdash; Eligibility</div>
+			<h2>Creator eligibility</h2>
+			<p className="lead">
+				Set requirements for who can apply. All fields are optional — skip any
+				that don&apos;t matter for this campaign.
+			</p>
+
+			{/* Optional badge */}
+			<div
+				style={{
+					display: "inline-flex",
+					alignItems: "center",
+					gap: 6,
+					padding: "6px 14px",
+					borderRadius: 20,
+					background: "rgba(190,242,100,0.06)",
+					border: "1px solid rgba(190,242,100,0.15)",
+					marginBottom: 28,
+					fontSize: 12,
+					color: "rgba(190,242,100,0.7)",
+					fontFamily: "'JetBrains Mono', monospace",
+					letterSpacing: "0.03em",
+				}}
+			>
+				<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+					<circle cx="8" cy="8" r="6.5" />
+					<path d="M8 5v3M8 10.5v.5" />
+				</svg>
+				Entirely optional — skip to continue
+			</div>
+
+			{/* Follower & Views row */}
+			<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 4 }}>
+				<div className="field">
+					<label className="field-label">
+						Min. followers
+					</label>
+					<input
+						className="field-input"
+						type="text"
+						inputMode="numeric"
+						placeholder="e.g. 10,000"
+						value={data.eligMinFollowers ? formatNumber(data.eligMinFollowers) : ""}
+						onChange={(e) =>
+							onChange({ eligMinFollowers: e.target.value.replace(/[^0-9]/g, "") })
+						}
+					/>
+				</div>
+				<div className="field">
+					<label className="field-label">
+						Min. avg. monthly views
+					</label>
+					<input
+						className="field-input"
+						type="text"
+						inputMode="numeric"
+						placeholder="e.g. 50,000"
+						value={data.eligMinAvgViews ? formatNumber(data.eligMinAvgViews) : ""}
+						onChange={(e) =>
+							onChange({ eligMinAvgViews: e.target.value.replace(/[^0-9]/g, "") })
+						}
+					/>
+				</div>
+			</div>
+
+			{/* Geo targeting */}
+			<div className="field">
+				<label className="field-label" style={{ marginBottom: 10 }}>
+					Geo targeting
+					<span style={{ color: "var(--color-ink-3)", fontWeight: 400, marginLeft: 6 }}>
+						Creator&apos;s audience location
+					</span>
+				</label>
+				<div className="chip-multi">
+					{GEOS.map((geo) => (
+						<button
+							key={geo}
+							className={data.eligGeos.includes(geo) ? "active" : ""}
+							onClick={() => onChange({ eligGeos: toggleIn(data.eligGeos, geo) })}
+						>
+							{geo}
+						</button>
+					))}
+				</div>
+			</div>
+
+			{/* Languages */}
+			<div className="field">
+				<label className="field-label" style={{ marginBottom: 10 }}>
+					Content language
+				</label>
+				<div className="chip-multi">
+					{LANGUAGES.map((lang) => (
+						<button
+							key={lang}
+							className={data.eligLanguages.includes(lang) ? "active" : ""}
+							onClick={() => onChange({ eligLanguages: toggleIn(data.eligLanguages, lang) })}
+						>
+							{lang}
+						</button>
+					))}
+				</div>
+			</div>
+
+			{/* Audience age range */}
+			<div className="field">
+				<label className="field-label" style={{ marginBottom: 10 }}>
+					Audience age range
+				</label>
+				<div className="chip-multi">
+					{AGE_RANGES.map((age) => (
+						<button
+							key={age}
+							className={data.eligAgeRange === age ? "active" : ""}
+							onClick={() => onChange({ eligAgeRange: data.eligAgeRange === age ? "" : age })}
+						>
+							{age}
+						</button>
+					))}
+				</div>
+			</div>
+
+			{/* Creator niche */}
+			<div className="field" style={{ marginBottom: 0 }}>
+				<label className="field-label" style={{ marginBottom: 10 }}>
+					Preferred creator niche
+				</label>
+				<div className="chip-multi">
+					{NICHES.map((n) => (
+						<button
+							key={n}
+							className={data.eligNiche.includes(n) ? "active" : ""}
+							onClick={() => onChange({ eligNiche: toggleIn(data.eligNiche, n) })}
+						>
+							{n}
+						</button>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function Step6Review({
 	data,
 	brandName,
 }: {
 	data: CampaignFormData;
 	brandName: string;
 }) {
+	const eligRows = [
+		{ label: "Min. followers", value: data.eligMinFollowers ? formatNumber(data.eligMinFollowers) : "" },
+		{ label: "Min. avg. views", value: data.eligMinAvgViews ? formatNumber(data.eligMinAvgViews) : "" },
+		{ label: "Geo targeting", value: data.eligGeos.join(", ") },
+		{ label: "Languages", value: data.eligLanguages.join(", ") },
+		{ label: "Audience age", value: data.eligAgeRange },
+		{ label: "Creator niche", value: data.eligNiche.join(", ") },
+	].filter((r) => r.value);
+
 	const rows = [
 		{ label: "Title", value: data.title || "—" },
 		{ label: "Brief", value: data.brief || "—" },
@@ -881,13 +1081,14 @@ function Step5({
 			value:
 				data.bonusThreshold && data.bonusAmount
 					? `${data.bonusAmount} at ${data.bonusThreshold}`
-					: "—",
+					: "None",
 		},
+		...eligRows.map((r) => ({ label: r.label, value: r.value })),
 	];
 
 	return (
 		<div className="onboard-step">
-			<div className="onboard-eyebrow">Step 5 of 5 &mdash; Review</div>
+			<div className="onboard-eyebrow">Step 6 of 6 &mdash; Review</div>
 			<h2>Review &amp; publish</h2>
 			<p className="lead">
 				Check your campaign details below. Once published it will go live in the
@@ -913,6 +1114,10 @@ function Step5({
 			</div>
 		</div>
 	);
+}
+
+function hasEligibility(d: CampaignFormData): boolean {
+	return !!(d.eligMinFollowers || d.eligMinAvgViews || d.eligGeos.length || d.eligLanguages.length || d.eligAgeRange || d.eligNiche.length);
 }
 
 // ---------------------------------------------------------------------------
@@ -1032,7 +1237,7 @@ function CreateCampaignInner() {
 	const [data, setData] = useState<CampaignFormData>(INITIAL_DATA);
 	const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-	const TOTAL_STEPS = 5;
+	const TOTAL_STEPS = 6;
 	const progress = ((step + 1) / TOTAL_STEPS) * 100;
 
 	function patch(p: Partial<CampaignFormData>) {
@@ -1046,7 +1251,8 @@ function CreateCampaignInner() {
 		if (step === 1) return !!data.platform;
 		if (step === 2) return !!data.budget.trim() && !!data.rate.trim();
 		if (step === 3) return !!data.totalSpots.trim() && !!data.deadline;
-		if (step === 4) return true;
+		if (step === 4) return true; // eligibility — optional
+		if (step === 5) return true; // review
 		return true;
 	}
 
@@ -1094,6 +1300,16 @@ function CreateCampaignInner() {
 					threshold: data.bonusThreshold || "—",
 					amount: data.bonusAmount || "—",
 				},
+				...(hasEligibility(data) ? {
+					eligibility: {
+						...(data.eligMinFollowers ? { minFollowers: data.eligMinFollowers } : {}),
+						...(data.eligMinAvgViews ? { minAvgViews: data.eligMinAvgViews } : {}),
+						...(data.eligGeos.length ? { geos: data.eligGeos } : {}),
+						...(data.eligLanguages.length ? { languages: data.eligLanguages } : {}),
+						...(data.eligAgeRange ? { ageRange: data.eligAgeRange } : {}),
+						...(data.eligNiche.length ? { niche: data.eligNiche } : {}),
+					},
+				} : {}),
 				status: "active",
 			});
 
@@ -1296,7 +1512,8 @@ function CreateCampaignInner() {
 		if (step === 1) return <Step2 data={data} onChange={patch} />;
 		if (step === 2) return <Step3 data={data} onChange={patch} />;
 		if (step === 3) return <Step4 data={data} onChange={patch} />;
-		if (step === 4) return <Step5 data={data} brandName={brandName} />;
+		if (step === 4) return <Step5Eligibility data={data} onChange={patch} />;
+		if (step === 5) return <Step6Review data={data} brandName={brandName} />;
 		return null;
 	}
 
@@ -1354,7 +1571,11 @@ function CreateCampaignInner() {
 						onNext={handleNext}
 						canContinue={canContinue()}
 						nextLabel={
-							step === TOTAL_STEPS - 1 ? "Publish Campaign" : "Continue"
+							step === TOTAL_STEPS - 1
+								? "Publish Campaign"
+								: step === 4
+									? hasEligibility(data) ? "Continue" : "Skip & Continue"
+									: "Continue"
 						}
 						saving={saving}
 					/>

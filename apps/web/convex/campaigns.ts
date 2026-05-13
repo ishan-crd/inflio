@@ -105,6 +105,14 @@ export const create = mutation({
 			amount: v.string(),
 		}),
 		titleAccent: v.optional(v.string()),
+		eligibility: v.optional(v.object({
+			minFollowers: v.optional(v.string()),
+			minAvgViews: v.optional(v.string()),
+			geos: v.optional(v.array(v.string())),
+			languages: v.optional(v.array(v.string())),
+			ageRange: v.optional(v.string()),
+			niche: v.optional(v.array(v.string())),
+		})),
 		status: v.string(),
 	},
 	handler: async (ctx, args) => {
@@ -136,6 +144,14 @@ export const update = mutation({
 		bonus: v.optional(v.object({ threshold: v.string(), amount: v.string() })),
 		titleAccent: v.optional(v.string()),
 		submissionsPaused: v.optional(v.boolean()),
+		eligibility: v.optional(v.object({
+			minFollowers: v.optional(v.string()),
+			minAvgViews: v.optional(v.string()),
+			geos: v.optional(v.array(v.string())),
+			languages: v.optional(v.array(v.string())),
+			ageRange: v.optional(v.string()),
+			niche: v.optional(v.array(v.string())),
+		})),
 		status: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {

@@ -45,6 +45,14 @@ export default defineSchema({
 		}),
 		titleAccent: v.optional(v.string()), // highlighted phrase in the campaign title
 		submissionsPaused: v.optional(v.boolean()), // true = not accepting new submissions
+		eligibility: v.optional(v.object({
+			minFollowers: v.optional(v.string()),
+			minAvgViews: v.optional(v.string()),
+			geos: v.optional(v.array(v.string())),
+			languages: v.optional(v.array(v.string())),
+			ageRange: v.optional(v.string()),
+			niche: v.optional(v.array(v.string())),
+		})),
 		status: v.string(), // "active" | "completed"
 	})
 		.index("by_brand", ["brandId"])
