@@ -4,7 +4,7 @@ import { useQuery } from "convex/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { signOut, useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { api } from "../../../convex/_generated/api";
 
 function initials(s: string) {
@@ -22,71 +22,296 @@ export default function DashboardLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const { data: session } = useSession();
+	const { data: session, isPending: sessionPending } = useSession();
 	const userId = session?.user?.id;
 	const brandProfile = useQuery(
 		api.brands.getByUserId,
+		userId ? { userId } : "skip",
+	);
+	const creatorProfile = useQuery(
+		api.creators.getByUserId,
 		userId ? { userId } : "skip",
 	);
 	const campaigns = useQuery(
 		api.campaigns.listByBrand,
 		brandProfile?._id ? { brandId: brandProfile._id } : "skip",
 	);
+	const isBrand = !!brandProfile;
+	const isCreator = !!creatorProfile;
 	const pathname = usePathname();
 	const router = useRouter();
 	const [collapsed, setCollapsed] = useState(false);
 
-	if (!session?.user) {
+	if (sessionPending) {
 		return (
-			<div className="db-loading" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, padding: 80 }}>
-				{/* Sidebar skeleton */}
-				<div style={{ position: "fixed", left: 0, top: 0, width: 240, height: "100vh", padding: "24px 16px", background: "rgba(255,255,255,0.02)", borderRight: "1px solid rgba(255,255,255,0.06)" }}>
-					<div style={{ width: 80, height: 20, borderRadius: 8, marginBottom: 40, background: "rgba(255,255,255,0.06)" }} />
+			<div
+				className="db-loading"
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "center",
+					gap: 24,
+					padding: 80,
+				}}
+			>
+				<div
+					style={{
+						position: "fixed",
+						left: 0,
+						top: 0,
+						width: 240,
+						height: "100vh",
+						padding: "24px 16px",
+						background: "rgba(255,255,255,0.02)",
+						borderRight: "1px solid rgba(255,255,255,0.06)",
+					}}
+				>
+					<div
+						style={{
+							width: 80,
+							height: 20,
+							borderRadius: 8,
+							marginBottom: 40,
+							background: "rgba(255,255,255,0.06)",
+						}}
+					/>
 					{[120, 100, 110, 90].map((w, i) => (
-						<div key={i} style={{ width: w, height: 14, borderRadius: 6, marginBottom: 20, background: "rgba(255,255,255,0.06)" }} />
+						<div
+							key={i}
+							style={{
+								width: w,
+								height: 14,
+								borderRadius: 6,
+								marginBottom: 20,
+								background: "rgba(255,255,255,0.06)",
+							}}
+						/>
 					))}
 				</div>
-				{/* Main content skeleton */}
-				<div style={{ marginLeft: 240, width: "calc(100% - 240px)", padding: "24px 32px" }}>
-					<div style={{ width: "100%", height: 48, borderRadius: 12, marginBottom: 32, background: "rgba(255,255,255,0.04)" }} />
-					<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, marginBottom: 32 }}>
+				<div
+					style={{
+						marginLeft: 240,
+						width: "calc(100% - 240px)",
+						padding: "24px 32px",
+					}}
+				>
+					<div
+						style={{
+							width: "100%",
+							height: 48,
+							borderRadius: 12,
+							marginBottom: 32,
+							background: "rgba(255,255,255,0.04)",
+						}}
+					/>
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "1fr 1fr 1fr",
+							gap: 20,
+							marginBottom: 32,
+						}}
+					>
 						{[1, 2, 3].map((_, i) => (
-							<div key={i} style={{ height: 100, borderRadius: 16, background: "rgba(255,255,255,0.04)" }} />
+							<div
+								key={i}
+								style={{
+									height: 100,
+									borderRadius: 16,
+									background: "rgba(255,255,255,0.04)",
+								}}
+							/>
 						))}
 					</div>
-					<div style={{ width: "100%", height: 300, borderRadius: 16, background: "rgba(255,255,255,0.03)" }} />
+					<div
+						style={{
+							width: "100%",
+							height: 300,
+							borderRadius: 16,
+							background: "rgba(255,255,255,0.03)",
+						}}
+					/>
 				</div>
 			</div>
 		);
 	}
 
-	if (!brandProfile) {
+	if (!session?.user) {
 		return (
-			<div className="db-loading">
-				<p style={{ color: "var(--color-ink-2)", marginBottom: 16 }}>
-					Complete your brand onboarding to access the dashboard.
+			<div className="db-loading" style={{ textAlign: "center" }}>
+				<h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8 }}>
+					Join inflio first
+				</h2>
+				<p
+					style={{
+						color: "var(--color-ink-2)",
+						marginBottom: 20,
+						fontSize: 14,
+					}}
+				>
+					Sign in or create an account to access your dashboard.
 				</p>
 				<Link
-					href="/onboarding?role=brand"
+					href="/login"
 					className="btn btn-primary"
 					style={{ textDecoration: "none" }}
 				>
-					Complete Onboarding
+					Sign in
 				</Link>
 			</div>
 		);
 	}
 
-	const navItems = [
-		{ href: "/dashboard", label: "Home", icon: "home" },
-		{ href: "/dashboard/campaigns", label: "Campaigns", icon: "campaigns" },
-		{
-			href: "/dashboard/submissions",
-			label: "Submissions",
-			icon: "submissions",
-		},
-		{ href: "/dashboard/analytics", label: "Analytics", icon: "analytics" },
-	];
+	// Convex useQuery returns undefined while loading, null when not found
+	const brandLoading = brandProfile === undefined;
+	const creatorLoading = creatorProfile === undefined;
+
+	if (brandLoading || creatorLoading) {
+		return (
+			<div
+				className="db-loading"
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "center",
+					gap: 24,
+					padding: 80,
+				}}
+			>
+				<div
+					style={{
+						position: "fixed",
+						left: 0,
+						top: 0,
+						width: 240,
+						height: "100vh",
+						padding: "24px 16px",
+						background: "rgba(255,255,255,0.02)",
+						borderRight: "1px solid rgba(255,255,255,0.06)",
+					}}
+				>
+					<div
+						style={{
+							width: 80,
+							height: 20,
+							borderRadius: 8,
+							marginBottom: 40,
+							background: "rgba(255,255,255,0.06)",
+						}}
+					/>
+					{[120, 100, 110, 90].map((w, i) => (
+						<div
+							key={i}
+							style={{
+								width: w,
+								height: 14,
+								borderRadius: 6,
+								marginBottom: 20,
+								background: "rgba(255,255,255,0.06)",
+							}}
+						/>
+					))}
+				</div>
+				<div
+					style={{
+						marginLeft: 240,
+						width: "calc(100% - 240px)",
+						padding: "24px 32px",
+					}}
+				>
+					<div
+						style={{
+							width: "100%",
+							height: 48,
+							borderRadius: 12,
+							marginBottom: 32,
+							background: "rgba(255,255,255,0.04)",
+						}}
+					/>
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "1fr 1fr 1fr",
+							gap: 20,
+							marginBottom: 32,
+						}}
+					>
+						{[1, 2, 3].map((_, i) => (
+							<div
+								key={i}
+								style={{
+									height: 100,
+									borderRadius: 16,
+									background: "rgba(255,255,255,0.04)",
+								}}
+							/>
+						))}
+					</div>
+					<div
+						style={{
+							width: "100%",
+							height: 300,
+							borderRadius: 16,
+							background: "rgba(255,255,255,0.03)",
+						}}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	// Both queries resolved but no profile found
+	if (!brandProfile && !creatorProfile) {
+		return (
+			<div className="db-loading" style={{ textAlign: "center" }}>
+				<h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 8 }}>
+					Complete your onboarding
+				</h2>
+				<p
+					style={{
+						color: "var(--color-ink-2)",
+						marginBottom: 20,
+						fontSize: 14,
+					}}
+				>
+					Set up your profile to access the dashboard.
+				</p>
+				<Link
+					href="/onboarding"
+					className="btn btn-primary"
+					style={{ textDecoration: "none" }}
+				>
+					Get started
+				</Link>
+			</div>
+		);
+	}
+
+	const navItems = isBrand
+		? [
+				{ href: "/dashboard", label: "Home", icon: "home" },
+				{ href: "/dashboard/campaigns", label: "Campaigns", icon: "campaigns" },
+				{
+					href: "/dashboard/submissions",
+					label: "Submissions",
+					icon: "submissions",
+				},
+				{ href: "/dashboard/analytics", label: "Analytics", icon: "analytics" },
+			]
+		: [
+				{ href: "/dashboard", label: "Home", icon: "home" },
+				{
+					href: "/dashboard/applications",
+					label: "Applications",
+					icon: "campaigns",
+				},
+				{
+					href: "/dashboard/submissions",
+					label: "Submissions",
+					icon: "submissions",
+				},
+				{ href: "/dashboard/analytics", label: "Analytics", icon: "analytics" },
+			];
 
 	const bottomItems = [
 		{ href: "/dashboard/settings", label: "Settings", icon: "settings" },
@@ -147,28 +372,52 @@ export default function DashboardLayout({
 						{!collapsed && <span>Collapse</span>}
 					</button>
 
-					{/* Brand card */}
+					{/* Profile card */}
 					<div className="db-brand-card">
-						<div
-							className="db-brand-avatar"
-							style={{
-								background:
-									brandProfile.logoColors?.[0] ||
-									"linear-gradient(135deg, var(--color-accent-strong), #65a30d)",
-								color: brandProfile.logoColors?.[1] || "#fff",
-							}}
-						>
-							{initials(brandProfile.name)}
-						</div>
-						{!collapsed && (
-							<div className="db-brand-info">
-								<div className="db-brand-name">{brandProfile.name}</div>
-								<div className="db-brand-meta">
-									{campaigns?.length ?? 0} Campaign
-									{(campaigns?.length ?? 0) !== 1 ? "s" : ""}
+						{isBrand ? (
+							<>
+								<div
+									className="db-brand-avatar"
+									style={{
+										background:
+											brandProfile.logoColors?.[0] ||
+											"linear-gradient(135deg, var(--color-accent-strong), #65a30d)",
+										color: brandProfile.logoColors?.[1] || "#fff",
+									}}
+								>
+									{initials(brandProfile.name)}
 								</div>
-							</div>
-						)}
+								{!collapsed && (
+									<div className="db-brand-info">
+										<div className="db-brand-name">{brandProfile.name}</div>
+										<div className="db-brand-meta">
+											{campaigns?.length ?? 0} Campaign
+											{(campaigns?.length ?? 0) !== 1 ? "s" : ""}
+										</div>
+									</div>
+								)}
+							</>
+						) : isCreator ? (
+							<>
+								<div
+									className="db-brand-avatar"
+									style={{
+										background: `linear-gradient(135deg, ${creatorProfile.avatarColor?.[0] || "#bef264"}, ${creatorProfile.avatarColor?.[1] || "#a3e635"})`,
+										color: "#0a0a0c",
+									}}
+								>
+									{initials(creatorProfile.name)}
+								</div>
+								{!collapsed && (
+									<div className="db-brand-info">
+										<div className="db-brand-name">{creatorProfile.name}</div>
+										<div className="db-brand-meta">
+											@{creatorProfile.handle}
+										</div>
+									</div>
+								)}
+							</>
+						) : null}
 					</div>
 				</div>
 			</aside>

@@ -2746,7 +2746,7 @@ function ApplyModal({
 								Done
 							</button>
 							<Link
-								href="/applications?tab=applications"
+								href="/dashboard/applications"
 								style={{
 									padding: "12px 0",
 									borderRadius: 10,

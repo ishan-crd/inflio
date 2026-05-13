@@ -39,6 +39,21 @@ export default function DashboardHome() {
 		api.brands.getByUserId,
 		userId ? { userId } : "skip",
 	);
+	const creatorProfile = useQuery(
+		api.creators.getByUserId,
+		userId ? { userId } : "skip",
+	);
+
+	if (brandProfile) return <BrandHome userId={userId!} />;
+	if (creatorProfile)
+		return <CreatorHome userId={userId!} creatorProfile={creatorProfile} />;
+	return null;
+}
+
+// ─── Brand Dashboard Home ────────────────────────────────────────────────────
+
+function BrandHome({ userId }: { userId: string }) {
+	const brandProfile = useQuery(api.brands.getByUserId, { userId });
 	const campaigns = useQuery(
 		api.campaigns.listByBrand,
 		brandProfile?._id ? { brandId: brandProfile._id } : "skip",
@@ -48,14 +63,6 @@ export default function DashboardHome() {
 	const activeCampaigns = allCampaigns.filter((c) => c.status === "active");
 	const totalBudget = allCampaigns.reduce(
 		(sum, c) => sum + Number(c.budget?.replace(/[^0-9]/g, "") || 0),
-		0,
-	);
-	const totalSpots = allCampaigns.reduce(
-		(sum, c) => sum + (c.totalSpots || 0),
-		0,
-	);
-	const filledSpots = allCampaigns.reduce(
-		(sum, c) => sum + (c.creatorsJoined || 0),
 		0,
 	);
 	const currency = allCampaigns[0]?.currency ?? "₹";
@@ -143,7 +150,6 @@ export default function DashboardHome() {
 		},
 	];
 
-	// Platform distribution
 	const platformCounts: Record<string, number> = {};
 	allCampaigns.forEach((c) => {
 		platformCounts[c.platform] = (platformCounts[c.platform] || 0) + 1;
@@ -155,7 +161,6 @@ export default function DashboardHome() {
 		{ name: "Twitter / X", icon: "x", color: "#94a3b8" },
 	];
 
-	// Views distribution (donut segments)
 	const segments = [
 		{ label: "Approved", color: "#4ade80", pct: 0 },
 		{ label: "Pending", color: "#fbbf24", pct: 0 },
@@ -166,7 +171,6 @@ export default function DashboardHome() {
 
 	return (
 		<div>
-			{/* Page header */}
 			<div className="db-page-header">
 				<h1 className="db-page-title">Home</h1>
 				<Link
@@ -178,7 +182,6 @@ export default function DashboardHome() {
 				</Link>
 			</div>
 
-			{/* Stat cards */}
 			<div className="db-stat-grid">
 				{stats.map((s) => (
 					<div key={s.label} className="db-stat-card">
@@ -193,9 +196,7 @@ export default function DashboardHome() {
 				))}
 			</div>
 
-			{/* Views distribution + Platform distribution */}
 			<div className="db-row-2">
-				{/* Donut chart */}
 				<div className="db-card">
 					<div className="db-card-title">Views distribution</div>
 					<div className="db-legend">
@@ -211,7 +212,6 @@ export default function DashboardHome() {
 					</div>
 					<div className="db-donut-wrap">
 						<svg viewBox="0 0 200 200" className="db-donut">
-							{/* Background ring */}
 							<circle
 								cx="100"
 								cy="100"
@@ -222,7 +222,6 @@ export default function DashboardHome() {
 							/>
 							{allCampaigns.length === 0 ? (
 								<>
-									{/* Empty state segments */}
 									<circle
 										cx="100"
 										cy="100"
@@ -269,7 +268,6 @@ export default function DashboardHome() {
 					</div>
 				</div>
 
-				{/* Platform distribution */}
 				<div className="db-card">
 					<div className="db-card-title">Platform distribution</div>
 					<div className="db-card-sub">Views by platform this campaign</div>
@@ -300,7 +298,6 @@ export default function DashboardHome() {
 				</div>
 			</div>
 
-			{/* 5-Month view trend */}
 			<div className="db-card" style={{ marginTop: 20 }}>
 				<div
 					style={{
@@ -333,7 +330,6 @@ export default function DashboardHome() {
 						</div>
 					</div>
 				</div>
-
 				{allCampaigns.length === 0 ? (
 					<div className="db-empty-chart">
 						<div className="db-empty-icon">
@@ -366,7 +362,6 @@ export default function DashboardHome() {
 				)}
 			</div>
 
-			{/* Weekly breakdown */}
 			<div className="db-card" style={{ marginTop: 20 }}>
 				<div className="db-weekly-grid">
 					{days.map((d) => (
@@ -379,7 +374,6 @@ export default function DashboardHome() {
 				</div>
 			</div>
 
-			{/* Recent campaigns */}
 			{activeCampaigns.length > 0 && (
 				<div className="db-card" style={{ marginTop: 20 }}>
 					<div
@@ -462,6 +456,391 @@ export default function DashboardHome() {
 		</div>
 	);
 }
+
+// ─── Creator Dashboard Home ──────────────────────────────────────────────────
+
+function CreatorHome({
+	userId,
+	creatorProfile,
+}: {
+	userId: string;
+	creatorProfile: any;
+}) {
+	const applications = useQuery(api.applications.listByUser, { userId });
+	const submissions = useQuery(api.submissions.listByUser, { userId });
+
+	const allApps = applications ?? [];
+	const allSubs = submissions ?? [];
+
+	const pendingApps = allApps.filter((a) => a.status === "pending").length;
+	const approvedApps = allApps.filter((a) => a.status === "approved").length;
+	const totalEarnings = allSubs.reduce((sum, s) => sum + (s.earnings || 0), 0);
+	const totalViews = allSubs.reduce((sum, s) => sum + (s.views || 0), 0);
+	const currency = creatorProfile.currency || "₹";
+
+	const stats = [
+		{
+			label: "Applications",
+			value: String(allApps.length),
+			icon: (
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="var(--color-accent-strong)"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
+					<rect x="3" y="3" width="18" height="18" rx="2" />
+					<path d="M3 9h18M9 21V9" />
+				</svg>
+			),
+			iconBg: "rgba(190,242,100,0.12)",
+		},
+		{
+			label: "Total views",
+			value: totalViews > 0 ? totalViews.toLocaleString() : "0",
+			icon: (
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="#f472b6"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
+					<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+					<circle cx="12" cy="12" r="3" />
+				</svg>
+			),
+			iconBg: "rgba(244,114,182,0.12)",
+		},
+		{
+			label: "Total earned",
+			value: formatMoney(totalEarnings, currency),
+			icon: (
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="#fb923c"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
+					<rect x="1" y="4" width="22" height="16" rx="2" />
+					<line x1="1" y1="10" x2="23" y2="10" />
+				</svg>
+			),
+			iconBg: "rgba(251,146,60,0.12)",
+		},
+		{
+			label: "Submissions",
+			value: String(allSubs.length),
+			icon: (
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="#60a5fa"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
+					<polygon points="23 7 16 12 23 17 23 7" />
+					<rect x="1" y="5" width="15" height="14" rx="2" />
+				</svg>
+			),
+			iconBg: "rgba(96,165,250,0.12)",
+		},
+	];
+
+	return (
+		<div>
+			<div className="db-page-header">
+				<h1 className="db-page-title">Home</h1>
+				<Link
+					href="/marketplace"
+					className="btn btn-primary"
+					style={{ textDecoration: "none", fontSize: 13 }}
+				>
+					Browse campaigns
+				</Link>
+			</div>
+
+			{/* Stat cards */}
+			<div className="db-stat-grid">
+				{stats.map((s) => (
+					<div key={s.label} className="db-stat-card">
+						<div className="db-stat-header">
+							<div className="db-stat-icon" style={{ background: s.iconBg }}>
+								{s.icon}
+							</div>
+							<span className="db-stat-label">{s.label}</span>
+						</div>
+						<div className="db-stat-value">{s.value}</div>
+					</div>
+				))}
+			</div>
+
+			{/* Application status + Profile overview */}
+			<div className="db-row-2">
+				{/* Application status breakdown */}
+				<div className="db-card">
+					<div className="db-card-title">Application status</div>
+					<div className="db-card-sub">
+						Breakdown of your campaign applications
+					</div>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: 16,
+							marginTop: 20,
+						}}
+					>
+						{[
+							{ label: "Pending", count: pendingApps, color: "#fbbf24" },
+							{ label: "Approved", count: approvedApps, color: "#4ade80" },
+							{
+								label: "Rejected",
+								count: allApps.filter((a) => a.status === "rejected").length,
+								color: "#fb7185",
+							},
+						].map((s) => {
+							const pct =
+								allApps.length > 0
+									? Math.round((s.count / allApps.length) * 100)
+									: 0;
+							return (
+								<div key={s.label}>
+									<div
+										style={{
+											display: "flex",
+											justifyContent: "space-between",
+											fontSize: 13,
+											marginBottom: 6,
+										}}
+									>
+										<span style={{ color: "var(--color-ink-1)" }}>
+											{s.label}
+										</span>
+										<span style={{ fontWeight: 600, color: s.color }}>
+											{s.count}
+										</span>
+									</div>
+									<div className="db-progress">
+										<div
+											className="db-progress-fill"
+											style={{ width: `${pct}%`, background: s.color }}
+										/>
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				</div>
+
+				{/* Profile overview */}
+				<div className="db-card">
+					<div className="db-card-title">Your profile</div>
+					<div className="db-card-sub">
+						Quick overview of your creator profile
+					</div>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: 14,
+							marginTop: 20,
+						}}
+					>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								fontSize: 13,
+							}}
+						>
+							<span style={{ color: "var(--color-ink-2)" }}>Category</span>
+							<span style={{ fontWeight: 500 }}>{creatorProfile.category}</span>
+						</div>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								fontSize: 13,
+							}}
+						>
+							<span style={{ color: "var(--color-ink-2)" }}>Tier</span>
+							<span style={{ fontWeight: 500 }}>{creatorProfile.tier}</span>
+						</div>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								fontSize: 13,
+							}}
+						>
+							<span style={{ color: "var(--color-ink-2)" }}>Location</span>
+							<span style={{ fontWeight: 500 }}>{creatorProfile.location}</span>
+						</div>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								fontSize: 13,
+							}}
+						>
+							<span style={{ color: "var(--color-ink-2)" }}>Platforms</span>
+							<span style={{ fontWeight: 500 }}>
+								{creatorProfile.platforms?.map((p: any) => p.name).join(", ")}
+							</span>
+						</div>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								fontSize: 13,
+							}}
+						>
+							<span style={{ color: "var(--color-ink-2)" }}>
+								Completed deals
+							</span>
+							<span style={{ fontWeight: 500 }}>
+								{creatorProfile.completedDeals}
+							</span>
+						</div>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
+								fontSize: 13,
+							}}
+						>
+							<span style={{ color: "var(--color-ink-2)" }}>Rating</span>
+							<span style={{ fontWeight: 500 }}>
+								{creatorProfile.rating > 0 ? `${creatorProfile.rating}/5` : "—"}
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{/* Recent applications */}
+			{allApps.length > 0 ? (
+				<div className="db-card" style={{ marginTop: 20 }}>
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+							marginBottom: 16,
+						}}
+					>
+						<div className="db-card-title">Recent applications</div>
+						<Link
+							href="/dashboard/applications"
+							style={{
+								fontSize: 12,
+								color: "var(--color-accent-strong)",
+								textDecoration: "none",
+							}}
+						>
+							View all
+						</Link>
+					</div>
+					<div className="db-table-wrap">
+						<table className="db-table">
+							<thead>
+								<tr>
+									<th>Campaign</th>
+									<th>Brand</th>
+									<th>Platform</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								{allApps.slice(0, 5).map((a) => (
+									<tr key={a._id}>
+										<td>
+											<div
+												style={{
+													display: "flex",
+													alignItems: "center",
+													gap: 10,
+												}}
+											>
+												<div
+													style={{
+														width: 8,
+														height: 8,
+														borderRadius: "50%",
+														background:
+															COLORS[a.campaignColor || "lime"] || "#bef264",
+													}}
+												/>
+												<span style={{ fontWeight: 500 }}>
+													{a.campaignTitle}
+												</span>
+											</div>
+										</td>
+										<td>{a.campaignBrand}</td>
+										<td>{a.platform}</td>
+										<td>
+											<span className={`db-status-badge ${a.status}`}>
+												{a.status}
+											</span>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			) : (
+				<div className="db-card" style={{ marginTop: 20 }}>
+					<div className="db-empty">
+						<div className="db-empty-icon">
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="var(--color-ink-3)"
+								strokeWidth="1.5"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<rect x="3" y="3" width="18" height="18" rx="2" />
+								<path d="M3 9h18M9 21V9" />
+							</svg>
+						</div>
+						<div className="db-empty-title">No applications yet</div>
+						<div className="db-empty-desc">
+							Browse campaigns on the marketplace and apply to start earning.
+						</div>
+						<Link
+							href="/marketplace"
+							className="btn btn-primary"
+							style={{ textDecoration: "none", marginTop: 16, fontSize: 13 }}
+						>
+							Browse campaigns
+						</Link>
+					</div>
+				</div>
+			)}
+		</div>
+	);
+}
+
+// ─── Platform Icons ──────────────────────────────────────────────────────────
 
 function PlatformIcon({ name }: { name: string }) {
 	if (name === "ig")

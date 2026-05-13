@@ -17,15 +17,6 @@ function formatMoney(value: string | number, currency = "₹") {
 	return `${currency}${num.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 }
 
-function daysUntil(dateStr: string): number {
-	return Math.max(
-		0,
-		Math.ceil(
-			(new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-		),
-	);
-}
-
 const COLORS: Record<string, string> = {
 	lime: "#bef264",
 	cyan: "#67e8f9",
@@ -42,6 +33,23 @@ export default function DashboardAnalytics() {
 		api.brands.getByUserId,
 		userId ? { userId } : "skip",
 	);
+	const creatorProfile = useQuery(
+		api.creators.getByUserId,
+		userId ? { userId } : "skip",
+	);
+
+	if (brandProfile) return <BrandAnalytics userId={userId!} />;
+	if (creatorProfile)
+		return (
+			<CreatorAnalytics userId={userId!} creatorProfile={creatorProfile} />
+		);
+	return null;
+}
+
+// ─── Brand Analytics ─────────────────────────────────────────────────────────
+
+function BrandAnalytics({ userId }: { userId: string }) {
+	const brandProfile = useQuery(api.brands.getByUserId, { userId });
 	const campaigns = useQuery(
 		api.campaigns.listByBrand,
 		brandProfile?._id ? { brandId: brandProfile._id } : "skip",
@@ -53,14 +61,6 @@ export default function DashboardAnalytics() {
 		(sum, c) => sum + Number(c.budget?.replace(/[^0-9]/g, "") || 0),
 		0,
 	);
-	const totalSpots = allCampaigns.reduce(
-		(sum, c) => sum + (c.totalSpots || 0),
-		0,
-	);
-	const filledSpots = allCampaigns.reduce(
-		(sum, c) => sum + (c.creatorsJoined || 0),
-		0,
-	);
 	const avgRate =
 		allCampaigns.length > 0
 			? Math.round(
@@ -69,27 +69,13 @@ export default function DashboardAnalytics() {
 			: 0;
 
 	const topStats = [
-		{
-			label: "Total spend",
-			value: formatMoney(totalBudget, currency),
-			change: null,
-		},
-		{ label: "Total views", value: "0", change: null },
-		{
-			label: "Avg. CPM",
-			value: avgRate ? `${currency}${avgRate}` : "—",
-			change: null,
-		},
-		{ label: "Total engagements", value: "0", change: null },
-		{ label: "Conversion rate", value: "0%", change: null },
-		{ label: "ROI", value: "—", change: null },
+		{ label: "Total spend", value: formatMoney(totalBudget, currency) },
+		{ label: "Total views", value: "0" },
+		{ label: "Avg. CPM", value: avgRate ? `${currency}${avgRate}` : "—" },
+		{ label: "Total engagements", value: "0" },
+		{ label: "Conversion rate", value: "0%" },
+		{ label: "ROI", value: "—" },
 	];
-
-	// Platform breakdown
-	const platformCounts: Record<string, number> = {};
-	allCampaigns.forEach((c) => {
-		platformCounts[c.platform] = (platformCounts[c.platform] || 0) + 1;
-	});
 
 	const months = [
 		"Jan",
@@ -117,7 +103,6 @@ export default function DashboardAnalytics() {
 				</div>
 			</div>
 
-			{/* KPI cards */}
 			<div className="db-stat-grid-6">
 				{topStats.map((s) => (
 					<div key={s.label} className="db-stat-card">
@@ -129,16 +114,14 @@ export default function DashboardAnalytics() {
 				))}
 			</div>
 
-			{/* Charts row */}
 			<div className="db-row-2" style={{ marginTop: 20 }}>
-				{/* Views trend */}
 				<div className="db-card">
 					<div className="db-card-title">Views over time</div>
 					<div className="db-card-sub">
 						Monthly aggregate views across campaigns
 					</div>
 					<div className="db-bar-chart">
-						{months.map((m, i) => (
+						{months.map((m) => (
 							<div key={m} className="db-bar-col">
 								<div
 									className="db-bar"
@@ -160,7 +143,6 @@ export default function DashboardAnalytics() {
 					</div>
 				</div>
 
-				{/* Engagement breakdown */}
 				<div className="db-card">
 					<div className="db-card-title">Engagement breakdown</div>
 					<div className="db-card-sub">
@@ -168,10 +150,10 @@ export default function DashboardAnalytics() {
 					</div>
 					<div className="db-engagement-grid">
 						{[
-							{ label: "Views", value: "0", icon: "👁", color: "#60a5fa" },
-							{ label: "Likes", value: "0", icon: "❤️", color: "#fb7185" },
-							{ label: "Comments", value: "0", icon: "💬", color: "#4ade80" },
-							{ label: "Shares", value: "0", icon: "🔗", color: "#fbbf24" },
+							{ label: "Views", value: "0", color: "#60a5fa" },
+							{ label: "Likes", value: "0", color: "#fb7185" },
+							{ label: "Comments", value: "0", color: "#4ade80" },
+							{ label: "Shares", value: "0", color: "#fbbf24" },
 						].map((e) => (
 							<div key={e.label} className="db-engagement-item">
 								<div className="db-engagement-num" style={{ color: e.color }}>
@@ -184,7 +166,6 @@ export default function DashboardAnalytics() {
 				</div>
 			</div>
 
-			{/* Campaign performance table */}
 			<div className="db-card" style={{ marginTop: 20 }}>
 				<div className="db-card-title" style={{ marginBottom: 20 }}>
 					Campaign performance
@@ -290,36 +271,193 @@ export default function DashboardAnalytics() {
 					</div>
 				)}
 			</div>
+		</div>
+	);
+}
 
-			{/* Creator leaderboard placeholder */}
-			<div className="db-card" style={{ marginTop: 20 }}>
-				<div className="db-card-title" style={{ marginBottom: 6 }}>
-					Top performing creators
+// ─── Creator Analytics ───────────────────────────────────────────────────────
+
+function CreatorAnalytics({
+	userId,
+	creatorProfile,
+}: {
+	userId: string;
+	creatorProfile: any;
+}) {
+	const submissions = useQuery(api.submissions.listByUser, { userId });
+	const applications = useQuery(api.applications.listByUser, { userId });
+
+	const allSubs = submissions ?? [];
+	const allApps = applications ?? [];
+	const currency = creatorProfile.currency || "₹";
+
+	const totalViews = allSubs.reduce((sum, s) => sum + (s.views || 0), 0);
+	const totalLikes = allSubs.reduce((sum, s) => sum + (s.likes || 0), 0);
+	const totalComments = allSubs.reduce((sum, s) => sum + (s.comments || 0), 0);
+	const totalShares = allSubs.reduce((sum, s) => sum + (s.shares || 0), 0);
+	const totalEarnings = allSubs.reduce((sum, s) => sum + (s.earnings || 0), 0);
+	const approvalRate =
+		allApps.length > 0
+			? Math.round(
+					(allApps.filter((a) => a.status === "approved").length /
+						allApps.length) *
+						100,
+				)
+			: 0;
+
+	const topStats = [
+		{
+			label: "Total views",
+			value: totalViews > 0 ? totalViews.toLocaleString() : "0",
+		},
+		{ label: "Total earned", value: formatMoney(totalEarnings, currency) },
+		{ label: "Submissions", value: String(allSubs.length) },
+		{ label: "Applications", value: String(allApps.length) },
+		{ label: "Approval rate", value: `${approvalRate}%` },
+		{
+			label: "Avg. engagement",
+			value:
+				totalViews > 0
+					? `${(((totalLikes + totalComments + totalShares) / totalViews) * 100).toFixed(1)}%`
+					: "—",
+		},
+	];
+
+	return (
+		<div>
+			<div className="db-page-header">
+				<div>
+					<h1 className="db-page-title">Analytics</h1>
+					<p className="db-page-sub">Your performance metrics and earnings</p>
 				</div>
-				<div className="db-card-sub">
-					Ranked by views generated for your campaigns
-				</div>
-				<div className="db-empty" style={{ padding: "40px 0" }}>
-					<div className="db-empty-icon">
-						<svg
-							width="24"
-							height="24"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="var(--color-ink-3)"
-							strokeWidth="1.5"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<path d="M12 15l-2 5l9-11h-5l2-5l-9 11h5z" />
-						</svg>
+			</div>
+
+			<div className="db-stat-grid-6">
+				{topStats.map((s) => (
+					<div key={s.label} className="db-stat-card">
+						<div className="db-stat-label" style={{ marginBottom: 8 }}>
+							{s.label}
+						</div>
+						<div className="db-stat-value">{s.value}</div>
 					</div>
-					<div className="db-empty-title">No creator data yet</div>
-					<div className="db-empty-desc">
-						Creator rankings will appear once submissions start coming in
+				))}
+			</div>
+
+			<div className="db-row-2" style={{ marginTop: 20 }}>
+				<div className="db-card">
+					<div className="db-card-title">Engagement breakdown</div>
+					<div className="db-card-sub">
+						Your total engagement across all submissions
+					</div>
+					<div className="db-engagement-grid">
+						{[
+							{
+								label: "Views",
+								value: totalViews.toLocaleString(),
+								color: "#60a5fa",
+							},
+							{
+								label: "Likes",
+								value: totalLikes.toLocaleString(),
+								color: "#fb7185",
+							},
+							{
+								label: "Comments",
+								value: totalComments.toLocaleString(),
+								color: "#4ade80",
+							},
+							{
+								label: "Shares",
+								value: totalShares.toLocaleString(),
+								color: "#fbbf24",
+							},
+						].map((e) => (
+							<div key={e.label} className="db-engagement-item">
+								<div className="db-engagement-num" style={{ color: e.color }}>
+									{e.value}
+								</div>
+								<div className="db-engagement-label">{e.label}</div>
+							</div>
+						))}
+					</div>
+				</div>
+
+				<div className="db-card">
+					<div className="db-card-title">Connected platforms</div>
+					<div className="db-card-sub">Your linked accounts</div>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							gap: 12,
+							marginTop: 16,
+						}}
+					>
+						{creatorProfile.platforms?.map((p: any) => (
+							<div
+								key={p.name}
+								style={{
+									display: "flex",
+									justifyContent: "space-between",
+									alignItems: "center",
+									padding: "12px 14px",
+									background: "rgba(255,255,255,0.02)",
+									borderRadius: 10,
+									border: "1px solid var(--color-line)",
+								}}
+							>
+								<div>
+									<div style={{ fontSize: 13, fontWeight: 500 }}>{p.name}</div>
+									<div style={{ fontSize: 12, color: "var(--color-ink-3)" }}>
+										{p.handle}
+									</div>
+								</div>
+								<div style={{ textAlign: "right" }}>
+									<div style={{ fontSize: 13, fontWeight: 600 }}>
+										{p.followers}
+									</div>
+									<div
+										style={{
+											fontSize: 11,
+											color: p.growth?.startsWith("+")
+												? "#4ade80"
+												: "var(--color-ink-3)",
+										}}
+									>
+										{p.growth}
+									</div>
+								</div>
+							</div>
+						))}
 					</div>
 				</div>
 			</div>
+
+			{allSubs.length === 0 && (
+				<div className="db-card" style={{ marginTop: 20 }}>
+					<div className="db-empty" style={{ padding: "40px 0" }}>
+						<div className="db-empty-icon">
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="var(--color-ink-3)"
+								strokeWidth="1.5"
+								strokeLinecap="round"
+							>
+								<line x1="18" y1="20" x2="18" y2="10" />
+								<line x1="12" y1="20" x2="12" y2="4" />
+								<line x1="6" y1="20" x2="6" y2="14" />
+							</svg>
+						</div>
+						<div className="db-empty-title">No performance data yet</div>
+						<div className="db-empty-desc">
+							Submit content for campaigns to start seeing your analytics here
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
