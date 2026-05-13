@@ -492,7 +492,13 @@ function Crumb() {
 }
 
 // ─── CampaignHero ───────────────────────────────────────────────────────────
-function CampaignHero({ onApply }: { onApply: () => void }) {
+function CampaignHero({
+	onApply,
+	isBrand,
+}: {
+	onApply: () => void;
+	isBrand: boolean;
+}) {
 	const CAMPAIGN = useCampaign();
 	const accent = ACCENT_MAP[CAMPAIGN.color] ?? ACCENT_MAP["lime"];
 	const brandColors = CAMPAIGN.brandLogoColors ?? ["#d4d4d4", "#1a1a1a"];
@@ -873,28 +879,46 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 				</div>
 
 				{/* CTA */}
-				<button
-					onClick={onApply}
-					style={{
-						width: "100%",
-						padding: "14px 0",
-						borderRadius: 10,
-						border: "none",
-						background: `linear-gradient(135deg, ${accent.chip}, ${accent.text})`,
-						color: "#0a0a0c",
-						fontSize: 14,
-						fontWeight: 700,
-						cursor: "pointer",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-						gap: 8,
-						transition: "opacity 0.15s",
-					}}
-				>
-					Apply now
-					<ArrowIcon style={{ stroke: "#0a0a0c" }} />
-				</button>
+				{!isBrand && (
+					<button
+						onClick={onApply}
+						style={{
+							width: "100%",
+							padding: "14px 0",
+							borderRadius: 10,
+							border: "none",
+							background: `linear-gradient(135deg, ${accent.chip}, ${accent.text})`,
+							color: "#0a0a0c",
+							fontSize: 14,
+							fontWeight: 700,
+							cursor: "pointer",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							gap: 8,
+							transition: "opacity 0.15s",
+						}}
+					>
+						Apply now
+						<ArrowIcon style={{ stroke: "#0a0a0c" }} />
+					</button>
+				)}
+				{isBrand && (
+					<div
+						style={{
+							width: "100%",
+							padding: "14px 0",
+							borderRadius: 10,
+							border: "1px solid rgba(255,255,255,0.08)",
+							background: "rgba(255,255,255,0.04)",
+							color: "var(--color-ink-2)",
+							fontSize: 13,
+							textAlign: "center",
+						}}
+					>
+						You&apos;re viewing as a brand
+					</div>
+				)}
 
 				{/* Fine print */}
 				<p
@@ -906,8 +930,8 @@ function CampaignHero({ onApply }: { onApply: () => void }) {
 						lineHeight: 1.5,
 					}}
 				>
-					{CAMPAIGN.daysLeft} days left &middot; Free to apply &middot; No
-					exclusivity
+					{CAMPAIGN.daysLeft} days left &middot;{" "}
+					{!isBrand && <>Free to apply &middot; </>}No exclusivity
 				</p>
 			</div>
 		</div>
@@ -3138,8 +3162,13 @@ export default function CampaignDetailPage() {
 				<div className="ambient" />
 				<div className="grain" />
 				<SharedNav />
-				<div className="shell" style={{ padding: "120px 0", textAlign: "center" }}>
-					<p style={{ color: "var(--color-ink-2)", fontSize: 15 }}>Loading campaign…</p>
+				<div
+					className="shell"
+					style={{ padding: "120px 0", textAlign: "center" }}
+				>
+					<p style={{ color: "var(--color-ink-2)", fontSize: 15 }}>
+						Loading campaign…
+					</p>
 				</div>
 			</div>
 		);
@@ -3152,9 +3181,20 @@ export default function CampaignDetailPage() {
 				<div className="ambient" />
 				<div className="grain" />
 				<SharedNav />
-				<div className="shell" style={{ padding: "120px 0", textAlign: "center" }}>
-					<h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Campaign not found</h2>
-					<p style={{ color: "var(--color-ink-2)", fontSize: 14, marginBottom: 24 }}>
+				<div
+					className="shell"
+					style={{ padding: "120px 0", textAlign: "center" }}
+				>
+					<h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
+						Campaign not found
+					</h2>
+					<p
+						style={{
+							color: "var(--color-ink-2)",
+							fontSize: 14,
+							marginBottom: 24,
+						}}
+					>
 						This campaign may have been removed or the link is incorrect.
 					</p>
 					<Link
@@ -3208,7 +3248,7 @@ export default function CampaignDetailPage() {
 
 				<div className="shell">
 					<Crumb />
-					<CampaignHero onApply={handleApplyClick} />
+					<CampaignHero onApply={handleApplyClick} isBrand={!!brandProfile} />
 
 					<Tabs active={activeTab} onChange={setActiveTab} />
 
@@ -3226,7 +3266,7 @@ export default function CampaignDetailPage() {
 
 						{/* Sidebar */}
 						<aside>
-							<MatchCard />
+							{!brandProfile && <MatchCard />}
 							<ActivityCard />
 							<AboutBrandCard />
 						</aside>

@@ -1552,10 +1552,12 @@ function CreatorHero({
 	onInvite,
 	onAddToList,
 	isInList,
+	isBrand,
 }: {
 	onInvite: () => void;
 	onAddToList: () => void;
 	isInList: boolean;
+	isBrand: boolean;
 }) {
 	const CREATOR = useCreator();
 	const ac = ACCENT_MAP_C[CREATOR.color] ?? ACCENT_MAP_C.amber;
@@ -1703,40 +1705,55 @@ function CreatorHero({
 				</div>
 
 				<div style={S.ctaRow}>
-					<button
-						className="btn btn-primary"
-						style={{
-							width: "100%",
-							justifyContent: "center",
-							padding: "13px 20px",
-						}}
-						onClick={onInvite}
-					>
-						<ArrowIcon /> Invite to campaign
-					</button>
-					<div style={S.ctaSecRow}>
+					{isBrand ? (
+						<>
+							<button
+								className="btn btn-primary"
+								style={{
+									width: "100%",
+									justifyContent: "center",
+									padding: "13px 20px",
+								}}
+								onClick={onInvite}
+							>
+								<ArrowIcon /> Invite to campaign
+							</button>
+							<div style={S.ctaSecRow}>
+								<button
+									className="btn btn-glass"
+									style={{ flex: 1, justifyContent: "center" }}
+								>
+									Send message
+								</button>
+								<button
+									className={`btn ${isInList ? "btn-listed" : "btn-glass"}`}
+									style={{ flex: 1, justifyContent: "center" }}
+									onClick={onAddToList}
+								>
+									{isInList ? (
+										<>
+											<CheckIcon /> Added
+										</>
+									) : (
+										<>
+											<PlusIcon /> Add to list
+										</>
+									)}
+								</button>
+							</div>
+						</>
+					) : (
 						<button
 							className="btn btn-glass"
-							style={{ flex: 1, justifyContent: "center" }}
+							style={{
+								width: "100%",
+								justifyContent: "center",
+								padding: "13px 20px",
+							}}
 						>
 							Send message
 						</button>
-						<button
-							className={`btn ${isInList ? "btn-listed" : "btn-glass"}`}
-							style={{ flex: 1, justifyContent: "center" }}
-							onClick={onAddToList}
-						>
-							{isInList ? (
-								<>
-									<CheckIcon /> Added
-								</>
-							) : (
-								<>
-									<PlusIcon /> Add to list
-								</>
-							)}
-						</button>
-					</div>
+					)}
 					<p style={S.fineprint}>
 						Response time: {CREATOR.responseTime} · {CREATOR.completedDeals}{" "}
 						deals completed
@@ -2601,7 +2618,10 @@ function AddToListModal({
 
 	async function handleToggle(listId: Id<"lists">, isInList: boolean) {
 		if (isInList) {
-			await removeCreator({ id: listId, creatorId: creatorId as Id<"creators"> });
+			await removeCreator({
+				id: listId,
+				creatorId: creatorId as Id<"creators">,
+			});
 		} else {
 			await addCreator({ id: listId, creatorId: creatorId as Id<"creators"> });
 			const list = (lists ?? []).find((l) => l._id === listId);
@@ -2694,7 +2714,9 @@ function AddToListModal({
 								</div>
 							)}
 							{(lists ?? []).map((list) => {
-								const isInList = list.creatorIds.includes(creatorId as Id<"creators">);
+								const isInList = list.creatorIds.includes(
+									creatorId as Id<"creators">,
+								);
 								const colorHex =
 									LIST_COLORS.find((c) => c.name === list.color)?.hex ??
 									"#bef264";
@@ -3057,6 +3079,11 @@ export default function CreatorDetailPage() {
 
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
+	const brandProfile = useQuery(
+		api.brands.getByUserId,
+		userId ? { userId } : "skip",
+	);
+	const isBrand = !!brandProfile;
 	const userLists = useQuery(
 		api.lists.listByUser,
 		userId ? { userId } : "skip",
@@ -3199,12 +3226,13 @@ export default function CreatorDetailPage() {
 							onInvite={() => setShowInvite(true)}
 							onAddToList={() => setShowAddToList(true)}
 							isInList={isInList}
+							isBrand={isBrand}
 						/>
 						<TabBar active={tab} onChange={setTab} />
 						<div style={S.contentGrid}>
 							<div style={S.main}>{renderTab()}</div>
 							<aside style={S.aside}>
-								<FitCard />
+								{isBrand && <FitCard />}
 								<ActivityCardCr />
 								<ContactCard />
 							</aside>
@@ -3213,8 +3241,10 @@ export default function CreatorDetailPage() {
 					</div>
 					<FooterCr />
 				</div>
-				{showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
-				{showAddToList && (
+				{showInvite && isBrand && (
+					<InviteModal onClose={() => setShowInvite(false)} />
+				)}
+				{showAddToList && isBrand && (
 					<AddToListModal
 						creatorId={id}
 						creatorName={creator.name}
