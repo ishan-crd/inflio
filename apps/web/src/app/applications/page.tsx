@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { ArrowIcon, BackIcon, PlatformIcon } from "@/components/icons";
 import { Nav as SharedNav } from "@/components/nav";
-import { ACCENT_MAP } from "@/data/campaigns";
+import { ACCENT_MAP } from "@/data/constants";
 import { useSession } from "@/lib/auth-client";
 import { api } from "../../../convex/_generated/api";
 

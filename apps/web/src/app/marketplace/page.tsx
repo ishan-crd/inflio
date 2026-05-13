@@ -18,15 +18,9 @@ import {
 	YTIcon,
 } from "@/components/icons";
 import { Nav as SharedNav } from "@/components/nav";
-import {
-	ACCENT_MAP,
-	BRAND_COLORS,
-	CAMPAIGNS,
-	CATEGORIES,
-	type Campaign,
-	PLATFORMS,
-	SORTS,
-} from "@/data/campaigns";
+import { ACCENT_MAP, CATEGORIES, PLATFORMS, SORTS } from "@/data/constants";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 // ─── helpers ───────────────────────────────────────────────────────────────
 const initials = (s: string) =>
@@ -311,9 +305,10 @@ function FilterBar({
 }
 
 // ─── CampaignCard ──────────────────────────────────────────────────────────
-function CampaignCard({ c }: { c: Campaign }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function CampaignCard({ c }: { c: any }) {
 	const accent = ACCENT_MAP[c.color] ?? ACCENT_MAP["lime"];
-	const brandColors = BRAND_COLORS[c.brand] ?? ["#d4d4d4", "#1a1a1a"];
+	const brandColors = c.brandLogoColors ?? ["#d4d4d4", "#1a1a1a"];
 	const spotsUsedPct = ((c.totalSpots - c.spotsLeft) / c.totalSpots) * 100;
 
 	const cardStyle = {
@@ -357,7 +352,7 @@ function CampaignCard({ c }: { c: Campaign }) {
 				<p className="card-brief">{c.brief}</p>
 
 				<div className="tag-row">
-					{c.tags.map((tag) => (
+					{c.tags.map((tag: string) => (
 						<span key={tag} className="tag">
 							#{tag}
 						</span>
@@ -506,6 +501,7 @@ function Hero() {
 
 // ─── Main Page ─────────────────────────────────────────────────────────────
 export default function MarketplacePage() {
+	const campaigns = useQuery(api.campaigns.listActiveWithBrands);
 	const [platform, setPlatform] = useState("All");
 	const [category, setCategory] = useState("All");
 	const [payoutRange, setPayoutRange] = useState<[number, number]>([
@@ -515,7 +511,7 @@ export default function MarketplacePage() {
 	const [sort, setSort] = useState(SORTS[0]);
 
 	const filtered = useMemo(() => {
-		let list = [...CAMPAIGNS];
+		let list = [...(campaigns ?? [])];
 
 		if (platform !== "All") {
 			list = list.filter((c) => c.platform === platform);
@@ -532,14 +528,14 @@ export default function MarketplacePage() {
 		} else if (sort === "Highest paying") {
 			list.sort((a, b) => b.rate - a.rate);
 		} else if (sort === "Newest") {
-			list.sort((a, b) => a.id - b.id);
+			list.sort((a, b) => a._creationTime - b._creationTime);
 		} else if (sort === "Ending soon") {
 			// sort by deadline string lexicographically (May < Jun)
 			list.sort((a, b) => a.deadline.localeCompare(b.deadline));
 		}
 
 		return list;
-	}, [platform, category, payoutRange, sort]);
+	}, [campaigns, platform, category, payoutRange, sort]);
 
 	return (
 		<div className="app">
@@ -562,6 +558,18 @@ export default function MarketplacePage() {
 
 			{/* Campaign grid */}
 			<div className="shell">
+				{campaigns === undefined ? (
+					<div
+						style={{
+							textAlign: "center",
+							padding: "80px 0",
+							color: "var(--color-ink-2)",
+						}}
+					>
+						<p style={{ fontSize: "15px" }}>Loading campaigns…</p>
+					</div>
+				) : (
+				<>
 				{/* Results meta */}
 				<div className="results-meta">
 					<p className="count">
@@ -573,11 +581,11 @@ export default function MarketplacePage() {
 				<div className="grid">
 					{filtered.map((c) => (
 						<Link
-							key={c.id}
-							href={`/campaign/${c.id}`}
+							key={c._id}
+							href={`/campaign/${c._id}`}
 							style={{ textDecoration: "none", color: "inherit" }}
 						>
-							<CampaignCard key={c.id} c={c} />
+							<CampaignCard key={c._id} c={c} />
 						</Link>
 					))}
 				</div>
@@ -625,6 +633,8 @@ export default function MarketplacePage() {
 						</Link>
 					</div>
 				</div>
+				</>
+				)}
 			</div>
 		</div>
 	);

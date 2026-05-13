@@ -23,12 +23,12 @@ import {
 	C_ENGAGEMENT,
 	C_PLATFORMS,
 	C_SORTS,
-	CREATORS,
-	type Creator,
 	fmtFollowers,
 	fmtViews,
 	initials,
-} from "@/data/creators";
+} from "@/data/constants";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 /* ─────────────────────────────────────────────
    CNav
@@ -462,7 +462,9 @@ function Spark({ data }: { data: number[] }) {
 /* ─────────────────────────────────────────────
    CreatorCard
 ───────────────────────────────────────────── */
-function CreatorCard({ c }: { c: Creator }) {
+type ConvexCreator = NonNullable<ReturnType<typeof useQuery<typeof api.creators.list>>>[number];
+
+function CreatorCard({ c }: { c: ConvexCreator }) {
 	const [from, to] = c.avatarColor;
 	const glow = `radial-gradient(ellipse at top left, ${from}22, transparent 60%)`;
 
@@ -575,15 +577,15 @@ function CreatorCard({ c }: { c: Creator }) {
 			{/* Footer */}
 			<div className="cc-foot">
 				<div className="cc-platforms-cluster">
-					{Object.entries(c.platforms).map(([name, count]) => (
+					{c.platforms.map((p) => (
 						<span
-							key={name}
+							key={p.name}
 							style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
 						>
 							<span className="pi">
-								<PlatformIcon name={name} />
+								<PlatformIcon name={p.name} />
 							</span>
-							{count}
+							{p.followers}
 						</span>
 					))}
 					<span>· {c.completedDeals} deals</span>
@@ -604,7 +606,7 @@ function CreatorCard({ c }: { c: Creator }) {
 /* ─────────────────────────────────────────────
    CreatorList — table view
 ───────────────────────────────────────────── */
-function CreatorList({ creators }: { creators: Creator[] }) {
+function CreatorList({ creators }: { creators: ConvexCreator[] }) {
 	return (
 		<div className="creator-list">
 			{/* Header */}
@@ -622,8 +624,8 @@ function CreatorList({ creators }: { creators: Creator[] }) {
 				const [from, to] = c.avatarColor;
 				return (
 					<Link
-						href={`/creator/${c.id}`}
-						key={c.id}
+						href={`/creator/${c._id}`}
+						key={c._id}
 						style={{ textDecoration: "none", color: "inherit" }}
 					>
 						<div className="cl-row">
@@ -711,6 +713,7 @@ function CreatorList({ creators }: { creators: Creator[] }) {
    CreatorsApp — main page component
 ───────────────────────────────────────────── */
 export default function CreatorsPage() {
+	const creators = useQuery(api.creators.list);
 	const [search, setSearch] = useState("");
 	const [platform, setPlatform] = useState("All");
 	const [category, setCategory] = useState("All");
@@ -719,12 +722,16 @@ export default function CreatorsPage() {
 	const [sort, setSort] = useState(C_SORTS[0]);
 	const [view, setView] = useState<"grid" | "list">("grid");
 
+	const allCreators = creators ?? [];
+
 	const filtered = useMemo(() => {
-		let list = [...CREATORS];
+		let list = [...allCreators];
 
 		// Platform filter
 		if (platform !== "All") {
-			list = list.filter((c) => Object.keys(c.platforms).includes(platform));
+			list = list.filter((c) =>
+				c.platforms.some((p) => p.name === platform),
+			);
 		}
 
 		// Category filter
@@ -764,11 +771,11 @@ export default function CreatorsPage() {
 			case "Highest engagement":
 				list.sort((a, b) => b.engagement - a.engagement);
 				break;
-			case "Most monthly views":
-				list.sort((a, b) => b.monthlyViews - a.monthlyViews);
+			case "Most deals":
+				list.sort((a, b) => b.completedDeals - a.completedDeals);
 				break;
 			case "Newest":
-				list.sort((a, b) => b.id - a.id);
+				list.sort((a, b) => b._creationTime - a._creationTime);
 				break;
 			case "Trending":
 			default:
@@ -777,7 +784,7 @@ export default function CreatorsPage() {
 		}
 
 		return list;
-	}, [platform, category, followers, engagement, search, sort]);
+	}, [allCreators, platform, category, followers, engagement, search, sort]);
 
 	return (
 		<div className="app">
@@ -801,13 +808,24 @@ export default function CreatorsPage() {
 				setSort={setSort}
 				view={view}
 				setView={setView}
-				total={CREATORS.length}
+				total={allCreators.length}
 				filtered={filtered.length}
 			/>
 
 			{/* Content */}
 			<div className="shell" style={{ paddingBottom: 80 }}>
-				{filtered.length === 0 ? (
+				{creators === undefined ? (
+					<div
+						style={{
+							textAlign: "center",
+							padding: "80px 0",
+							color: "var(--color-ink-2)",
+							fontSize: 15,
+						}}
+					>
+						Loading creators…
+					</div>
+				) : filtered.length === 0 ? (
 					<div
 						style={{
 							textAlign: "center",
@@ -840,11 +858,11 @@ export default function CreatorsPage() {
 					<div className="creator-grid">
 						{filtered.map((c) => (
 							<Link
-								key={c.id}
-								href={`/creator/${c.id}`}
+								key={c._id}
+								href={`/creator/${c._id}`}
 								style={{ textDecoration: "none", color: "inherit" }}
 							>
-								<CreatorCard key={c.id} c={c} />
+								<CreatorCard key={c._id} c={c} />
 							</Link>
 						))}
 					</div>

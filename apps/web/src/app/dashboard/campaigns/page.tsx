@@ -4,7 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowIcon, PlatformIcon, VerifiedIcon } from "@/components/icons";
-import { ACCENT_MAP } from "@/data/campaigns";
+import { ACCENT_MAP } from "@/data/constants";
 import { useSession } from "@/lib/auth-client";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";

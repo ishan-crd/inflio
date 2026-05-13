@@ -43,6 +43,7 @@ export default defineSchema({
 			threshold: v.string(),
 			amount: v.string(),
 		}),
+		titleAccent: v.optional(v.string()), // highlighted phrase in the campaign title
 		status: v.string(), // "active" | "paused" | "completed"
 	})
 		.index("by_brand", ["brandId"])

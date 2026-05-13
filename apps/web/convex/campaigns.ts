@@ -70,6 +70,11 @@ export const getByIdWithBrand = query({
 			brand: brand.name,
 			brandHandle: `@${brand.handle}`,
 			brandLogoColors: brand.logoColors,
+			brandFollowers: brand.followers,
+			brandRating: brand.rating,
+			brandPaidOut: brand.totalPaidOut,
+			brandResponseTime: brand.responseTime,
+			brandBio: brand.bio,
 		};
 	},
 });
@@ -99,6 +104,7 @@ export const create = mutation({
 			threshold: v.string(),
 			amount: v.string(),
 		}),
+		titleAccent: v.optional(v.string()),
 		status: v.string(),
 	},
 	handler: async (ctx, args) => {
@@ -128,6 +134,7 @@ export const update = mutation({
 		tags: v.optional(v.array(v.string())),
 		creatorsJoined: v.optional(v.number()),
 		bonus: v.optional(v.object({ threshold: v.string(), amount: v.string() })),
+		titleAccent: v.optional(v.string()),
 		status: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
