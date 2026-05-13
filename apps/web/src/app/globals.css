@@ -6452,15 +6452,19 @@ select {
 	min-width: 0;
 }
 .db-brand-name {
+	font-family: "Geist", sans-serif;
 	font-size: 13px;
-	font-weight: 600;
+	font-weight: 500;
+	letter-spacing: -0.01em;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 .db-brand-meta {
-	font-size: 11px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10.5px;
 	color: var(--color-ink-3);
+	letter-spacing: 0.01em;
 }
 
 /* Main area */
@@ -6560,9 +6564,10 @@ select {
 	margin-bottom: 28px;
 }
 .db-page-title {
+	font-family: "Geist", sans-serif;
 	font-size: 24px;
-	font-weight: 700;
-	letter-spacing: -0.02em;
+	font-weight: 600;
+	letter-spacing: -0.025em;
 	margin: 0;
 }
 .db-page-sub {
@@ -6614,13 +6619,17 @@ select {
 	place-items: center;
 }
 .db-stat-label {
-	font-size: 12px;
-	color: var(--color-ink-2);
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10.5px;
+	color: var(--color-ink-3);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 .db-stat-value {
+	font-family: "Geist", sans-serif;
 	font-size: 26px;
-	font-weight: 700;
-	letter-spacing: -0.02em;
+	font-weight: 600;
+	letter-spacing: -0.025em;
 }
 
 /* Cards */
@@ -6631,9 +6640,10 @@ select {
 	padding: 24px;
 }
 .db-card-title {
+	font-family: "Geist", sans-serif;
 	font-size: 15px;
-	font-weight: 600;
-	letter-spacing: -0.01em;
+	font-weight: 500;
+	letter-spacing: -0.015em;
 }
 .db-card-sub {
 	font-size: 12px;
@@ -6688,13 +6698,17 @@ select {
 	justify-content: center;
 }
 .db-donut-num {
+	font-family: "Geist", sans-serif;
 	font-size: 28px;
-	font-weight: 700;
-	letter-spacing: -0.02em;
+	font-weight: 600;
+	letter-spacing: -0.025em;
 }
 .db-donut-label {
-	font-size: 12px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10.5px;
 	color: var(--color-ink-3);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 
 /* Platform distribution */
@@ -6751,13 +6765,17 @@ select {
 	border-right: none;
 }
 .db-weekly-day {
-	font-size: 12px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10.5px;
 	color: var(--color-ink-3);
+	letter-spacing: 0.02em;
 	margin-bottom: 8px;
 }
 .db-weekly-num {
+	font-family: "Geist", sans-serif;
 	font-size: 22px;
-	font-weight: 700;
+	font-weight: 600;
+	letter-spacing: -0.02em;
 }
 .db-weekly-baseline {
 	font-size: 10px;
@@ -6784,8 +6802,10 @@ select {
 	margin-bottom: 14px;
 }
 .db-empty-title {
+	font-family: "Geist", sans-serif;
 	font-size: 14px;
 	font-weight: 500;
+	letter-spacing: -0.01em;
 	color: var(--color-ink-2);
 }
 .db-empty-desc {
@@ -6816,11 +6836,12 @@ select {
 .db-table th {
 	text-align: left;
 	padding: 10px 14px;
-	font-size: 11px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10px;
 	font-weight: 500;
 	color: var(--color-ink-3);
 	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.06em;
 	border-bottom: 1px solid var(--color-line);
 	white-space: nowrap;
 }
@@ -6843,9 +6864,11 @@ select {
 	gap: 5px;
 	padding: 3px 10px;
 	border-radius: 6px;
-	font-size: 11px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10.5px;
 	font-weight: 500;
 	text-transform: capitalize;
+	letter-spacing: 0.01em;
 }
 .db-status-badge::before {
 	content: "";
@@ -6902,9 +6925,10 @@ select {
 	background: rgba(255, 255, 255, 0.1);
 	border-color: var(--color-line-2);
 	color: var(--color-ink-0);
-	font-weight: 600;
+	font-weight: 500;
 }
 .db-filter-count {
+	font-family: "JetBrains Mono", monospace;
 	font-size: 10px;
 	background: rgba(255, 255, 255, 0.08);
 	padding: 1px 6px;
@@ -6982,10 +7006,11 @@ select {
 	margin-bottom: 10px;
 }
 .db-campaign-title {
+	font-family: "Geist", sans-serif;
 	font-size: 15px;
-	font-weight: 600;
+	font-weight: 500;
 	margin: 0 0 3px;
-	letter-spacing: -0.01em;
+	letter-spacing: -0.015em;
 }
 .db-campaign-meta {
 	font-size: 12px;
@@ -7009,6 +7034,7 @@ select {
 	margin-bottom: 14px;
 }
 .db-campaign-stat-label {
+	font-family: "JetBrains Mono", monospace;
 	font-size: 10px;
 	color: var(--color-ink-3);
 	text-transform: uppercase;
@@ -7016,8 +7042,10 @@ select {
 	margin-bottom: 3px;
 }
 .db-campaign-stat-value {
+	font-family: "Geist", sans-serif;
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 500;
+	letter-spacing: -0.01em;
 }
 .db-campaign-fill {
 	margin-bottom: 12px;
@@ -7025,8 +7053,10 @@ select {
 .db-campaign-fill-header {
 	display: flex;
 	justify-content: space-between;
-	font-size: 11px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10px;
 	color: var(--color-ink-3);
+	letter-spacing: 0.02em;
 	margin-bottom: 6px;
 }
 .db-campaign-tags {
@@ -7040,8 +7070,10 @@ select {
 	border-radius: 6px;
 	background: rgba(255, 255, 255, 0.04);
 	border: 1px solid var(--color-line);
-	font-size: 11px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10.5px;
 	color: var(--color-ink-2);
+	letter-spacing: 0.01em;
 }
 .db-campaign-actions {
 	display: flex;
@@ -7113,8 +7145,10 @@ select {
 	min-height: 4px;
 }
 .db-bar-label {
-	font-size: 10px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 9.5px;
 	color: var(--color-ink-3);
+	letter-spacing: 0.02em;
 }
 
 /* Engagement grid */
@@ -7132,14 +7166,18 @@ select {
 	border-radius: 12px;
 }
 .db-engagement-num {
+	font-family: "Geist", sans-serif;
 	font-size: 28px;
-	font-weight: 700;
-	letter-spacing: -0.02em;
+	font-weight: 600;
+	letter-spacing: -0.025em;
 }
 .db-engagement-label {
-	font-size: 12px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10.5px;
 	color: var(--color-ink-3);
-	margin-top: 4px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-top: 6px;
 }
 
 /* Feature grid */
@@ -7158,8 +7196,10 @@ select {
 	margin-bottom: 12px;
 }
 .db-feature-title {
+	font-family: "Geist", sans-serif;
 	font-size: 13.5px;
-	font-weight: 600;
+	font-weight: 500;
+	letter-spacing: -0.01em;
 	margin-bottom: 4px;
 }
 .db-feature-desc {
@@ -7180,7 +7220,8 @@ select {
 	gap: 6px;
 }
 .db-settings-label {
-	font-size: 12px;
+	font-family: "JetBrains Mono", monospace;
+	font-size: 10.5px;
 	color: var(--color-ink-3);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -7278,7 +7319,7 @@ select {
 }
 .db-detail-tab.active {
 	color: var(--color-ink-0);
-	font-weight: 600;
+	font-weight: 500;
 }
 .db-detail-tab.active::after {
 	content: "";
