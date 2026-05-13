@@ -172,7 +172,7 @@ const GEOS = [
 ];
 
 const LANGUAGES = [
-	"English", "Hindi", "Hinglish", "Tamil", "Telugu", "Kannada",
+	"Hindi", "English", "Hinglish", "Tamil", "Telugu", "Kannada",
 	"Malayalam", "Marathi", "Bengali", "Gujarati", "Punjabi",
 	"Odia", "Assamese", "Urdu", "Rajasthani", "Bhojpuri",
 ];
