@@ -3,8 +3,8 @@
 import { useQuery } from "convex/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { useSession } from "@/lib/auth-client";
+import { useEffect, useRef, useState } from "react";
+import { signOut, useSession } from "@/lib/auth-client";
 import { api } from "../../../convex/_generated/api";
 
 function initials(s: string) {
@@ -39,7 +39,6 @@ export default function DashboardLayout({
 	const isBrand = !!brandProfile;
 	const isCreator = !!creatorProfile;
 	const pathname = usePathname();
-	const router = useRouter();
 	const [collapsed, setCollapsed] = useState(false);
 
 	if (sessionPending) {
@@ -479,22 +478,205 @@ export default function DashboardLayout({
 							</svg>
 						</button>
 
-						<button
-							className="db-topbar-avatar"
-							onClick={() => router.push("/profile")}
-						>
-							{session.user.image ? (
-								<img src={session.user.image} alt="" />
-							) : (
-								<span>{initials(session.user.name || "U")}</span>
-							)}
-						</button>
+						<TopbarProfileDropdown
+							name={session.user.name || ""}
+							image={session.user.image}
+						/>
 					</div>
 				</header>
 
 				{/* Page content */}
 				<div className="db-content">{children}</div>
 			</div>
+		</div>
+	);
+}
+
+// ─── Profile Dropdown ────────────────────────────────────────────────────────
+
+function TopbarProfileDropdown({
+	name,
+	image,
+}: {
+	name: string;
+	image?: string | null;
+}) {
+	const [open, setOpen] = useState(false);
+	const ref = useRef<HTMLDivElement>(null);
+	const router = useRouter();
+
+	useEffect(() => {
+		function handleClick(e: MouseEvent) {
+			if (ref.current && !ref.current.contains(e.target as Node)) {
+				setOpen(false);
+			}
+		}
+		document.addEventListener("mousedown", handleClick);
+		return () => document.removeEventListener("mousedown", handleClick);
+	}, []);
+
+	return (
+		<div ref={ref} style={{ position: "relative" }}>
+			<button
+				className="db-topbar-avatar"
+				onClick={() => setOpen((o) => !o)}
+			>
+				{image ? (
+					<img src={image} alt="" />
+				) : (
+					<span>{initials(name || "U")}</span>
+				)}
+			</button>
+
+			{open && (
+				<div
+					style={{
+						position: "absolute",
+						top: "calc(100% + 8px)",
+						right: 0,
+						minWidth: 180,
+						background: "rgba(22, 22, 26, 0.95)",
+						border: "1px solid var(--color-line)",
+						borderRadius: 12,
+						padding: "6px",
+						backdropFilter: "blur(20px)",
+						WebkitBackdropFilter: "blur(20px)",
+						boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+						zIndex: 100,
+					}}
+				>
+					<button
+						onClick={() => {
+							setOpen(false);
+							router.push("/profile");
+						}}
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: 10,
+							width: "100%",
+							padding: "10px 14px",
+							background: "none",
+							border: "none",
+							borderRadius: 8,
+							color: "var(--color-ink-1)",
+							fontFamily: '"Inter", sans-serif',
+							fontSize: 13,
+							cursor: "pointer",
+							transition: "background 0.15s",
+						}}
+						onMouseEnter={(e) =>
+							(e.currentTarget.style.background = "rgba(255,255,255,0.06)")
+						}
+						onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+					>
+						<svg
+							width="15"
+							height="15"
+							viewBox="0 0 16 16"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
+							<circle cx="8" cy="5.5" r="2.5" />
+							<path d="M3 14c0-2.5 2.2-4 5-4s5 1.5 5 4" />
+						</svg>
+						View profile
+					</button>
+					<button
+						onClick={() => {
+							setOpen(false);
+							router.push("/dashboard/settings");
+						}}
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: 10,
+							width: "100%",
+							padding: "10px 14px",
+							background: "none",
+							border: "none",
+							borderRadius: 8,
+							color: "var(--color-ink-1)",
+							fontFamily: '"Inter", sans-serif',
+							fontSize: 13,
+							cursor: "pointer",
+							transition: "background 0.15s",
+						}}
+						onMouseEnter={(e) =>
+							(e.currentTarget.style.background = "rgba(255,255,255,0.06)")
+						}
+						onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+					>
+						<svg
+							width="15"
+							height="15"
+							viewBox="0 0 16 16"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
+							<circle cx="8" cy="8" r="2" />
+							<path d="M13.4 10.2a1.1 1.1 0 00.2 1.2l.04.04a1.34 1.34 0 11-1.9 1.9l-.03-.04a1.1 1.1 0 00-1.2-.2 1.1 1.1 0 00-.67 1.01v.1a1.34 1.34 0 01-2.68 0v-.06a1.1 1.1 0 00-.72-1.01 1.1 1.1 0 00-1.2.2l-.04.04a1.34 1.34 0 11-1.9-1.9l.04-.04a1.1 1.1 0 00.2-1.2 1.1 1.1 0 00-1-.67h-.12a1.34 1.34 0 010-2.68h.06a1.1 1.1 0 001.01-.72 1.1 1.1 0 00-.2-1.2l-.04-.04a1.34 1.34 0 111.9-1.9l.04.04a1.1 1.1 0 001.2.2h.05a1.1 1.1 0 00.67-1.01v-.1a1.34 1.34 0 012.68 0v.06a1.1 1.1 0 00.67 1.01 1.1 1.1 0 001.2-.2l.04-.04a1.34 1.34 0 111.9 1.9l-.04.04a1.1 1.1 0 00-.2 1.2v.05a1.1 1.1 0 001.01.67h.1a1.34 1.34 0 010 2.68h-.06a1.1 1.1 0 00-1.01.67z" />
+						</svg>
+						Settings
+					</button>
+					<div
+						style={{
+							height: 1,
+							background: "var(--color-line)",
+							margin: "4px 0",
+						}}
+					/>
+					<button
+						onClick={() => {
+							setOpen(false);
+							signOut({
+								fetchOptions: {
+									onSuccess: () => router.push("/"),
+								},
+							});
+						}}
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: 10,
+							width: "100%",
+							padding: "10px 14px",
+							background: "none",
+							border: "none",
+							borderRadius: 8,
+							color: "#fb7185",
+							fontFamily: '"Inter", sans-serif',
+							fontSize: 13,
+							cursor: "pointer",
+							transition: "background 0.15s",
+						}}
+						onMouseEnter={(e) =>
+							(e.currentTarget.style.background = "rgba(251,113,133,0.08)")
+						}
+						onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+					>
+						<svg
+							width="15"
+							height="15"
+							viewBox="0 0 16 16"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="1.5"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
+							<path d="M6 2H4a2 2 0 00-2 2v8a2 2 0 002 2h2M10.5 12L14 8l-3.5-4M14 8H6" />
+						</svg>
+						Log out
+					</button>
+				</div>
+			)}
 		</div>
 	);
 }
