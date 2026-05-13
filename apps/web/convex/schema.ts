@@ -157,7 +157,7 @@ export default defineSchema({
 		userName: v.string(),
 		userEmail: v.string(),
 		userImage: v.optional(v.string()),
-		campaignId: v.number(), // local campaign id (from static data for now)
+		campaignId: v.id("campaigns"),
 		campaignTitle: v.string(),
 		campaignBrand: v.string(),
 		campaignCategory: v.optional(v.string()),

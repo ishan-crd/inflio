@@ -2482,7 +2482,7 @@ function ApplyModal({
 				userName: session.user.name,
 				userEmail: session.user.email,
 				userImage: session.user.image ?? undefined,
-				campaignId: 0, // TODO: migrate applications.campaignId from number to Id<"campaigns"> and pass CAMPAIGN._id
+				campaignId: CAMPAIGN._id,
 				campaignTitle: CAMPAIGN.title,
 				campaignBrand: CAMPAIGN.brand,
 				campaignCategory: CAMPAIGN.category,

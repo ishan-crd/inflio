@@ -7,7 +7,7 @@ export const create = mutation({
 		userName: v.string(),
 		userEmail: v.string(),
 		userImage: v.optional(v.string()),
-		campaignId: v.number(),
+		campaignId: v.id("campaigns"),
 		campaignTitle: v.string(),
 		campaignBrand: v.string(),
 		campaignCategory: v.optional(v.string()),
@@ -39,7 +39,7 @@ export const listByUser = query({
 });
 
 export const listByCampaign = query({
-	args: { campaignId: v.number() },
+	args: { campaignId: v.id("campaigns") },
 	handler: async (ctx, args) => {
 		return await ctx.db
 			.query("applications")
