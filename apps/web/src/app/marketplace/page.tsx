@@ -519,9 +519,11 @@ export default function MarketplacePage() {
 		if (category !== "All") {
 			list = list.filter((c) => c.category === category);
 		}
-		list = list.filter(
-			(c) => c.rate >= payoutRange[0] && c.rate <= payoutRange[1],
-		);
+		if (payoutRange[0] !== RANGE_MIN || payoutRange[1] !== RANGE_MAX) {
+			list = list.filter(
+				(c) => c.rate >= payoutRange[0] && c.rate <= payoutRange[1],
+			);
+		}
 
 		if (sort === "Trending") {
 			list.sort((a, b) => (b.trending ? 1 : 0) - (a.trending ? 1 : 0));

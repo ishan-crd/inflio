@@ -920,7 +920,7 @@ function Step5({
 // ---------------------------------------------------------------------------
 
 function CreateCampaignInner() {
-	const { data: session } = useSession();
+	const { data: session, isPending: sessionPending } = useSession();
 	const router = useRouter();
 
 	const brandProfile = useQuery(
@@ -1012,7 +1012,7 @@ function CreateCampaignInner() {
 	}
 
 	// Loading state
-	if (session === undefined || brandProfile === undefined) {
+	if (sessionPending || brandProfile === undefined) {
 		return (
 			<div className="cc-page">
 				<nav className="onboard-nav">
