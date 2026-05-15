@@ -5,8 +5,97 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowIcon, BellIcon } from "@/components/icons";
+import { useTheme } from "@/components/theme-provider";
 import { signOut, useSession } from "@/lib/auth-client";
 import { api } from "../../convex/_generated/api";
+
+function MoonIcon() {
+	return (
+		<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+			<path d="M13.5 8.5a5.5 5.5 0 1 1-7-7 4.5 4.5 0 0 0 7 7Z" />
+		</svg>
+	);
+}
+
+function SunIcon() {
+	return (
+		<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+			<circle cx="8" cy="8" r="3" />
+			<path d="M8 1.5v1M8 13.5v1M1.5 8h1M13.5 8h1M3.4 3.4l.7.7M11.9 11.9l.7.7M3.4 12.6l.7-.7M11.9 4.1l.7-.7" />
+		</svg>
+	);
+}
+
+function ThemeToggle() {
+	const { theme, setTheme } = useTheme();
+	const isDark = theme === "dark";
+
+	return (
+		<div
+			style={{
+				display: "inline-flex",
+				position: "relative",
+				borderRadius: 999,
+				padding: 3,
+				background: "var(--surface)",
+				border: "1px solid var(--border-soft)",
+			}}
+		>
+			<div
+				style={{
+					position: "absolute",
+					width: 28,
+					height: 28,
+					borderRadius: "50%",
+					top: 3,
+					background: "var(--surface-3)",
+					transform: `translateX(${isDark ? 0 : 28}px)`,
+					transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+				}}
+			/>
+			<button
+				onClick={() => setTheme("dark")}
+				aria-label="Dark mode"
+				style={{
+					width: 28,
+					height: 28,
+					borderRadius: "50%",
+					border: "none",
+					background: "transparent",
+					display: "grid",
+					placeItems: "center",
+					position: "relative",
+					zIndex: 1,
+					cursor: "pointer",
+					color: isDark ? "var(--text)" : "var(--text-3)",
+					transition: "color 0.2s",
+				}}
+			>
+				<MoonIcon />
+			</button>
+			<button
+				onClick={() => setTheme("light")}
+				aria-label="Light mode"
+				style={{
+					width: 28,
+					height: 28,
+					borderRadius: "50%",
+					border: "none",
+					background: "transparent",
+					display: "grid",
+					placeItems: "center",
+					position: "relative",
+					zIndex: 1,
+					cursor: "pointer",
+					color: !isDark ? "var(--text)" : "var(--text-3)",
+					transition: "color 0.2s",
+				}}
+			>
+				<SunIcon />
+			</button>
+		</div>
+	);
+}
 
 function initials(s: string) {
 	return s
@@ -35,7 +124,6 @@ export function Nav() {
 
 	const role: "creator" | "brand" = brandProfile ? "brand" : "creator";
 
-	// While session is loading, show a minimal skeleton nav to prevent flash
 	if (isPending) {
 		return <NavSkeleton pathname={pathname} />;
 	}
@@ -99,6 +187,7 @@ function PublicNav({ pathname }: { pathname: string }) {
 				</div>
 
 				<div className="nav-cta">
+					<ThemeToggle />
 					<Link href="/login" className="btn btn-ghost">
 						Sign in
 					</Link>
@@ -217,13 +306,13 @@ function ProfileDropdown({
 						top: "calc(100% + 8px)",
 						right: 0,
 						minWidth: 180,
-						background: "rgba(22, 22, 26, 0.95)",
-						border: "1px solid var(--color-line)",
+						background: "var(--surface)",
+						border: "1px solid var(--border)",
 						borderRadius: 12,
 						padding: "6px",
 						backdropFilter: "blur(20px)",
 						WebkitBackdropFilter: "blur(20px)",
-						boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+						boxShadow: "var(--shadow-lg)",
 						zIndex: 100,
 					}}
 				>
@@ -241,13 +330,13 @@ function ProfileDropdown({
 							background: "none",
 							border: "none",
 							borderRadius: 8,
-							color: "var(--color-ink-1)",
+							color: "var(--text)",
 							fontSize: 13,
 							cursor: "pointer",
 							transition: "background 0.15s",
 						}}
 						onMouseEnter={(e) =>
-							(e.currentTarget.style.background = "rgba(255,255,255,0.06)")
+							(e.currentTarget.style.background = "var(--surface-2)")
 						}
 						onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
 					>
@@ -284,13 +373,13 @@ function ProfileDropdown({
 							background: "none",
 							border: "none",
 							borderRadius: 8,
-							color: "#fb7185",
+							color: "var(--danger)",
 							fontSize: 13,
 							cursor: "pointer",
 							transition: "background 0.15s",
 						}}
 						onMouseEnter={(e) =>
-							(e.currentTarget.style.background = "rgba(251,113,133,0.08)")
+							(e.currentTarget.style.background = "var(--surface-2)")
 						}
 						onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
 					>
@@ -366,6 +455,7 @@ function LoggedInNav({
 					</div>
 
 					<div className="nav-cta">
+						<ThemeToggle />
 						{role === "brand" && (
 							<Link
 								href="/campaigns/create"
