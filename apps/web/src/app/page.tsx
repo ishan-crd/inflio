@@ -18,7 +18,7 @@ const stats = [
 	{ num: "237", label: "Live campaigns", sub: "updated hourly" },
 	{ num: "12.4K+", label: "Verified creators", sub: "on platform" },
 	{ num: "\u20B92.4Cr", label: "Paid this month", sub: "real-time payouts" },
-	{ num: "48hrs", label: "Avg. first payout", sub: "from sign-up" },
+	{ num: "Instant", label: "Withdrawals", sub: "to bank or UPI" },
 ];
 
 const brands = [
@@ -43,7 +43,7 @@ const creatorValueProps = [
 	{
 		num: "03",
 		title: "Instant withdrawals",
-		desc: "Earnings accumulate in real time. Withdraw to your bank or UPI whenever you want \u2014 no minimum threshold, processed within 24\u201348 hours.",
+		desc: "Earnings accumulate in real time. Withdraw instantly to your bank or UPI whenever you want \u2014 no minimum threshold, no waiting period.",
 		accent: "Zero minimum withdrawal",
 	},
 ];
@@ -102,15 +102,15 @@ const fauxCampaigns = [
 const faqs = [
 	{
 		q: "How does the pay-per-view model work?",
-		a: "Brands set a rate (e.g. \u20B918 per 1,000 views). When your content earns views, Inflio tracks them in real time and credits your wallet automatically. You earn proportionally \u2014 the more views, the more you make.",
+		a: "Brands set a rate (e.g. \u20B960 per 1,000 views). When your content earns views, Inflio tracks them in real time and credits your wallet automatically. You earn proportionally \u2014 the more views, the more you make.",
 	},
 	{
 		q: "Is there a minimum follower count to join?",
-		a: "No strict minimum. We accept creators from 5,000 followers upwards. What matters more is engagement rate and content quality.",
+		a: "None at all. Whether you have 500 followers or 5 million, you can join and start earning. Great content matters more than follower count.",
 	},
 	{
 		q: "How quickly can I withdraw my earnings?",
-		a: "Withdrawals are processed within 24\u201348 hours to any Indian bank account or UPI handle. There is no minimum withdrawal threshold.",
+		a: "Withdrawals are instant to any Indian bank account or UPI handle. There is no minimum withdrawal threshold and no waiting period.",
 	},
 	{
 		q: "What platforms are supported?",
