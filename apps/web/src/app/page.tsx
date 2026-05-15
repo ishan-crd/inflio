@@ -27,12 +27,12 @@ const brands = [
 	"Fire-Boltt", "Dunzo", "Blinkit",
 ];
 
-const valueProps = [
+const creatorValueProps = [
 	{
 		num: "01",
 		title: "Pay-per-view model",
 		desc: "Brands set a rate per 1,000 views. Your content earns proportionally \u2014 the more views, the more you make. No flat fees, no guesswork.",
-		accent: "\u20B918/1k avg. creator rate",
+		accent: "You set the rate, we track the views",
 	},
 	{
 		num: "02",
@@ -45,6 +45,27 @@ const valueProps = [
 		title: "Instant withdrawals",
 		desc: "Earnings accumulate in real time. Withdraw to your bank or UPI whenever you want \u2014 no minimum threshold, processed within 24\u201348 hours.",
 		accent: "Zero minimum withdrawal",
+	},
+];
+
+const brandValueProps = [
+	{
+		num: "01",
+		title: "Pay only for results",
+		desc: "Set your rate per 1,000 views and only spend when content actually performs. No upfront creator fees, no wasted budget on content that doesn\u2019t land.",
+		accent: "Zero wasted ad spend",
+	},
+	{
+		num: "02",
+		title: "Vetted creator network",
+		desc: "Access 12,000+ verified creators across every niche. Filter by platform, engagement rate, audience demographics, and content quality.",
+		accent: "12K+ creators, all verified",
+	},
+	{
+		num: "03",
+		title: "Real-time campaign dashboard",
+		desc: "Track views, spend, and creator submissions live. Approve content before it goes public and pause campaigns anytime with one click.",
+		accent: "Full control, full transparency",
 	},
 ];
 
@@ -319,10 +340,13 @@ function BrandMarquee() {
    Value Props
 ───────────────────────────────────────── */
 function ValueProps() {
+	const [tab, setTab] = useState<"creators" | "brands">("creators");
+	const props = tab === "creators" ? creatorValueProps : brandValueProps;
+
 	return (
 		<section style={{ padding: "100px 0" }}>
 			<div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
-				<div style={{ maxWidth: 720, marginBottom: 64 }}>
+				<div style={{ maxWidth: 720, marginBottom: 40 }}>
 					<span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 8, color: "var(--text-3)" }}>
 						<span style={{ width: 24, height: 1, background: "var(--text-4)" }} />
 						Why Inflio
@@ -343,10 +367,44 @@ function ValueProps() {
 					</h2>
 				</div>
 
+				{/* Tab toggle */}
+				<div style={{ marginBottom: 32 }}>
+					<div
+						style={{
+							display: "inline-flex",
+							borderRadius: 999,
+							padding: 4,
+							background: "var(--surface)",
+							border: "1px solid var(--border-soft)",
+						}}
+					>
+						{(["creators", "brands"] as const).map((t) => (
+							<button
+								key={t}
+								type="button"
+								onClick={() => setTab(t)}
+								style={{
+									padding: "8px 20px",
+									borderRadius: 999,
+									border: "none",
+									fontSize: 13.5,
+									fontWeight: 500,
+									cursor: "pointer",
+									transition: "all 0.2s",
+									background: tab === t ? "var(--surface-3)" : "transparent",
+									color: tab === t ? "var(--text)" : "var(--text-3)",
+								}}
+							>
+								For {t === "creators" ? "Creators" : "Brands"}
+							</button>
+						))}
+					</div>
+				</div>
+
 				<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-					{valueProps.map((v, i) => (
+					{props.map((v) => (
 						<div
-							key={i}
+							key={v.title}
 							style={{
 								padding: 32,
 								minHeight: 280,
