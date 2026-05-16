@@ -472,26 +472,27 @@ function SearchRow() {
 
 function HeroCarousel({ onOpen }: { onOpen: (id: string) => void }) {
 	const [idx, setIdx] = useState(0);
+	const CARD_W = SCREEN_W - 48;
+	const GAP = 12;
 	const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-		setIdx(Math.round(e.nativeEvent.contentOffset.x / (SCREEN_W - 32)));
+		setIdx(Math.round(e.nativeEvent.contentOffset.x / (CARD_W + GAP)));
 	};
 	return (
 		<View style={{ marginTop: 6 }}>
 			<ScrollView
 				horizontal
-				pagingEnabled
 				showsHorizontalScrollIndicator={false}
 				onScroll={onScroll}
 				scrollEventThrottle={16}
 				decelerationRate="fast"
-				snapToInterval={SCREEN_W - 32}
-				contentContainerStyle={{ paddingHorizontal: 16 }}
+				snapToInterval={CARD_W + GAP}
+				contentContainerStyle={{ paddingHorizontal: 16, gap: GAP }}
 			>
 				{HERO_SLIDES.map((s) => (
 					<Pressable
 						key={s.id}
 						onPress={() => onOpen(s.pid)}
-						style={{ width: SCREEN_W - 32 }}
+						style={{ width: CARD_W }}
 					>
 						<View style={st.heroCard}>
 							<LinearGradient
