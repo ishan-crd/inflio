@@ -11,7 +11,7 @@ import {
 	View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Path, Rect } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
 
 const TAB_COUNT = 5;
 const INDICATOR_SIZE = 44;
@@ -19,7 +19,7 @@ const INDICATOR_RADIUS = 12;
 const INACTIVE_COLOR = "rgba(245,245,244,0.4)";
 const ACTIVE_COLOR = "#0a0a0c";
 
-const TAB_KEYS = ["campaigns", "videos", "index", "wallet", "profile"] as const;
+const TAB_KEYS = ["campaigns", "barter", "index", "wallet", "profile"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
 function CampaignsIcon({ color, size }: { color: string; size: number }) {
@@ -36,22 +36,34 @@ function CampaignsIcon({ color, size }: { color: string; size: number }) {
 	);
 }
 
-function VideosIcon({ color, size }: { color: string; size: number }) {
+function BarterIcon({ color, size }: { color: string; size: number }) {
 	return (
 		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-			<Rect
-				x={2}
-				y={4}
-				width={20}
-				height={16}
-				rx={3}
+			<Path
+				d="M5 8h14l-1.2 11.2A2 2 0 0115.8 21H8.2a2 2 0 01-2-1.8L5 8z"
 				stroke={color}
 				strokeWidth={1.8}
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<Path
-				d="M10 9l5 3-5 3V9z"
+				d="M9 8V6a3 3 0 016 0v2"
 				stroke={color}
 				strokeWidth={1.8}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<Path
+				d="M10 14l-2 0M8 14l1.2-1.2M8 14l1.2 1.2"
+				stroke={color}
+				strokeWidth={1.6}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<Path
+				d="M14 17l2 0M16 17l-1.2-1.2M16 17l-1.2 1.2"
+				stroke={color}
+				strokeWidth={1.6}
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -93,7 +105,7 @@ const TAB_ICONS: Record<
 	React.ComponentType<{ size: number; color: string }> | null
 > = {
 	campaigns: CampaignsIcon,
-	videos: VideosIcon,
+	barter: BarterIcon,
 	index: null,
 	wallet: WalletIcon,
 	profile: ProfileIcon,
@@ -202,7 +214,7 @@ export default function TabsLayout() {
 			screenOptions={{ headerShown: false }}
 		>
 			<Tabs.Screen name="campaigns" />
-			<Tabs.Screen name="videos" />
+			<Tabs.Screen name="barter" />
 			<Tabs.Screen name="index" />
 			<Tabs.Screen name="wallet" />
 			<Tabs.Screen name="profile" />
