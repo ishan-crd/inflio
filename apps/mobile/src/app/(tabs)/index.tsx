@@ -1,18 +1,45 @@
+import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { type DimensionValue, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+	type DimensionValue,
+	Pressable,
+	ScrollView,
+	StyleSheet,
+	Text,
+	View,
+} from "react-native";
 import {
 	SafeAreaView,
 	useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import Svg, { Circle, Line, Path, Rect } from "react-native-svg";
-import { api } from "../../../convex/_generated/api";
+import Svg, { Line, Path, Rect } from "react-native-svg";
 import { InflioLogo } from "~/components/inflio-logo";
 import { useAuth } from "~/providers/auth";
 
-function Skel({ w, h, r = 8, mb = 0 }: { w: DimensionValue; h: number; r?: number; mb?: number }) {
-	return <View style={{ width: w, height: h, borderRadius: r, marginBottom: mb, backgroundColor: "rgba(255,255,255,0.06)" }} />;
+function Skel({
+	w,
+	h,
+	r = 8,
+	mb = 0,
+}: {
+	w: DimensionValue;
+	h: number;
+	r?: number;
+	mb?: number;
+}) {
+	return (
+		<View
+			style={{
+				width: w,
+				height: h,
+				borderRadius: r,
+				marginBottom: mb,
+				backgroundColor: "rgba(255,255,255,0.06)",
+			}}
+		/>
+	);
 }
 
 // Dashboard data is fetched from Convex where available

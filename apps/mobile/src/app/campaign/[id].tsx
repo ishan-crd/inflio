@@ -3,6 +3,8 @@ import {
 	BottomSheetModal,
 	BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
+import { api } from "convex/_generated/api";
+import type { Id } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -19,12 +21,30 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 import { useAuth } from "~/providers/auth";
-import { api } from "../../../convex/_generated/api";
-import type { Id } from "../../../convex/_generated/dataModel";
-import { ACCENT_MAP, BRAND_COLORS, colors } from "~/utils/theme";
+import { ACCENT_MAP, colors } from "~/utils/theme";
 
-function Skel({ w, h, r = 8, mb = 0 }: { w: DimensionValue; h: number; r?: number; mb?: number }) {
-	return <View style={{ width: w, height: h, borderRadius: r, marginBottom: mb, backgroundColor: "rgba(255,255,255,0.06)" }} />;
+function Skel({
+	w,
+	h,
+	r = 8,
+	mb = 0,
+}: {
+	w: DimensionValue;
+	h: number;
+	r?: number;
+	mb?: number;
+}) {
+	return (
+		<View
+			style={{
+				width: w,
+				height: h,
+				borderRadius: r,
+				marginBottom: mb,
+				backgroundColor: "rgba(255,255,255,0.06)",
+			}}
+		/>
+	);
 }
 
 type Campaign = {
@@ -342,8 +362,16 @@ function ApplyModal({
 						{step === 0 && (
 							<View style={modalStyles.platformList}>
 								{platformOpts.length === 0 && (
-									<Text style={{ color: colors.textTertiary, fontSize: 13, textAlign: "center", paddingVertical: 24 }}>
-										No connected accounts. Complete your profile to add platform accounts.
+									<Text
+										style={{
+											color: colors.textTertiary,
+											fontSize: 13,
+											textAlign: "center",
+											paddingVertical: 24,
+										}}
+									>
+										No connected accounts. Complete your profile to add platform
+										accounts.
 									</Text>
 								)}
 								{platformOpts.map((p, i) => {
@@ -587,7 +615,14 @@ export default function CampaignDetailScreen() {
 					{/* Back button area */}
 					<Skel w={40} h={40} r={20} mb={24} />
 					{/* Brand mark + title */}
-					<View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 16 }}>
+					<View
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							gap: 12,
+							marginBottom: 16,
+						}}
+					>
 						<Skel w={48} h={48} r={14} />
 						<View style={{ gap: 6 }}>
 							<Skel w={120} h={14} r={6} />
@@ -952,10 +987,21 @@ export default function CampaignDetailScreen() {
 						<View
 							style={[
 								styles.footerApplyBtn,
-								{ backgroundColor: "rgba(255,255,255,0.06)", borderWidth: 1, borderColor: colors.border },
+								{
+									backgroundColor: "rgba(255,255,255,0.06)",
+									borderWidth: 1,
+									borderColor: colors.border,
+								},
 							]}
 						>
-							<Text style={[styles.footerApplyText, { color: colors.textSecondary }]}>Viewing as brand</Text>
+							<Text
+								style={[
+									styles.footerApplyText,
+									{ color: colors.textSecondary },
+								]}
+							>
+								Viewing as brand
+							</Text>
 						</View>
 					)}
 				</View>

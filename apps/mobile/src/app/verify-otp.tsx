@@ -1,3 +1,4 @@
+import { api } from "convex/_generated/api";
 import { useConvex } from "convex/react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -14,7 +15,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useAuth } from "~/providers/auth";
-import { api } from "../../convex/_generated/api";
 
 const OTP_LENGTH = 6;
 const OTP_SLOTS = ["s0", "s1", "s2", "s3", "s4", "s5"] as const;

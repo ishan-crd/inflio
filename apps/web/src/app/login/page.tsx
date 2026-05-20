@@ -32,11 +32,11 @@ function AuthAside({ role }: { role: "creator" | "brand" }) {
 		</>
 	);
 
-	const stats = [
-		{ num: "12,400+", label: "Verified creators" },
-		{ num: "237", label: "Live campaigns" },
-		{ num: "₹2.4 Cr", label: "Paid this month" },
-	];
+	// const stats = [
+	// 	{ num: "12,400+", label: "Verified creators" },
+	// 	{ num: "237", label: "Live campaigns" },
+	// 	{ num: "₹2.4 Cr", label: "Paid this month" },
+	// ];
 
 	const features = isCreator
 		? [
@@ -104,7 +104,7 @@ function AuthAside({ role }: { role: "creator" | "brand" }) {
 					))}
 				</div>
 
-				{/* Stats */}
+				{/* Stats commented out — false stats
 				<div className="auth-aside-stats">
 					{stats.map((s) => (
 						<div className="auth-aside-stat" key={s.label}>
@@ -113,6 +113,7 @@ function AuthAside({ role }: { role: "creator" | "brand" }) {
 						</div>
 					))}
 				</div>
+				*/}
 
 				{/* Testimonial */}
 				<div className="auth-aside-testimonial">

@@ -1,3 +1,4 @@
+import { api } from "convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
@@ -17,7 +18,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 import { useAuth } from "~/providers/auth";
-import { api } from "../../convex/_generated/api";
 
 // ---------------------------------------------------------------------------
 // Constants (matching web)

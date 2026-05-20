@@ -437,18 +437,19 @@ function Hero() {
 	return (
 		<section className="hero">
 			<div className="shell">
-				{/* Eyebrow */}
+				{/* Eyebrow — commented out, false stats
 				<div className="eyebrow">
 					<div className="eyebrow-dot">
 						<div className="eyebrow-pulse" />
 					</div>
 					237 live campaigns — updated every hour
 				</div>
+				*/}
 
 				{/* Headline */}
 				<h1>
-					Campaigns that{" "}
-					<span className="accent">pay you per thousand views.</span>
+					Get paid for every{" "}
+					<span className="accent">view your content earns.</span>
 				</h1>
 
 				{/* Subtitle */}
@@ -467,7 +468,7 @@ function Hero() {
 					<span className="kbd">⌘K</span>
 				</div>
 
-				{/* Hero stats */}
+				{/* Hero stats — commented out, false stats
 				<div className="hero-stats">
 					<div>
 						<div className="stat-num">
@@ -494,6 +495,7 @@ function Hero() {
 						<div className="stat-label">Creators on platform</div>
 					</div>
 				</div>
+				*/}
 			</div>
 		</section>
 	);

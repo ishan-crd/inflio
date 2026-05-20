@@ -1,3 +1,4 @@
+import { api } from "convex/_generated/api";
 import { useConvex } from "convex/react";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
@@ -16,7 +17,6 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useAuth } from "~/providers/auth";
-import { api } from "../../convex/_generated/api";
 
 WebBrowser.maybeCompleteAuthSession();
 

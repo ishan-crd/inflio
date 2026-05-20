@@ -14,12 +14,12 @@ import { Nav as SharedNav } from "@/components/nav";
 /* ─────────────────────────────────────────
    Data
 ───────────────────────────────────────── */
-const stats = [
-	{ num: "237", label: "Live campaigns", sub: "updated hourly" },
-	{ num: "12.4K+", label: "Verified creators", sub: "on platform" },
-	{ num: "\u20B92.4Cr", label: "Paid this month", sub: "real-time payouts" },
-	{ num: "Instant", label: "Withdrawals", sub: "to bank or UPI" },
-];
+// const stats = [
+// 	{ num: "237", label: "Live campaigns", sub: "updated hourly" },
+// 	{ num: "12.4K+", label: "Verified creators", sub: "on platform" },
+// 	{ num: "\u20B92.4Cr", label: "Paid this month", sub: "real-time payouts" },
+// 	{ num: "Instant", label: "Withdrawals", sub: "to bank or UPI" },
+// ];
 
 const brands = [
 	"Zomato", "Nykaa", "boAt", "Mamaearth", "Sugar", "Lenskart",
@@ -275,6 +275,7 @@ function Hero() {
 ───────────────────────────────────────── */
 function StatsRibbon() {
 	return (
+		{/* Stats section commented out — false stats
 		<section style={{ padding: "40px 0" }}>
 			<div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
 				<div
@@ -298,6 +299,7 @@ function StatsRibbon() {
 				</div>
 			</div>
 		</section>
+		*/}
 	);
 }
 

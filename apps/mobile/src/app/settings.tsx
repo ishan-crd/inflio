@@ -1,3 +1,4 @@
+import { api } from "convex/_generated/api";
 import { useMutation } from "convex/react";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -5,7 +6,6 @@ import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useAuth } from "~/providers/auth";
-import { api } from "../../convex/_generated/api";
 
 function BackArrow() {
 	return (
@@ -79,7 +79,10 @@ export default function SettingsScreen() {
 							router.replace("/login");
 						} catch {
 							setDeleting(false);
-							Alert.alert("Error", "Failed to delete account. Please try again.");
+							Alert.alert(
+								"Error",
+								"Failed to delete account. Please try again.",
+							);
 						}
 					},
 				},

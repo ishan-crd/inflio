@@ -1,3 +1,4 @@
+import { api } from "convex/_generated/api";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -15,11 +16,30 @@ import {
 	useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Svg, { Circle, Path } from "react-native-svg";
-import { api } from "../../../convex/_generated/api";
 import { ACCENT_MAP, colors } from "~/utils/theme";
 
-function Skel({ w, h, r = 8, mb = 0 }: { w: DimensionValue; h: number; r?: number; mb?: number }) {
-	return <View style={{ width: w, height: h, borderRadius: r, marginBottom: mb, backgroundColor: "rgba(255,255,255,0.06)" }} />;
+function Skel({
+	w,
+	h,
+	r = 8,
+	mb = 0,
+}: {
+	w: DimensionValue;
+	h: number;
+	r?: number;
+	mb?: number;
+}) {
+	return (
+		<View
+			style={{
+				width: w,
+				height: h,
+				borderRadius: r,
+				marginBottom: mb,
+				backgroundColor: "rgba(255,255,255,0.06)",
+			}}
+		/>
+	);
 }
 
 const PLATFORMS = ["All", "Instagram", "YouTube", "TikTok"];
@@ -285,12 +305,11 @@ export default function CampaignsScreen() {
 	const [activePlatform, setActivePlatform] = useState("All");
 	const campaigns = useQuery(api.campaigns.listActiveWithBrands);
 
-	const filtered =
-		!campaigns
-			? []
-			: activePlatform === "All"
-				? campaigns
-				: campaigns.filter((c) => c.platform === activePlatform);
+	const filtered = !campaigns
+		? []
+		: activePlatform === "All"
+			? campaigns
+			: campaigns.filter((c) => c.platform === activePlatform);
 
 	return (
 		<View style={styles.container}>

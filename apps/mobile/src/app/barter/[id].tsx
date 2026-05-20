@@ -1,9 +1,25 @@
+import {
+	BottomSheetBackdrop,
+	BottomSheetModal,
+	BottomSheetScrollView,
+} from "@gorhom/bottom-sheet";
+import { api } from "convex/_generated/api";
+import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import {
+	Pressable,
+	ScrollView,
+	StyleSheet,
+	Text,
+	TextInput,
+	View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Path } from "react-native-svg";
+import Svg, { Circle, Path, Rect } from "react-native-svg";
+import { useAuth } from "~/providers/auth";
+import { colors } from "~/utils/theme";
 
 import { type BarterProduct, PRODUCTS } from "../(tabs)/barter";
 
@@ -160,6 +176,88 @@ function ChevronRightIcon({
 				strokeWidth={2}
 				strokeLinecap="round"
 				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
+function CheckSmallIcon({ color = "#0a0a0c" }: { color?: string }) {
+	return (
+		<Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M20 6L9 17l-5-5"
+				stroke={color}
+				strokeWidth={3}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
+function CheckBigIcon({ color }: { color: string }) {
+	return (
+		<Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M20 6L9 17l-5-5"
+				stroke={color}
+				strokeWidth={2.5}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</Svg>
+	);
+}
+
+function IGIcon() {
+	return (
+		<Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+			<Rect
+				x={2}
+				y={2}
+				width={20}
+				height={20}
+				rx={5}
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+			/>
+			<Circle
+				cx={12}
+				cy={12}
+				r={5}
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+			/>
+			<Circle cx={17.5} cy={6.5} r={1} fill={colors.textSecondary} />
+		</Svg>
+	);
+}
+
+function YTIcon() {
+	return (
+		<Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.4 19.6C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-2A29 29 0 0023 12a29 29 0 00-.46-5.58z"
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+			/>
+			<Path
+				d="M9.75 15.02l5.75-3.27-5.75-3.27v6.54z"
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+			/>
+		</Svg>
+	);
+}
+
+function TTIcon() {
+	return (
+		<Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+			<Path
+				d="M9 12a4 4 0 108 0 4 4 0 00-8 0zM16 8v8"
+				stroke={colors.textSecondary}
+				strokeWidth={1.5}
+				strokeLinecap="round"
 			/>
 		</Svg>
 	);
@@ -540,11 +638,391 @@ function StickyApply({
 	);
 }
 
+// ── Apply Modal ──────────────────────────────────────────────────────
+type PlatformOpt = { name: string; handle: string; followers: string };
+
+function ApplyModal({
+	sheetRef,
+	product,
+	platformOpts,
+	onDismiss,
+	onApplied,
+}: {
+	sheetRef: React.RefObject<BottomSheetModal | null>;
+	product: BarterProduct;
+	platformOpts: PlatformOpt[];
+	onDismiss: () => void;
+	onApplied: () => void;
+}) {
+	const insets = useSafeAreaInsets();
+	const accent = product.palette[2];
+	const snapPoints = useMemo(() => ["70%", "90%"], []);
+	const [step, setStep] = useState(0);
+	const [selectedPlatform, setSelectedPlatform] = useState(0);
+	const [pitch, setPitch] = useState("");
+	const [checkGuidelines, setCheckGuidelines] = useState(false);
+	const [checkDeadline, setCheckDeadline] = useState(false);
+	const [submitted, setSubmitted] = useState(false);
+
+	const renderBackdrop = useCallback(
+		// biome-ignore lint/suspicious/noExplicitAny: BottomSheet backdrop props
+		(props: any) => (
+			<BottomSheetBackdrop
+				{...props}
+				disappearsOnIndex={-1}
+				appearsOnIndex={0}
+				opacity={0.6}
+			/>
+		),
+		[],
+	);
+
+	const canNext =
+		step === 0
+			? platformOpts.length > 0
+			: step === 1
+				? pitch.length >= 20
+				: step === 2
+					? checkGuidelines && checkDeadline
+					: false;
+
+	function handleNext() {
+		if (step < 2) {
+			setStep(step + 1);
+		} else {
+			setSubmitted(true);
+			onApplied();
+		}
+	}
+
+	function handleClose() {
+		sheetRef.current?.dismiss();
+		setStep(0);
+		setPitch("");
+		setCheckGuidelines(false);
+		setCheckDeadline(false);
+		setSubmitted(false);
+		setSelectedPlatform(0);
+	}
+
+	const PlatformIconComp = (name: string) => {
+		if (name === "Instagram") return <IGIcon />;
+		if (name === "YouTube") return <YTIcon />;
+		return <TTIcon />;
+	};
+
+	return (
+		<BottomSheetModal
+			ref={sheetRef}
+			snapPoints={snapPoints}
+			backdropComponent={renderBackdrop}
+			backgroundStyle={ms.sheetBg}
+			handleIndicatorStyle={ms.handleIndicator}
+			onDismiss={onDismiss}
+		>
+			<BottomSheetScrollView
+				contentContainerStyle={[
+					ms.sheetContent,
+					{ paddingBottom: insets.bottom + 24 },
+				]}
+			>
+				{submitted ? (
+					<>
+						<View style={ms.successRow}>
+							<View
+								style={[ms.successIcon, { backgroundColor: `${accent}30` }]}
+							>
+								<CheckBigIcon color={accent} />
+							</View>
+							<View style={{ flex: 1 }}>
+								<Text style={ms.successTitle}>Application sent!</Text>
+								<Text style={ms.successSub}>
+									You're #{product.creatorsJoined + 1} in the queue.{" "}
+									{product.brand} will review your profile.
+								</Text>
+							</View>
+						</View>
+
+						<View style={ms.summaryRow}>
+							<View style={ms.summaryCard}>
+								<Text style={ms.summaryLabel}>Platform</Text>
+								<Text style={ms.summaryValue}>
+									{platformOpts[selectedPlatform]?.name ?? "—"}
+								</Text>
+							</View>
+							<View style={ms.summaryCard}>
+								<Text style={ms.summaryLabel}>Product</Text>
+								<Text style={ms.summaryValue}>
+									₹{product.worth.toLocaleString("en-IN")}
+								</Text>
+							</View>
+							<View style={ms.summaryCard}>
+								<Text style={ms.summaryLabel}>Deadline</Text>
+								<Text style={ms.summaryValue}>{product.deadline}</Text>
+							</View>
+						</View>
+
+						<View style={ms.successActions}>
+							<Pressable onPress={handleClose} style={ms.doneBtn}>
+								<Text style={ms.doneBtnText}>Done</Text>
+							</Pressable>
+							<Pressable
+								onPress={handleClose}
+								style={[ms.viewAppsBtn, { backgroundColor: accent }]}
+							>
+								<Text style={ms.viewAppsBtnText}>View Applications</Text>
+							</Pressable>
+						</View>
+					</>
+				) : (
+					<>
+						{/* Step dots */}
+						<View style={ms.dotsRow}>
+							{[0, 1, 2].map((i) => (
+								<View
+									key={i}
+									style={[
+										ms.dot,
+										{
+											width: i === step ? 20 : 6,
+											backgroundColor:
+												i === step ? accent : "rgba(255,255,255,0.1)",
+										},
+									]}
+								/>
+							))}
+						</View>
+
+						<Text style={ms.stepLabel}>Step {step + 1} of 3</Text>
+						<Text style={ms.stepTitle}>
+							{step === 0
+								? "Select your account"
+								: step === 1
+									? "Write your pitch"
+									: "Confirm & apply"}
+						</Text>
+
+						{/* Step 0: Account picker */}
+						{step === 0 && (
+							<View style={ms.platformList}>
+								{platformOpts.length === 0 && (
+									<Text
+										style={{
+											color: colors.textTertiary,
+											fontSize: 13,
+											textAlign: "center",
+											paddingVertical: 24,
+										}}
+									>
+										No connected accounts. Complete your profile to add platform
+										accounts.
+									</Text>
+								)}
+								{platformOpts.map((p, i) => {
+									const selected = selectedPlatform === i;
+									return (
+										<Pressable
+											key={p.name}
+											onPress={() => setSelectedPlatform(i)}
+											style={[
+												ms.platformCard,
+												{
+													borderColor: selected ? accent : colors.border,
+													backgroundColor: selected
+														? `${accent}18`
+														: colors.bgCard,
+												},
+											]}
+										>
+											<View style={ms.platformIconBox}>
+												{PlatformIconComp(p.name)}
+											</View>
+											<View style={{ flex: 1 }}>
+												<Text style={ms.platformName}>{p.name}</Text>
+												<Text style={ms.platformMeta}>
+													{p.handle} · {p.followers}
+												</Text>
+											</View>
+											<View
+												style={[
+													ms.radioOuter,
+													{
+														borderColor: selected
+															? accent
+															: colors.textTertiary,
+														backgroundColor: selected ? accent : "transparent",
+													},
+												]}
+											>
+												{selected && <CheckSmallIcon />}
+											</View>
+										</Pressable>
+									);
+								})}
+							</View>
+						)}
+
+						{/* Step 1: Pitch */}
+						{step === 1 && (
+							<View style={ms.pitchContainer}>
+								<Text style={ms.inputLabel}>
+									Your pitch{" "}
+									<Text style={{ color: colors.textTertiary }}>
+										(min 20 characters)
+									</Text>
+								</Text>
+								<TextInput
+									value={pitch}
+									onChangeText={setPitch}
+									placeholder="Tell the brand why you'd love this product and how you'll promote it..."
+									placeholderTextColor={colors.textTertiary}
+									multiline
+									numberOfLines={4}
+									style={ms.textArea}
+									textAlignVertical="top"
+								/>
+								<Text
+									style={[
+										ms.charCount,
+										{
+											color: pitch.length >= 20 ? accent : colors.textTertiary,
+										},
+									]}
+								>
+									{pitch.length}/20
+								</Text>
+							</View>
+						)}
+
+						{/* Step 2: Confirm */}
+						{step === 2 && (
+							<View style={ms.confirmContainer}>
+								<Pressable
+									onPress={() => setCheckGuidelines(!checkGuidelines)}
+									style={[
+										ms.checkCard,
+										{
+											borderColor: checkGuidelines
+												? `${accent}66`
+												: colors.border,
+											backgroundColor: checkGuidelines
+												? `${accent}18`
+												: colors.bgCard,
+										},
+									]}
+								>
+									<View
+										style={[
+											ms.checkbox,
+											{
+												borderColor: checkGuidelines
+													? accent
+													: colors.textTertiary,
+												backgroundColor: checkGuidelines
+													? accent
+													: "transparent",
+											},
+										]}
+									>
+										{checkGuidelines && <CheckSmallIcon />}
+									</View>
+									<Text style={ms.checkText}>
+										I'll create the required deliverables ({product.deliverable}
+										) and follow the brand's content guidelines.
+									</Text>
+								</Pressable>
+
+								<Pressable
+									onPress={() => setCheckDeadline(!checkDeadline)}
+									style={[
+										ms.checkCard,
+										{
+											borderColor: checkDeadline
+												? `${accent}66`
+												: colors.border,
+											backgroundColor: checkDeadline
+												? `${accent}18`
+												: colors.bgCard,
+										},
+									]}
+								>
+									<View
+										style={[
+											ms.checkbox,
+											{
+												borderColor: checkDeadline
+													? accent
+													: colors.textTertiary,
+												backgroundColor: checkDeadline ? accent : "transparent",
+											},
+										]}
+									>
+										{checkDeadline && <CheckSmallIcon />}
+									</View>
+									<Text style={ms.checkText}>
+										I understand the deadline is {product.deadline} and the
+										content must stay live for 30 days.
+									</Text>
+								</Pressable>
+							</View>
+						)}
+
+						{/* Navigation buttons */}
+						<View style={ms.navRow}>
+							{step > 0 && (
+								<Pressable
+									onPress={() => setStep(step - 1)}
+									style={ms.backStepBtn}
+								>
+									<Text style={ms.backStepBtnText}>Back</Text>
+								</Pressable>
+							)}
+							<Pressable
+								onPress={handleNext}
+								disabled={!canNext}
+								style={[
+									ms.nextBtn,
+									{
+										backgroundColor: canNext
+											? accent
+											: "rgba(255,255,255,0.06)",
+										flex: 1,
+									},
+								]}
+							>
+								<Text
+									style={[
+										ms.nextBtnText,
+										{ color: canNext ? "#0a0a0c" : colors.textTertiary },
+									]}
+								>
+									{step === 2 ? "Submit application" : "Continue"}
+								</Text>
+							</Pressable>
+						</View>
+					</>
+				)}
+			</BottomSheetScrollView>
+		</BottomSheetModal>
+	);
+}
+
 // ── Main Page ────────────────────────────────────────────────────────
 export default function BarterDetailPage() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const product = PRODUCTS.find((x) => x.id === id) || PRODUCTS[0];
 	const [applied, setApplied] = useState(false);
+	const applySheetRef = useRef<BottomSheetModal>(null);
+	const { user } = useAuth();
+
+	const creatorProfile = useQuery(
+		api.creators.getByUserId,
+		user?.id ? { userId: user.id } : "skip",
+	);
+
+	const platformOpts: PlatformOpt[] = (creatorProfile?.platforms ?? []).map(
+		(p) => ({ name: p.name, handle: p.handle, followers: p.followers }),
+	);
 
 	return (
 		<View style={{ flex: 1, backgroundColor: C.bg }}>
@@ -555,7 +1033,14 @@ export default function BarterDetailPage() {
 			<StickyApply
 				p={product}
 				applied={applied}
-				onApply={() => setApplied(true)}
+				onApply={() => applySheetRef.current?.present()}
+			/>
+			<ApplyModal
+				sheetRef={applySheetRef}
+				product={product}
+				platformOpts={platformOpts}
+				onDismiss={() => {}}
+				onApplied={() => setApplied(true)}
 			/>
 		</View>
 	);
@@ -639,7 +1124,6 @@ const s = StyleSheet.create({
 		fontWeight: "300",
 		lineHeight: 30,
 	},
-	// brand row
 	brandRow: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -686,7 +1170,6 @@ const s = StyleSheet.create({
 		color: "#FBBF24",
 		opacity: 0.6,
 	},
-	// title
 	title: {
 		fontSize: 24,
 		fontWeight: "700",
@@ -701,7 +1184,6 @@ const s = StyleSheet.create({
 		lineHeight: 20,
 		marginTop: 4,
 	},
-	// price card
 	priceCard: {
 		marginTop: 16,
 		flexDirection: "row",
@@ -748,7 +1230,6 @@ const s = StyleSheet.create({
 		fontWeight: "600",
 		opacity: 0.85,
 	},
-	// sections
 	sectionHead: {
 		fontSize: 13,
 		fontWeight: "700",
@@ -762,7 +1243,6 @@ const s = StyleSheet.create({
 		color: "#D1D5DB",
 		marginTop: 10,
 	},
-	// stats
 	statsRow: {
 		flexDirection: "row",
 		gap: 8,
@@ -791,7 +1271,6 @@ const s = StyleSheet.create({
 		marginTop: 4,
 		letterSpacing: -0.2,
 	},
-	// perks
 	perksCard: {
 		marginTop: 10,
 		backgroundColor: "#0f0f12",
@@ -825,7 +1304,6 @@ const s = StyleSheet.create({
 		lineHeight: 18,
 		flex: 1,
 	},
-	// availability
 	availCard: {
 		marginTop: 10,
 		padding: 14,
@@ -885,7 +1363,6 @@ const s = StyleSheet.create({
 		fontSize: 11.5,
 		color: "#9CA3AF",
 	},
-	// similar
 	similarCard: {
 		width: 130,
 		backgroundColor: "#0f0f12",
@@ -918,7 +1395,6 @@ const s = StyleSheet.create({
 		fontWeight: "600",
 		marginTop: 3,
 	},
-	// sticky CTA
 	stickyWrap: {
 		position: "absolute",
 		bottom: 0,
@@ -964,5 +1440,236 @@ const s = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: "700",
 		letterSpacing: -0.2,
+	},
+});
+
+// ── Modal Styles ─────────────────────────────────────────────────────
+const ms = StyleSheet.create({
+	sheetBg: {
+		backgroundColor: colors.bg,
+	},
+	handleIndicator: {
+		backgroundColor: "rgba(255,255,255,0.2)",
+		width: 36,
+	},
+	sheetContent: {
+		paddingHorizontal: 24,
+		paddingTop: 8,
+	},
+	dotsRow: {
+		flexDirection: "row",
+		justifyContent: "center",
+		gap: 6,
+		marginBottom: 16,
+	},
+	dot: {
+		height: 6,
+		borderRadius: 3,
+	},
+	stepLabel: {
+		fontSize: 11,
+		color: colors.textTertiary,
+		textTransform: "uppercase",
+		letterSpacing: 0.8,
+		marginBottom: 4,
+	},
+	stepTitle: {
+		fontSize: 20,
+		fontWeight: "600",
+		color: colors.text,
+		marginBottom: 20,
+	},
+	platformList: {
+		gap: 8,
+	},
+	platformCard: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+		padding: 14,
+		borderRadius: 12,
+		borderWidth: 1.5,
+	},
+	platformIconBox: {
+		width: 36,
+		height: 36,
+		borderRadius: 9,
+		backgroundColor: "rgba(255,255,255,0.06)",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	platformName: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: colors.text,
+	},
+	platformMeta: {
+		fontSize: 12,
+		color: colors.textTertiary,
+		marginTop: 1,
+	},
+	radioOuter: {
+		width: 20,
+		height: 20,
+		borderRadius: 10,
+		borderWidth: 2,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	pitchContainer: {
+		gap: 0,
+	},
+	inputLabel: {
+		fontSize: 13,
+		color: colors.textSecondary,
+		marginBottom: 6,
+	},
+	textArea: {
+		backgroundColor: colors.bgCard,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 12,
+		padding: 14,
+		fontSize: 14,
+		color: colors.text,
+		minHeight: 100,
+		lineHeight: 21,
+	},
+	charCount: {
+		fontSize: 11,
+		textAlign: "right",
+		marginTop: 4,
+	},
+	confirmContainer: {
+		gap: 10,
+	},
+	checkCard: {
+		flexDirection: "row",
+		alignItems: "flex-start",
+		gap: 12,
+		padding: 14,
+		borderRadius: 12,
+		borderWidth: 1,
+	},
+	checkbox: {
+		width: 22,
+		height: 22,
+		borderRadius: 6,
+		borderWidth: 1.5,
+		alignItems: "center",
+		justifyContent: "center",
+		marginTop: 1,
+	},
+	checkText: {
+		flex: 1,
+		fontSize: 13,
+		color: colors.textSecondary,
+		lineHeight: 20,
+	},
+	navRow: {
+		flexDirection: "row",
+		gap: 10,
+		marginTop: 24,
+	},
+	backStepBtn: {
+		flex: 1,
+		paddingVertical: 14,
+		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: colors.border,
+		alignItems: "center",
+	},
+	backStepBtnText: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: colors.textSecondary,
+	},
+	nextBtn: {
+		paddingVertical: 14,
+		borderRadius: 12,
+		alignItems: "center",
+	},
+	nextBtnText: {
+		fontSize: 14,
+		fontWeight: "600",
+	},
+	successRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 14,
+		marginBottom: 20,
+	},
+	successIcon: {
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	successTitle: {
+		fontSize: 20,
+		fontWeight: "600",
+		color: colors.text,
+	},
+	successSub: {
+		fontSize: 13,
+		color: colors.textTertiary,
+		lineHeight: 20,
+		marginTop: 4,
+	},
+	summaryRow: {
+		flexDirection: "row",
+		gap: 8,
+		marginBottom: 20,
+	},
+	summaryCard: {
+		flex: 1,
+		backgroundColor: colors.bgCard,
+		borderWidth: 1,
+		borderColor: colors.border,
+		borderRadius: 10,
+		padding: 10,
+		alignItems: "center",
+	},
+	summaryLabel: {
+		fontSize: 10,
+		color: colors.textTertiary,
+		textTransform: "uppercase",
+		letterSpacing: 0.4,
+		marginBottom: 2,
+	},
+	summaryValue: {
+		fontSize: 13,
+		fontWeight: "600",
+		color: colors.text,
+	},
+	successActions: {
+		flexDirection: "row",
+		gap: 10,
+	},
+	doneBtn: {
+		flex: 1,
+		paddingVertical: 14,
+		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: colors.border,
+		backgroundColor: colors.bgCard,
+		alignItems: "center",
+	},
+	doneBtnText: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: colors.textSecondary,
+	},
+	viewAppsBtn: {
+		flex: 1,
+		paddingVertical: 14,
+		borderRadius: 12,
+		alignItems: "center",
+	},
+	viewAppsBtnText: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: "#0a0a0c",
 	},
 });

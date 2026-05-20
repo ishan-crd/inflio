@@ -1,9 +1,9 @@
+import { api } from "convex/_generated/api";
 import { useConvex } from "convex/react";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useAuth } from "~/providers/auth";
-import { api } from "../../convex/_generated/api";
 
 export default function IndexScreen() {
 	const { user, loading } = useAuth();
