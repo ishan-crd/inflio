@@ -75,7 +75,13 @@ const creatorSteps = [
 	{ k: "03", t: "Get paid instantly", d: "Earnings accumulate in real time. Withdraw to your bank or UPI whenever you want." },
 ];
 
-const testimonials = [
+const brandSteps = [
+	{ k: "01", t: "Create a campaign", d: "Set your brief, target platform, CPM rate, and budget. Your campaign goes live to thousands of creators in minutes." },
+	{ k: "02", t: "Review & approve", d: "Creators apply with their pitch. Review profiles, approve the best fits, and track submitted content before it goes public." },
+	{ k: "03", t: "Pay only for results", d: "We track verified views in real time. You only spend when content actually performs \u2014 no upfront fees, no wasted budget." },
+];
+
+const creatorTestimonials = [
 	{
 		q: "\u201CI posted one reel for a Zomato campaign and made \u20B922,000 in ten days. With Inflio I finally get paid what my audience is actually worth.\u201D",
 		a: "Aanya V.",
@@ -90,6 +96,24 @@ const testimonials = [
 		q: "\u201CWithdrew \u20B945,000 in my first month. The UPI payout is instant \u2014 feels like getting paid by the hour.\u201D",
 		a: "Priya K.",
 		r: "Beauty creator \u00b7 2.1M followers",
+	},
+];
+
+const brandTestimonials = [
+	{
+		q: "\u201CWe ran a campaign with 15 creators and only paid for actual views. Our cost per acquisition dropped 40% compared to traditional influencer deals.\u201D",
+		a: "Vikram S.",
+		r: "Head of Marketing \u00b7 D2C skincare brand",
+	},
+	{
+		q: "\u201CThe dashboard lets me see exactly which creators are driving results. No more guessing if our influencer spend is working.\u201D",
+		a: "Sneha R.",
+		r: "Brand Manager \u00b7 Consumer electronics",
+	},
+	{
+		q: "\u201CWe launched a campaign at 9 AM and had 50 creator applications by lunch. The quality of creators on Inflio is genuinely impressive.\u201D",
+		a: "Arjun P.",
+		r: "Founder \u00b7 Food delivery startup",
 	},
 ];
 
@@ -316,8 +340,7 @@ function BrandMarquee() {
 /* ─────────────────────────────────────────
    Value Props
 ───────────────────────────────────────── */
-function ValueProps() {
-	const [tab, setTab] = useState<"creators" | "brands">("creators");
+function ValueProps({ tab, setTab }: { tab: "creators" | "brands"; setTab: (t: "creators" | "brands") => void }) {
 	const props = tab === "creators" ? creatorValueProps : brandValueProps;
 
 	return (
@@ -415,7 +438,8 @@ function ValueProps() {
 /* ─────────────────────────────────────────
    How It Works
 ───────────────────────────────────────── */
-function HowItWorks() {
+function HowItWorks({ tab }: { tab: "creators" | "brands" }) {
+	const steps = tab === "creators" ? creatorSteps : brandSteps;
 	return (
 		<section style={{ paddingTop: 60, paddingBottom: 120 }}>
 			<div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
@@ -423,7 +447,7 @@ function HowItWorks() {
 					<div>
 						<span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: 8, color: "var(--text-3)" }}>
 							<span style={{ width: 24, height: 1, background: "var(--text-4)" }} />
-							How it works
+							How it works {tab === "creators" ? "for creators" : "for brands"}
 						</span>
 						<h2
 							style={{
@@ -436,16 +460,19 @@ function HowItWorks() {
 								fontSize: "clamp(36px, 4.5vw, 56px)",
 							}}
 						>
-							A <em style={{ color: "var(--accent)" }}>simple</em> model,
-							<br />
-							wired to <em style={{ color: "var(--accent)" }}>real</em> results.
+							{tab === "creators" ? (
+								<>A <em style={{ color: "var(--accent)" }}>simple</em> model,<br />wired to <em style={{ color: "var(--accent)" }}>real</em> results.</>
+							) : (
+								<>Launch campaigns.<br /><em style={{ color: "var(--accent)" }}>Pay per view.</em></>
+							)}
 						</h2>
 						<p style={{ fontSize: 15, lineHeight: 1.625, maxWidth: 480, color: "var(--text-2)" }}>
-							Brands post campaigns, creators apply, content earns views, and everyone gets paid.
-							The entire flow takes under 10 minutes.
+							{tab === "creators"
+								? "Brands post campaigns, creators apply, content earns views, and everyone gets paid. The entire flow takes under 10 minutes."
+								: "Post a campaign, set your CPM rate, and let creators come to you. Approve content, track views, and only pay for real results."}
 						</p>
 						<div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 14 }}>
-							{creatorSteps.map((s) => (
+							{steps.map((s) => (
 								<div
 									key={s.k}
 									style={{
@@ -540,7 +567,8 @@ function HowItWorks() {
 /* ─────────────────────────────────────────
    Testimonials
 ───────────────────────────────────────── */
-function Testimonials() {
+function Testimonials({ tab }: { tab: "creators" | "brands" }) {
+	const testimonials = tab === "creators" ? creatorTestimonials : brandTestimonials;
 	return (
 		<section style={{ padding: "80px 0", borderTop: "1px solid var(--border-soft)", borderBottom: "1px solid var(--border-soft)" }}>
 			<div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
@@ -766,15 +794,16 @@ function Footer() {
    Page root
 ───────────────────────────────────────── */
 export default function LandingPage() {
+	const [tab, setTab] = useState<"creators" | "brands">("creators");
 	return (
 		<div className="page-enter">
 			<SharedNav />
 			<Hero />
 			<StatsRibbon />
 			<BrandMarquee />
-			<ValueProps />
-			<HowItWorks />
-			<Testimonials />
+			<ValueProps tab={tab} setTab={setTab} />
+			<HowItWorks tab={tab} />
+			<Testimonials tab={tab} />
 			<FAQ />
 			<FinalCTA />
 			<Footer />
