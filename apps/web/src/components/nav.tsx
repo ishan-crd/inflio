@@ -458,19 +458,7 @@ function LoggedInNav({
 
 					<div className="nav-cta">
 						<ThemeToggle />
-						{role === "brand" && (
-							<Link
-								href="/campaigns/create"
-								className="btn btn-primary"
-								style={{
-									fontSize: 13,
-									padding: "8px 16px",
-									textDecoration: "none",
-								}}
-							>
-								+ Create Campaign
-							</Link>
-						)}
+						{/* Create Campaign button commented out */}
 						<button className="btn btn-ghost" aria-label="Notifications">
 							<BellIcon />
 						</button>

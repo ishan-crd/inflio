@@ -23,9 +23,12 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-	title: "Inflio — Performance pay for the creator economy",
+	title: "Inflio",
 	description:
 		"The marketplace where brands post campaigns and creators get paid by the view.",
+	icons: {
+		icon: "/favicon.svg",
+	},
 };
 
 export default function RootLayout({
