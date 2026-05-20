@@ -774,7 +774,7 @@ function Step3({
 
 			<div className="field">
 				<label className="field-label">Total campaign budget</label>
-				<div className="cc-input-prefix" style={errors.includes("budget") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}>
+				<div className="cc-input-prefix" style={errors.includes("budget") || errors.includes("budget_min") || errors.includes("budget_gt_cpm") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}>
 					<span className="prefix">{data.currency}</span>
 					<input
 						type="text"
@@ -787,11 +787,13 @@ function Step3({
 					/>
 				</div>
 				<FieldError show={errors.includes("budget")} message="Enter a campaign budget" />
+				<FieldError show={errors.includes("budget_min")} message="Budget must be at least ₹1,000" />
+				<FieldError show={errors.includes("budget_gt_cpm")} message="Budget must be greater than CPM rate" />
 			</div>
 
 			<div className="field">
 				<label className="field-label">CPM rate (per 1k views)</label>
-				<div className="cc-input-prefix" style={errors.includes("rate") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}>
+				<div className="cc-input-prefix" style={errors.includes("rate") || errors.includes("rate_max") || errors.includes("rate_min") ? { borderColor: "rgba(251,113,133,0.5)" } : undefined}>
 					<span className="prefix">{data.currency}</span>
 					<input
 						type="text"
@@ -804,6 +806,8 @@ function Step3({
 					/>
 				</div>
 				<FieldError show={errors.includes("rate")} message="Set a CPM rate" />
+				<FieldError show={errors.includes("rate_max")} message="CPM rate cannot exceed ₹500" />
+				<FieldError show={errors.includes("rate_min")} message="CPM rate must be at least ₹1" />
 			</div>
 
 			<div className="field">
@@ -1304,8 +1308,14 @@ function CreateCampaignInner() {
 		} else if (step === 1) {
 			if (!data.platform) e.push("platform");
 		} else if (step === 2) {
+			const budgetNum = parseInt(data.budget) || 0;
+			const rateNum = parseInt(data.rate) || 0;
 			if (!data.budget.trim()) e.push("budget");
+			else if (budgetNum < 1000) e.push("budget_min");
 			if (!data.rate.trim()) e.push("rate");
+			else if (rateNum > 500) e.push("rate_max");
+			else if (rateNum < 1) e.push("rate_min");
+			if (budgetNum > 0 && rateNum > 0 && budgetNum <= rateNum) e.push("budget_gt_cpm");
 		} else if (step === 3) {
 			if (!data.totalSpots.trim()) e.push("totalSpots");
 			if (!data.deadline) e.push("deadline");
