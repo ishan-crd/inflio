@@ -262,7 +262,7 @@ function Hero() {
 						))}
 					</div>
 					<span>
-						<span style={{ fontWeight: 500, color: "var(--text-2)" }}>12,400+ creators</span> &middot; zero upfront cost
+						<span style={{ fontWeight: 500, color: "var(--text-2)" }}>Many creators</span> &middot; zero upfront cost
 					</span>
 				</div>
 			</div>
@@ -659,7 +659,7 @@ function FinalCTA() {
 					Your content. <em style={{ color: "var(--accent)" }}>Your paycheck.</em>
 				</h2>
 				<p style={{ fontSize: 16, maxWidth: 520, margin: "0 auto 36px", color: "var(--text-2)" }}>
-					Join 12,400+ creators already earning with Inflio. Free to join. No contracts. Start today.
+					Join creators already earning with Inflio. Free to join. No contracts. Start today.
 				</p>
 				<div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
 					<Link

@@ -53,13 +53,14 @@ function CHero({
 					<span className="eyebrow-dot">
 						<span className="eyebrow-pulse" />
 					</span>
-					12,400 verified creators · 47 niches · 9 cities
+					Verified creators · 47 niches · 20 cities
 				</div>
 
 				{/* Headline */}
 				<h1>
-					Find the creator your brand{" "}
-					<span className="accent">actually fits.</span>
+					Find the right creator
+					<br />
+					<span className="accent">for your brand.</span>
 				</h1>
 
 				{/* Subtitle */}
@@ -80,20 +81,7 @@ function CHero({
 					<span className="kbd">⌘K</span>
 				</div>
 
-				{/* Tier stats */}
-				<div className="tier-stats">
-					{[
-						{ num: "12,400+", label: "verified creators" },
-						{ num: "8.4%", label: "avg engagement" },
-						{ num: "2,100+", label: "available now" },
-						{ num: "₹620", label: "/1k top rate" },
-					].map((s) => (
-						<div key={s.label}>
-							<div className="stat-num">{s.num}</div>
-							<div className="stat-label">{s.label}</div>
-						</div>
-					))}
-				</div>
+				{/* Tier stats commented out — false stats */}
 			</div>
 		</section>
 	);

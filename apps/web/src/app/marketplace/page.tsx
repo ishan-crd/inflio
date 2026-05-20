@@ -72,8 +72,8 @@ function Dropdown({ trigger, children }: DropdownProps) {
 }
 
 // ─── PayoutRange ───────────────────────────────────────────────────────────
-const RANGE_MIN = 100;
-const RANGE_MAX = 600;
+const RANGE_MIN = 0;
+const RANGE_MAX = 300;
 
 interface PayoutRangeProps {
 	value: [number, number];
@@ -456,7 +456,7 @@ function Hero() {
 				{/* Subtitle */}
 				<p>
 					Browse brand deals, apply in seconds, and earn automatically as your
-					content gets views. No negotiations, no invoices.
+					content gets views.
 				</p>
 
 				{/* Search bar */}
@@ -613,7 +613,7 @@ export default function MarketplacePage() {
 					<div>
 						<h3>Ready to monetise your content?</h3>
 						<p>
-							Join 12,400+ creators already earning with inflio. Apply to
+							Join creators already earning with inflio. Apply to
 							campaigns in seconds and get paid automatically per thousand
 							views.
 						</p>

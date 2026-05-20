@@ -6,9 +6,18 @@ export const CATEGORIES = [
 	"Beauty",
 	"Food & Bev",
 	"Finance",
-	"Outdoor",
-	"Auto",
 	"Lifestyle",
+	"Travel",
+	"Fitness",
+	"Gaming",
+	"Education",
+	"Entertainment",
+	"Health",
+	"Auto",
+	"Home & Decor",
+	"Parenting",
+	"Pets",
+	"Sports",
 ];
 export const SORTS = ["Trending", "Highest paying", "Newest", "Ending soon"];
 
