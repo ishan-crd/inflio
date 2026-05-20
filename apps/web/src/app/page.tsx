@@ -94,9 +94,9 @@ const testimonials = [
 ];
 
 const fauxCampaigns = [
-	{ tag: "LIVE", title: "Summer Food Reel", company: "Zomato India \u00b7 Instagram", comp: "\u20B918 / 1k views", rot: -6, top: 30, z: 1, op: 0.55 },
-	{ tag: "NEW", title: "Glow-up Series", company: "Nykaa Beauty \u00b7 YouTube", comp: "\u20B924 / 1k views", rot: 3, top: 130, z: 2, op: 0.85 },
-	{ tag: "HOT", title: "Unbox the Beat", company: "boAt Lifestyle \u00b7 IG + YT", comp: "\u20B921 / 1k views", rot: -2, top: 250, z: 3, op: 1 },
+	{ tag: "LIVE", title: "Summer Food Reel", company: "Zomato India \u00b7 Instagram", comp: "\u20B950 / 1k views", rot: -6, top: 30, z: 1, op: 0.55 },
+	{ tag: "NEW", title: "Glow-up Series", company: "Nykaa Beauty \u00b7 YouTube", comp: "\u20B970 / 1k views", rot: 3, top: 130, z: 2, op: 0.85 },
+	{ tag: "HOT", title: "Unbox the Beat", company: "boAt Lifestyle \u00b7 IG + YT", comp: "\u20B965 / 1k views", rot: -2, top: 250, z: 3, op: 1 },
 ];
 
 const faqs = [

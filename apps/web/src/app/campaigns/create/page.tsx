@@ -55,7 +55,7 @@ const PLATFORMS = [
 	{ id: "X", label: "X (Twitter)", Icon: TTIcon },
 ];
 
-const COLORS = ["lime", "cyan", "violet", "amber", "rose"] as const;
+const COLORS = ["lime", "cyan", "violet", "amber", "rose", "sky", "emerald", "fuchsia", "orange", "teal"] as const;
 type ColorKey = (typeof COLORS)[number];
 
 const ACCENT_MAP: Record<
@@ -92,6 +92,36 @@ const ACCENT_MAP: Record<
 		chip: "rgba(251,113,133,0.12)",
 		glow: "rgba(251,113,133,0.15)",
 	},
+	sky: {
+		from: "#7dd3fc",
+		to: "#0284c7",
+		chip: "rgba(125,211,252,0.12)",
+		glow: "rgba(125,211,252,0.15)",
+	},
+	emerald: {
+		from: "#6ee7b7",
+		to: "#059669",
+		chip: "rgba(110,231,183,0.12)",
+		glow: "rgba(110,231,183,0.15)",
+	},
+	fuchsia: {
+		from: "#e879f9",
+		to: "#c026d3",
+		chip: "rgba(232,121,249,0.12)",
+		glow: "rgba(232,121,249,0.15)",
+	},
+	orange: {
+		from: "#fb923c",
+		to: "#ea580c",
+		chip: "rgba(251,146,60,0.12)",
+		glow: "rgba(251,146,60,0.15)",
+	},
+	teal: {
+		from: "#2dd4bf",
+		to: "#0d9488",
+		chip: "rgba(45,212,191,0.12)",
+		glow: "rgba(45,212,191,0.15)",
+	},
 };
 
 const COLOR_DOT_BG: Record<ColorKey, string> = {
@@ -100,6 +130,11 @@ const COLOR_DOT_BG: Record<ColorKey, string> = {
 	violet: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
 	amber: "linear-gradient(135deg, #fbbf24, #f59e0b)",
 	rose: "linear-gradient(135deg, #fb7185, #e11d48)",
+	sky: "linear-gradient(135deg, #7dd3fc, #0284c7)",
+	emerald: "linear-gradient(135deg, #6ee7b7, #059669)",
+	fuchsia: "linear-gradient(135deg, #e879f9, #c026d3)",
+	orange: "linear-gradient(135deg, #fb923c, #ea580c)",
+	teal: "linear-gradient(135deg, #2dd4bf, #0d9488)",
 };
 
 const CURRENCIES = ["₹", "$", "€"];
@@ -698,7 +733,7 @@ function Step2({
 			)}
 
 			<div className="field-label" style={{ marginBottom: 10 }}>
-				Color theme
+				Colour theme
 			</div>
 			<div className="cc-colors">
 				{COLORS.map((c) => (
@@ -1113,7 +1148,7 @@ function Step6Review({
 		{ label: "Category", value: data.category || "—" },
 		{ label: "Platform", value: data.platform || "—" },
 		{ label: "Tags", value: data.tags.length ? data.tags.join(", ") : "—" },
-		{ label: "Color theme", value: data.color },
+		{ label: "Colour theme", value: data.color },
 		{
 			label: "Budget",
 			value: data.budget

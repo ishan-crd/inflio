@@ -55,6 +55,36 @@ export const ACCENT_MAP: Record<
 		chip: "#7dd3fc",
 		text: "#bae6fd",
 	},
+	cyan: {
+		from: "rgba(34, 211, 238, 0.22)",
+		to: "rgba(34, 211, 238, 0.04)",
+		chip: "#22d3ee",
+		text: "#a5f3fc",
+	},
+	emerald: {
+		from: "rgba(110, 231, 183, 0.22)",
+		to: "rgba(110, 231, 183, 0.04)",
+		chip: "#6ee7b7",
+		text: "#a7f3d0",
+	},
+	fuchsia: {
+		from: "rgba(232, 121, 249, 0.22)",
+		to: "rgba(232, 121, 249, 0.04)",
+		chip: "#e879f9",
+		text: "#f5d0fe",
+	},
+	orange: {
+		from: "rgba(251, 146, 60, 0.22)",
+		to: "rgba(251, 146, 60, 0.04)",
+		chip: "#fb923c",
+		text: "#fed7aa",
+	},
+	teal: {
+		from: "rgba(45, 212, 191, 0.22)",
+		to: "rgba(45, 212, 191, 0.04)",
+		chip: "#2dd4bf",
+		text: "#99f6e4",
+	},
 };
 
 // Creator filter constants
