@@ -273,34 +273,9 @@ function Hero() {
 /* ─────────────────────────────────────────
    Stats Ribbon
 ───────────────────────────────────────── */
+// Stats section commented out — false stats
 function StatsRibbon() {
-	return (
-		{/* Stats section commented out — false stats
-		<section style={{ padding: "40px 0" }}>
-			<div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
-				<div
-					style={{
-						display: "grid",
-						gridTemplateColumns: "repeat(4, 1fr)",
-						gap: 1,
-						borderRadius: 20,
-						overflow: "hidden",
-						background: "var(--border-soft)",
-						border: "1px solid var(--border-soft)",
-					}}
-				>
-					{stats.map((s, i) => (
-						<div key={i} style={{ padding: 32, background: "var(--surface)", position: "relative" }}>
-							<div style={{ fontFamily: "var(--font-instrument-serif), serif", fontSize: 56, lineHeight: 1, letterSpacing: "-0.02em" }}>{s.num}</div>
-							<div style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", marginTop: 8, color: "var(--text-3)" }}>{s.label}</div>
-							<div style={{ fontSize: 12, fontFamily: "var(--font-geist-mono), monospace", marginTop: 4, color: "var(--text-4)" }}>{s.sub}</div>
-						</div>
-					))}
-				</div>
-			</div>
-		</section>
-		*/}
-	);
+	return null;
 }
 
 /* ─────────────────────────────────────────

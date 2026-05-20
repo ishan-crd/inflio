@@ -448,8 +448,9 @@ function Hero() {
 
 				{/* Headline */}
 				<h1>
-					Get paid for every{" "}
-					<span className="accent">view your content earns.</span>
+					Browse campaigns.
+					<br />
+					<span className="accent">Apply and earn.</span>
 				</h1>
 
 				{/* Subtitle */}
@@ -468,34 +469,7 @@ function Hero() {
 					<span className="kbd">⌘K</span>
 				</div>
 
-				{/* Hero stats — commented out, false stats
-				<div className="hero-stats">
-					<div>
-						<div className="stat-num">
-							237 <span className="unit">live</span>
-						</div>
-						<div className="stat-label">Active campaigns</div>
-					</div>
-					<div>
-						<div className="stat-num">
-							₹520 <span className="unit">/1k</span>
-						</div>
-						<div className="stat-label">Highest CPM today</div>
-					</div>
-					<div>
-						<div className="stat-num">
-							48 <span className="unit">hrs</span>
-						</div>
-						<div className="stat-label">Avg. approval time</div>
-					</div>
-					<div>
-						<div className="stat-num">
-							12,400<span className="unit">+</span>
-						</div>
-						<div className="stat-label">Creators on platform</div>
-					</div>
-				</div>
-				*/}
+				{/* Hero stats commented out — false stats */}
 			</div>
 		</section>
 	);

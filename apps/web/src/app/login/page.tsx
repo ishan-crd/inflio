@@ -104,16 +104,7 @@ function AuthAside({ role }: { role: "creator" | "brand" }) {
 					))}
 				</div>
 
-				{/* Stats commented out — false stats
-				<div className="auth-aside-stats">
-					{stats.map((s) => (
-						<div className="auth-aside-stat" key={s.label}>
-							<div className="num">{s.num}</div>
-							<div className="label">{s.label}</div>
-						</div>
-					))}
-				</div>
-				*/}
+				{/* Stats commented out — false stats */}
 
 				{/* Testimonial */}
 				<div className="auth-aside-testimonial">
