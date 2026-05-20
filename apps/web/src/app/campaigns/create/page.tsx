@@ -1440,10 +1440,10 @@ function CreateCampaignInner() {
 		return (
 			<div className="cc-page">
 				<nav className="onboard-nav">
-					<div className="logo">
+					<Link href="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
 						<div className="logo-dot" />
 						Inflio
-					</div>
+					</Link>
 					<span />
 					<Link href="/dashboard/campaigns" className="skip">
 						Cancel
@@ -1473,10 +1473,10 @@ function CreateCampaignInner() {
 		return (
 			<div className="cc-page">
 				<nav className="onboard-nav">
-					<div className="logo">
+					<Link href="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
 						<div className="logo-dot" />
 						Inflio
-					</div>
+					</Link>
 					<span />
 					<Link href="/dashboard/campaigns" className="skip">
 						Back
@@ -1551,10 +1551,10 @@ function CreateCampaignInner() {
 		return (
 			<div className="cc-page">
 				<nav className="onboard-nav">
-					<div className="logo">
+					<Link href="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
 						<div className="logo-dot" />
 						Inflio
-					</div>
+					</Link>
 					<span />
 					<span />
 				</nav>
@@ -1632,10 +1632,13 @@ function CreateCampaignInner() {
 		<div className="cc-page">
 			{/* Nav */}
 			<nav className="onboard-nav">
-				<div className="logo">
+				<Link href="/" className="logo" style={{ textDecoration: "none", color: "inherit" }}>
 					<div className="logo-dot" />
 					Inflio
-				</div>
+				</Link>
+				<Link href="/" style={{ textDecoration: "none", color: "var(--color-ink-2)", fontSize: 13, fontWeight: 500 }}>
+					Home
+				</Link>
 				<span
 					className="step-count"
 					style={{

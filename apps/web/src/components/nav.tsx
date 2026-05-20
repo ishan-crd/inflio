@@ -421,11 +421,13 @@ function LoggedInNav({
 	const links =
 		role === "brand"
 			? [
+					{ href: "/", label: "Home" },
 					{ href: "/marketplace", label: "Campaigns" },
 					{ href: "/creators", label: "Creators" },
 					{ href: "/dashboard", label: "Dashboard" },
 				]
 			: [
+					{ href: "/", label: "Home" },
 					{ href: "/marketplace", label: "Campaigns" },
 					{ href: "/creators", label: "Creators" },
 					{ href: "/dashboard", label: "Dashboard" },
