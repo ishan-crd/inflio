@@ -1,9 +1,8 @@
 <div align="center">
 
-<img src="./.github/assets/logo.png" width="440" alt="Inflio" />
+<img src="./.github/assets/logo.png" width="120" alt="Inflio" />
 
-<br />
-<br />
+# Inflio
 
 **Where brands and creators do deals — campaigns, barter, and payouts in one place.**
 
