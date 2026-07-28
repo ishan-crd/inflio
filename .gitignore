@@ -39,3 +39,11 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Claude Code / agent tooling artifacts
+.agents/
+skills-lock.json
+.mcp.json
+
+# vestigial local SQLite auth db (auth now uses Postgres)
+apps/web/auth.db

@@ -12,6 +12,7 @@ import type * as applications from "../applications.js";
 import type * as brands from "../brands.js";
 import type * as campaigns from "../campaigns.js";
 import type * as creators from "../creators.js";
+import type * as crons from "../crons.js";
 import type * as lists from "../lists.js";
 import type * as seed from "../seed.js";
 import type * as submissions from "../submissions.js";
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   brands: typeof brands;
   campaigns: typeof campaigns;
   creators: typeof creators;
+  crons: typeof crons;
   lists: typeof lists;
   seed: typeof seed;
   submissions: typeof submissions;
