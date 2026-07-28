@@ -3160,6 +3160,13 @@ export default function CampaignDetailPage() {
 		userId ? { userId } : "skip",
 	);
 
+	// NOTE: all hooks must run before any conditional early-return below,
+	// otherwise the hook count changes between renders and React throws.
+	const [activeTab, setActiveTab] = useState(0);
+	const [showModal, setShowModal] = useState<
+		"apply" | "signin" | "brand-blocked" | null
+	>(null);
+
 	// Loading state
 	if (campaign === undefined) {
 		return (
@@ -3248,11 +3255,6 @@ export default function CampaignDetailPage() {
 			</div>
 		);
 	}
-
-	const [activeTab, setActiveTab] = useState(0);
-	const [showModal, setShowModal] = useState<
-		"apply" | "signin" | "brand-blocked" | null
-	>(null);
 
 	function handleApplyClick() {
 		if (session?.user) {

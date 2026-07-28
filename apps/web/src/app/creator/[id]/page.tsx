@@ -26,7 +26,7 @@ import {
 } from "@/components/icons";
 import { Nav as SharedNav } from "@/components/nav";
 import { fmtFollowers, fmtViews } from "@/data/constants";
-import { useSession } from "@/lib/auth-client";
+import { signIn, useSession } from "@/lib/auth-client";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
 
@@ -1551,11 +1551,13 @@ function CrumbCr() {
 function CreatorHero({
 	onInvite,
 	onAddToList,
+	onMessage,
 	isInList,
 	isBrand,
 }: {
 	onInvite: () => void;
 	onAddToList: () => void;
+	onMessage: () => void;
 	isInList: boolean;
 	isBrand: boolean;
 }) {
@@ -1722,6 +1724,7 @@ function CreatorHero({
 								<button
 									className="btn btn-glass"
 									style={{ flex: 1, justifyContent: "center" }}
+									onClick={onMessage}
 								>
 									Send message
 								</button>
@@ -1750,6 +1753,7 @@ function CreatorHero({
 								justifyContent: "center",
 								padding: "13px 20px",
 							}}
+							onClick={onMessage}
 						>
 							Send message
 						</button>
@@ -3067,6 +3071,175 @@ function FooterCr() {
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /*  PAGE                                                                      */
 /* ═══════════════════════════════════════════════════════════════════════════ */
+/* ─── MessageModal ─────────────────────────────────────────────────────────── */
+function MessageModal({
+	loggedIn,
+	isBrand,
+	creatorName,
+	responseTime,
+	onClose,
+}: {
+	loggedIn: boolean;
+	isBrand: boolean;
+	creatorName: string;
+	responseTime: string;
+	onClose: () => void;
+}) {
+	useEffect(() => {
+		function onKey(e: KeyboardEvent) {
+			if (e.key === "Escape") onClose();
+		}
+		document.addEventListener("keydown", onKey);
+		return () => document.removeEventListener("keydown", onKey);
+	}, [onClose]);
+
+	return (
+		<div
+			style={{
+				position: "fixed",
+				inset: 0,
+				zIndex: 100,
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center",
+			}}
+		>
+			<div
+				onClick={onClose}
+				style={{
+					position: "absolute",
+					inset: 0,
+					background: "rgba(0,0,0,0.65)",
+					backdropFilter: "blur(6px)",
+				}}
+			/>
+			<div
+				style={{
+					position: "relative",
+					width: 420,
+					maxWidth: "calc(100vw - 32px)",
+					background: "var(--color-bg-1)",
+					border: "1px solid var(--color-line-2)",
+					borderRadius: 16,
+					padding: 32,
+					textAlign: "center",
+				}}
+			>
+				<button
+					onClick={onClose}
+					style={{
+						position: "absolute",
+						top: 16,
+						right: 16,
+						width: 30,
+						height: 30,
+						borderRadius: 8,
+						border: "1px solid var(--color-line)",
+						background: "transparent",
+						color: "var(--color-ink-2)",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						cursor: "pointer",
+					}}
+					aria-label="Close"
+				>
+					<CloseIcon />
+				</button>
+
+				{!loggedIn ? (
+					<>
+						<h3 style={S.modalH3}>Sign in to message</h3>
+						<p
+							style={{
+								fontSize: 13.5,
+								color: "var(--color-ink-2)",
+								margin: "0 0 24px",
+								lineHeight: 1.6,
+							}}
+						>
+							Log in first to message{" "}
+							<strong style={{ color: "var(--color-ink-1)" }}>
+								{creatorName}
+							</strong>
+							. It only takes a few seconds.
+						</p>
+						<button
+							onClick={() => {
+								signIn.social({
+									provider: "google",
+									callbackURL: window.location.pathname,
+								});
+							}}
+							className="btn btn-primary"
+							style={{ width: "100%", justifyContent: "center", padding: "12px 0" }}
+						>
+							Continue with Google
+						</button>
+						<p
+							style={{
+								fontSize: 12.5,
+								color: "var(--color-ink-2)",
+								margin: "16px 0 0",
+								lineHeight: 1.5,
+							}}
+						>
+							Don&apos;t have an account?{" "}
+							<Link
+								href="/login?mode=signup&role=brand"
+								style={{
+									color: "var(--color-accent-strong)",
+									textDecoration: "none",
+									fontWeight: 500,
+								}}
+							>
+								Create one
+							</Link>
+						</p>
+					</>
+				) : (
+					<>
+						<h3 style={S.modalH3}>Direct messaging is coming soon</h3>
+						<p
+							style={{
+								fontSize: 13.5,
+								color: "var(--color-ink-2)",
+								margin: "0 0 8px",
+								lineHeight: 1.6,
+							}}
+						>
+							In-app chat with{" "}
+							<strong style={{ color: "var(--color-ink-1)" }}>
+								{creatorName}
+							</strong>{" "}
+							is on the way. They typically respond in {responseTime}.
+						</p>
+						<p
+							style={{
+								fontSize: 13,
+								color: "var(--color-ink-3)",
+								margin: "0 0 24px",
+								lineHeight: 1.6,
+							}}
+						>
+							{isBrand
+								? "For now, invite them to a campaign to start collaborating."
+								: "For now, sign in as a brand to invite creators to your campaigns."}
+						</p>
+						<button
+							onClick={onClose}
+							className="btn btn-primary"
+							style={{ width: "100%", justifyContent: "center", padding: "12px 0" }}
+						>
+							Got it
+						</button>
+					</>
+				)}
+			</div>
+		</div>
+	);
+}
+
 export default function CreatorDetailPage() {
 	const params = useParams();
 	const id = params.id as string;
@@ -3095,6 +3268,7 @@ export default function CreatorDetailPage() {
 	const [tab, setTab] = useState<TabName>("About");
 	const [showInvite, setShowInvite] = useState(false);
 	const [showAddToList, setShowAddToList] = useState(false);
+	const [showMessage, setShowMessage] = useState(false);
 
 	/* Loading state */
 	if (base === undefined) {
@@ -3258,6 +3432,7 @@ export default function CreatorDetailPage() {
 						<CreatorHero
 							onInvite={() => setShowInvite(true)}
 							onAddToList={() => setShowAddToList(true)}
+							onMessage={() => setShowMessage(true)}
 							isInList={isInList}
 							isBrand={isBrand}
 						/>
@@ -3282,6 +3457,15 @@ export default function CreatorDetailPage() {
 						creatorId={id}
 						creatorName={creator.name}
 						onClose={() => setShowAddToList(false)}
+					/>
+				)}
+				{showMessage && (
+					<MessageModal
+						loggedIn={!!session?.user}
+						isBrand={isBrand}
+						creatorName={creator.name}
+						responseTime={creator.responseTime}
+						onClose={() => setShowMessage(false)}
 					/>
 				)}
 			</>
