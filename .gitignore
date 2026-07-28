@@ -47,3 +47,4 @@ skills-lock.json
 
 # vestigial local SQLite auth db (auth now uses Postgres)
 apps/web/auth.db
+.vercel
